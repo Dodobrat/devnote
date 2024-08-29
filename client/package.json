@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "bunx --bun vite",
     "build": "bunx --bun vite build",
-    "lint": "eslint .",
+    "lint": "bun eslint . --fix",
+    "lint:check": "bun eslint .",
+    "format": "bun prettier . --write",
+    "format:check": "bun prettier . --check",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -29,8 +32,11 @@
     "eslint": "9.9.1",
     "eslint-plugin-react-hooks": "5.1.0-rc.0",
     "eslint-plugin-react-refresh": "0.4.11",
+    "eslint-plugin-simple-import-sort": "12.1.1",
+    "eslint-plugin-unused-imports": "4.1.3",
     "globals": "15.9.0",
     "postcss": "8.4.41",
+    "prettier": "3.3.3",
     "tailwindcss": "3.4.10",
     "typescript": "5.5.4",
     "typescript-eslint": "8.3.0",
