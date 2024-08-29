@@ -1,4 +1,4 @@
-# .
+# `devnote`
 
 To install dependencies:
 
