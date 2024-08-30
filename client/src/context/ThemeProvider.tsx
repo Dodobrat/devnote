@@ -15,7 +15,7 @@ const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
 );
 
 export function ThemeProvider({ children }: React.PropsWithChildren) {
-  const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
+  const isDarkOS = useMediaQuery("(prefers-color-scheme: dark)");
   const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
     defaultValue: "system",
     localStorageKey: "devnote_theme",
@@ -26,12 +26,12 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
     root.classList.remove("light", "dark");
 
     if (ternaryDarkMode === "system") {
-      root.classList.add(prefersDark ? "dark" : "light");
+      root.classList.add(isDarkOS ? "dark" : "light");
       return;
     }
 
     root.classList.add(ternaryDarkMode);
-  }, [ternaryDarkMode, prefersDark]);
+  }, [ternaryDarkMode, isDarkOS]);
 
   const value: ThemeProviderState = {
     theme: ternaryDarkMode,

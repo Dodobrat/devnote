@@ -15,7 +15,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function Root() {
   return (
-    <main>
+    <main className="flex min-h-dvh flex-col">
       <Outlet />
       <TanStackRouterDevtools />
     </main>

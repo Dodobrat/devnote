@@ -6,8 +6,8 @@ export const Route = createFileRoute("/notes")({
 
 function NotesLayout() {
   return (
-    <div>
-      <nav>OTHER NOTES</nav>
+    <div className="flex grow gap-4">
+      <ul></ul>
       <Outlet />
     </div>
   );
