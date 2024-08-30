@@ -1,63 +1,45 @@
-import { createContext, useContext, useEffect, useState } from "react";
-
-type Theme = "dark" | "light" | "system";
-
-type ThemeProviderProps = {
-  children: React.ReactNode;
-  defaultTheme?: Theme;
-  storageKey?: string;
-};
+import { createContext, useContext, useEffect } from "react";
+import {
+  TernaryDarkMode,
+  useMediaQuery,
+  useTernaryDarkMode,
+} from "usehooks-ts";
 
 type ThemeProviderState = {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
+  theme: TernaryDarkMode;
+  setTheme: (theme: TernaryDarkMode) => void;
 };
 
-const initialState: ThemeProviderState = {
-  theme: "system",
-  setTheme: () => null,
-};
+const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
+  undefined,
+);
 
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
-
-export function ThemeProvider({
-  children,
-  defaultTheme = "system",
-  storageKey = "devnote_theme",
-  ...props
-}: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
-  );
+export function ThemeProvider({ children }: React.PropsWithChildren) {
+  const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
+  const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
+    defaultValue: "system",
+    localStorageKey: "devnote_theme",
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
-
     root.classList.remove("light", "dark");
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light";
-
-      root.classList.add(systemTheme);
+    if (ternaryDarkMode === "system") {
+      root.classList.add(prefersDark ? "dark" : "light");
       return;
     }
 
-    root.classList.add(theme);
-  }, [theme]);
+    root.classList.add(ternaryDarkMode);
+  }, [ternaryDarkMode, prefersDark]);
 
-  const value = {
-    theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
-    },
+  const value: ThemeProviderState = {
+    theme: ternaryDarkMode,
+    setTheme: setTernaryDarkMode,
   };
 
   return (
-    <ThemeProviderContext.Provider {...props} value={value}>
+    <ThemeProviderContext.Provider value={value}>
       {children}
     </ThemeProviderContext.Provider>
   );
@@ -66,8 +48,9 @@ export function ThemeProvider({
 export function useTheme() {
   const context = useContext(ThemeProviderContext);
 
-  if (context === undefined)
+  if (!context) {
     throw new Error("useTheme must be used within a ThemeProvider");
+  }
 
   return context;
 }
