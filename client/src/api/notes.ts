@@ -1,43 +1,51 @@
+import { NoteSchemaType, PaginatedQuerySchemaType } from "~/types";
+
+import { instance } from "./axios";
+
 export const NotesApi = {
-  getPinnedPaginated: () => {
-    // get pinned saved notes paginated in a list
+  getPinnedPaginated(
+    queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
+  ) {
+    return instance.get("/notes/list/pinned", { params: queryParams });
   },
-  getOthersPaginated: () => {
-    // get saved notes paginated in a list
+  getOthersPaginated(
+    queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
+  ) {
+    return instance.get("/notes/list", { params: queryParams });
   },
-  getById: () => {
-    // get single note by id
+  getById(id: NoteSchemaType["id"]) {
     // if locked, require password
+    return instance.get("/notes/:id", { params: id });
   },
-  create: () => {
-    // create a new note
+  create() {
+    return instance.post("/notes");
   },
-  update: () => {
+  update() {
     // update specific fields of a note by id
   },
-  updatePinnedOrder: () => {
+  reorderPinned() {
     // after reordering the PINNED notes, send the note id, with the old and new index ( on FE, enter drag mode )
   },
-  updateOrder: () => {
+  reorder() {
     // after reordering the notes, send the note id, with the old and new index ( on FE, enter drag mode )
   },
-  findWord: () => {
-    // search for a word in the note title or the note body
+  search() {
+    // search for a word, creation date, update date, tag in the note title or the note body
   },
-  delete: () => {
+  delete() {
     // delete a note forever ( ask for password on locked notes )
   },
-  protect: () => {
+  protect() {
     // encrypt a note with a password ( encrypt with the password locally and send the note encrypted )
     // DON'T store passwords
   },
-  expose: () => {
+  expose() {
     // decrypt a note and override existing encrypted note with decrypted text
   },
-  pin: () => {
+  pin() {
     // pin the note and bring it to the top
   },
-  unPin: () => {
+  unPin() {
     // unpin the note and bring it to the top of the other notes
   },
 };

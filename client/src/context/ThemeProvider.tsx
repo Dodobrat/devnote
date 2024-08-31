@@ -5,6 +5,8 @@ import {
   useTernaryDarkMode,
 } from "usehooks-ts";
 
+import { THEME_STORAGE_KEY } from "~/constants";
+
 type ThemeProviderState = {
   theme: TernaryDarkMode;
   setTheme: (theme: TernaryDarkMode) => void;
@@ -18,7 +20,7 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
   const isDarkOS = useMediaQuery("(prefers-color-scheme: dark)");
   const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
     defaultValue: "system",
-    localStorageKey: "devnote_theme",
+    localStorageKey: THEME_STORAGE_KEY,
   });
 
   useEffect(() => {
