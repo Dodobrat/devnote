@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-import { paginatedQuerySchema, positiveIntSchema } from "~/types";
+import { intSchema, paginatedQuerySchema } from "~/types";
 
 import { NotesMockApi } from "./mockApi";
 
@@ -12,7 +12,7 @@ const notesHandlers = [
     const result = paginatedQuerySchema.safeParse(parsedSearchParams);
 
     if (!result.success) {
-      return HttpResponse.json({ error: result.error });
+      return HttpResponse.json({ error: result.error }, { status: 400 });
     }
 
     const response = await NotesMockApi.getPinnedPaginated(result.data);
@@ -26,7 +26,7 @@ const notesHandlers = [
     const result = paginatedQuerySchema.safeParse(parsedSearchParams);
 
     if (!result.success) {
-      return HttpResponse.json({ error: result.error });
+      return HttpResponse.json({ error: result.error }, { status: 400 });
     }
 
     const response = await NotesMockApi.getOthersPaginated(result.data);
@@ -36,10 +36,10 @@ const notesHandlers = [
   http.get("/notes/:id", async ({ params }) => {
     const { id } = params;
 
-    const result = positiveIntSchema.safeParse(id);
+    const result = intSchema.safeParse(id);
 
     if (!result.success) {
-      return HttpResponse.json({ error: result.error });
+      return HttpResponse.json({ error: result.error }, { status: 400 });
     }
 
     const response = await NotesMockApi.getById(result.data);
@@ -49,9 +49,6 @@ const notesHandlers = [
   http.post("/notes", async () => {
     const response = await NotesMockApi.create();
     return HttpResponse.json(response);
-  }),
-  http.delete("/notes/:id", ({ params }) => {
-    console.log(`Captured a "DELETE /posts/${params.id}" request`);
   }),
 ];
 

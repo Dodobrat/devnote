@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-export const positiveIntSchema = z.number().int().positive();
+export const intSchema = z.coerce.number().int();
 
 export const noteSchema = z.object({
-  id: positiveIntSchema,
+  id: intSchema.positive(),
   createdAt: z.date({ coerce: true }),
   updatedAt: z.date({ coerce: true }).nullable(),
   previewTitle: z.string().min(1).max(50),
-  order: positiveIntSchema,
+  order: intSchema,
   isPinned: z.boolean(),
   isProtected: z.boolean(),
   note: z.string(),
@@ -18,9 +18,9 @@ export type NoteSchemaType = z.infer<typeof noteSchema>;
 
 export const paginationMetaSchema = z.object({
   hasMore: z.boolean(),
-  count: positiveIntSchema,
-  cursor: positiveIntSchema,
-  slice: positiveIntSchema,
+  count: intSchema,
+  cursor: intSchema,
+  slice: intSchema.positive(),
 });
 
 export const paginatedNotesSchema = z.object({
@@ -28,10 +28,9 @@ export const paginatedNotesSchema = z.object({
   meta: paginationMetaSchema,
 });
 
-export const paginatedQuerySchema = paginationMetaSchema.pick({
-  cursor: true,
-  slice: true,
-});
+export const paginatedQuerySchema = paginationMetaSchema
+  .pick({ cursor: true, slice: true })
+  .partial({ slice: true });
 
 export type PaginatedNotesSchemaType = z.infer<typeof paginatedNotesSchema>;
 export type PaginatedQuerySchemaType = z.infer<typeof paginatedQuerySchema>;

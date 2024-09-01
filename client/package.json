@@ -10,7 +10,8 @@
     "lint:check": "bun eslint .",
     "format": "bun prettier . --write",
     "format:check": "bun prettier . --check",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "monaco:migrate": "cp -R node_modules/monaco-editor public/monaco-editor"
   },
   "dependencies": {
     "@monaco-editor/react": "4.6.0",
@@ -23,6 +24,7 @@
     "clsx": "2.1.1",
     "cmdk": "1.0.0",
     "lucide-react": "0.436.0",
+    "markdown-to-jsx": "7.5.0",
     "monaco-editor": "0.51.0",
     "msw": "2.4.1",
     "next-themes": "0.3.0",
@@ -37,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.9.1",
+    "@tailwindcss/typography": "0.5.15",
     "@tanstack/eslint-plugin-query": "5.53.0",
     "@types/node": "22.5.1",
     "@types/react": "18.3.4",

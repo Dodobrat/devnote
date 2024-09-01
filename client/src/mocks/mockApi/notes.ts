@@ -6,14 +6,21 @@ import {
   PaginatedQuerySchemaType,
 } from "~/types";
 
+const DEFAULT_SLICE = 10;
+
 export const NotesMockApi = {
   async getPinnedPaginated(
-    queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
+    queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: DEFAULT_SLICE },
   ) {
     // TODO: validate request
     const response: PaginatedNotesSchemaType = {
       data: [],
-      meta: { hasMore: false, count: 0, ...queryParams },
+      meta: {
+        hasMore: false,
+        count: 0,
+        cursor: queryParams.cursor,
+        slice: queryParams.slice || DEFAULT_SLICE,
+      },
     };
 
     const stored = webStorage.getItem<NoteSchemaType[]>(
@@ -23,7 +30,10 @@ export const NotesMockApi = {
     if (!stored) return response;
 
     const count = stored.length;
-    const nextCursor = Math.min(queryParams.cursor + queryParams.slice, count);
+    const nextCursor = Math.min(
+      queryParams.cursor + (queryParams.slice || DEFAULT_SLICE),
+      count,
+    );
     const currentSlice = stored.slice(queryParams.cursor, nextCursor);
 
     response.data = currentSlice;
@@ -34,12 +44,17 @@ export const NotesMockApi = {
     return response;
   },
   async getOthersPaginated(
-    queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
+    queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: DEFAULT_SLICE },
   ) {
     // TODO: validate request
     const response: PaginatedNotesSchemaType = {
       data: [],
-      meta: { hasMore: false, count: 0, ...queryParams },
+      meta: {
+        hasMore: false,
+        count: 0,
+        cursor: queryParams.cursor,
+        slice: queryParams.slice || DEFAULT_SLICE,
+      },
     };
 
     const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
@@ -47,7 +62,10 @@ export const NotesMockApi = {
     if (!stored) return response;
 
     const count = stored.length;
-    const nextCursor = Math.min(queryParams.cursor + queryParams.slice, count);
+    const nextCursor = Math.min(
+      queryParams.cursor + (queryParams.slice || DEFAULT_SLICE),
+      count,
+    );
     const currentSlice = stored.slice(queryParams.cursor, nextCursor);
 
     response.data = currentSlice;
@@ -99,7 +117,7 @@ export const NotesMockApi = {
       order: 0,
     };
 
-    webStorage.setItem<NoteSchemaType[]>(NOTES_STORAGE_KEY, (oldNotes) => [
+    webStorage.setItem<NoteSchemaType[]>(NOTES_STORAGE_KEY, (oldNotes = []) => [
       newNote,
       ...oldNotes.map((x) => ({ ...x, order: x.order + 1 })),
     ]);

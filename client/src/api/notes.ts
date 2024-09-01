@@ -1,4 +1,8 @@
-import { NoteSchemaType, PaginatedQuerySchemaType } from "~/types";
+import {
+  NoteSchemaType,
+  PaginatedNotesSchemaType,
+  PaginatedQuerySchemaType,
+} from "~/types";
 
 import { instance } from "./axios";
 
@@ -6,19 +10,23 @@ export const NotesApi = {
   getPinnedPaginated(
     queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
   ) {
-    return instance.get("/notes/list/pinned", { params: queryParams });
+    return instance.get<PaginatedNotesSchemaType>("/notes/list/pinned", {
+      params: queryParams,
+    });
   },
   getOthersPaginated(
     queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
   ) {
-    return instance.get("/notes/list", { params: queryParams });
+    return instance.get<PaginatedNotesSchemaType>("/notes/list", {
+      params: queryParams,
+    });
   },
   getById(id: NoteSchemaType["id"]) {
     // if locked, require password
-    return instance.get("/notes/:id", { params: id });
+    return instance.get<NoteSchemaType>("/notes/:id", { params: id });
   },
   create() {
-    return instance.post("/notes");
+    return instance.post<void, NoteSchemaType>("/notes");
   },
   update() {
     // update specific fields of a note by id

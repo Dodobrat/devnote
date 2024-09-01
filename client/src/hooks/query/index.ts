@@ -1,1 +1,1 @@
-export * from "./usePinnedNotes";
+export * from "./notes";
