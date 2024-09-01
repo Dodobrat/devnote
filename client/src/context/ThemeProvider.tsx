@@ -1,43 +1,53 @@
-import { createContext, useContext, useEffect } from "react";
-import {
-  TernaryDarkMode,
-  useMediaQuery,
-  useTernaryDarkMode,
-} from "usehooks-ts";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import { THEME_STORAGE_KEY } from "~/constants";
 
+export enum ThemeMode {
+  Light = "light",
+  Dark = "dark",
+  System = "system",
+}
+
 type ThemeProviderState = {
-  theme: TernaryDarkMode;
-  setTheme: (theme: TernaryDarkMode) => void;
+  theme: ThemeMode;
+  setTheme: (theme: ThemeMode) => void;
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
   undefined,
 );
 
-export function ThemeProvider({ children }: React.PropsWithChildren) {
-  const isDarkOS = useMediaQuery("(prefers-color-scheme: dark)");
-  const { ternaryDarkMode, setTernaryDarkMode } = useTernaryDarkMode({
-    defaultValue: "system",
-    localStorageKey: THEME_STORAGE_KEY,
-  });
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<ThemeMode>(
+    () =>
+      (localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode) ||
+      ThemeMode.System,
+  );
 
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
 
-    if (ternaryDarkMode === "system") {
-      root.classList.add(isDarkOS ? "dark" : "light");
+    root.classList.remove(ThemeMode.Light, ThemeMode.Dark);
+
+    if (theme === ThemeMode.System) {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? ThemeMode.Dark
+        : ThemeMode.Light;
+
+      root.classList.add(systemTheme);
       return;
     }
 
-    root.classList.add(ternaryDarkMode);
-  }, [ternaryDarkMode, isDarkOS]);
+    root.classList.add(theme);
+  }, [theme]);
 
-  const value: ThemeProviderState = {
-    theme: ternaryDarkMode,
-    setTheme: setTernaryDarkMode,
+  const value = {
+    theme,
+    setTheme: (theme: ThemeMode) => {
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
+      setTheme(theme);
+    },
   };
 
   return (
@@ -50,9 +60,8 @@ export function ThemeProvider({ children }: React.PropsWithChildren) {
 export function useTheme() {
   const context = useContext(ThemeProviderContext);
 
-  if (!context) {
+  if (context === undefined)
     throw new Error("useTheme must be used within a ThemeProvider");
-  }
 
   return context;
 }

@@ -1,17 +1,36 @@
 import { useState } from "react";
+import { InView } from "react-intersection-observer";
+import { generatePath, NavLink } from "react-router-dom";
 import {
+  ArrowDownToLineIcon,
+  ArrowUpDownIcon,
+  ArrowUpToLineIcon,
   CalculatorIcon,
   CalendarIcon,
   CreditCardIcon,
+  EllipsisVerticalIcon,
+  FileIcon,
+  LaptopMinimalIcon,
+  LockIcon,
+  MenuIcon,
+  MoonIcon,
+  MoveDownIcon,
+  MoveUpIcon,
+  PanelLeftCloseIcon,
+  PinIcon,
   SearchIcon,
   SettingsIcon,
   SmileIcon,
+  SunIcon,
+  TrashIcon,
   UserIcon,
 } from "lucide-react";
 
 import {
   Button,
   Card,
+  CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
   CommandDialog,
@@ -24,38 +43,65 @@ import {
   CommandShortcut,
   DialogDescription,
   DialogTitle,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
   Tabs,
-  TabsContent,
   TabsList,
   TabsTrigger,
 } from "~/components/ui";
-import { usePinnedNotes, useRegularNotes } from "~/hooks/query";
+import { ThemeMode, useTheme } from "~/context";
+import { useNotes } from "~/hooks/query";
+import { cn, formatRelativeDateTime } from "~/lib/utils";
+import { AppRoutes } from "~/routes";
 
 export function Sidebar() {
   // TODO: mobile view
   return (
-    <Card className="overflow-auto lg:w-80">
-      <CardHeader className="relative space-y-0 p-4">
-        <CardTitle>DevNote</CardTitle>
-        <SearchNotes />
-      </CardHeader>
-      <Tabs defaultValue="pinned">
-        <TabsList className="mx-4 flex h-auto">
-          <TabsTrigger value="pinned" className="grow">
-            Pinned
-          </TabsTrigger>
-          <TabsTrigger value="regular" className="grow">
-            Others
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="pinned" className="mt-0">
-          <NotesList useFetcher={usePinnedNotes} />
-        </TabsContent>
-        <TabsContent value="regular" className="mt-0">
-          <NotesList useFetcher={useRegularNotes} />
-        </TabsContent>
-      </Tabs>
-    </Card>
+    <div className="h-screen p-4">
+      <Card className="isolate h-full w-80 overflow-hidden">
+        <div className="flex h-full flex-col overflow-auto overscroll-contain">
+          <CardHeader className="sticky top-0 z-10 space-y-0 bg-card/75 p-4 backdrop-blur-sm">
+            <CardTitle>DevNote</CardTitle>
+            <SearchNotes />
+          </CardHeader>
+
+          <CardContent className="grow p-0">
+            <NotesList />
+          </CardContent>
+
+          <CardFooter className="sticky bottom-0 z-10 justify-between space-y-0 bg-card/75 p-4 backdrop-blur-sm">
+            <Button size="icon">
+              <PanelLeftCloseIcon className="size-5" />
+            </Button>
+            <ThemeSwitch />
+          </CardFooter>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function ThemeSwitch() {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <Tabs value={theme} onValueChange={(v) => setTheme(v as ThemeMode)}>
+      <TabsList className="h-auto">
+        <TabsTrigger value={ThemeMode.Light} className="size-10 p-0">
+          <SunIcon className="size-5" />
+        </TabsTrigger>
+        <TabsTrigger value={ThemeMode.Dark} className="size-10 p-0">
+          <MoonIcon className="size-5" />
+        </TabsTrigger>
+        <TabsTrigger value={ThemeMode.System} className="size-10 p-0">
+          <LaptopMinimalIcon className="size-5" />
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
   );
 }
 
@@ -67,7 +113,7 @@ function SearchNotes() {
       <Button
         size="icon"
         variant="ghost"
-        className="absolute right-2 top-2 mt-0"
+        className="absolute right-2 top-2"
         onClick={() => setShowSearch(true)}
       >
         <SearchIcon />
@@ -83,32 +129,32 @@ function SearchNotes() {
           <CommandEmpty>No results found.</CommandEmpty>
           <CommandGroup heading="Suggestions">
             <CommandItem>
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <CalendarIcon className="mr-2 size-4" />
               <span>Calendar</span>
             </CommandItem>
             <CommandItem>
-              <SmileIcon className="mr-2 h-4 w-4" />
+              <SmileIcon className="mr-2 size-4" />
               <span>Search Emoji</span>
             </CommandItem>
             <CommandItem>
-              <CalculatorIcon className="mr-2 h-4 w-4" />
+              <CalculatorIcon className="mr-2 size-4" />
               <span>Calculator</span>
             </CommandItem>
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Settings">
             <CommandItem>
-              <UserIcon className="mr-2 h-4 w-4" />
+              <UserIcon className="mr-2 size-4" />
               <span>Profile</span>
               <CommandShortcut>⌘P</CommandShortcut>
             </CommandItem>
             <CommandItem>
-              <CreditCardIcon className="mr-2 h-4 w-4" />
+              <CreditCardIcon className="mr-2 size-4" />
               <span>Billing</span>
               <CommandShortcut>⌘B</CommandShortcut>
             </CommandItem>
             <CommandItem>
-              <SettingsIcon className="mr-2 h-4 w-4" />
+              <SettingsIcon className="mr-2 size-4" />
               <span>Settings</span>
               <CommandShortcut>⌘S</CommandShortcut>
             </CommandItem>
@@ -119,42 +165,114 @@ function SearchNotes() {
   );
 }
 
-function NotesList({
-  useFetcher,
-}: {
-  useFetcher: typeof usePinnedNotes | typeof useRegularNotes;
-}) {
-  const query = useFetcher();
+function NotesList() {
+  const notesQuery = useNotes();
 
-  if (query.isLoading) {
-    return <div>Loading for the first time</div>;
+  if (notesQuery.isLoading) {
+    return <div>Loading...</div>;
   }
 
-  if (!query.data?.pages?.[0]?.data?.data?.length) {
+  if (!notesQuery.data?.pages?.[0]?.data?.data?.length) {
     return <div>No data</div>;
   }
 
   return (
-    <ul>
-      {query.data?.pages?.map((page) => {
+    <div className="flex flex-col">
+      {notesQuery.data?.pages?.map((page) => {
         return page.data.data?.map((note) => {
           return (
-            <li key={note.id}>
-              {note.id}
-              {note.order}
-            </li>
+            <NavLink
+              key={note.id}
+              to={generatePath(AppRoutes.NoteById, { id: String(note.id) })}
+              className={({ isActive }) =>
+                cn([
+                  "flex items-center gap-2 p-2",
+                  isActive && "bg-secondary text-secondary-foreground",
+                ])
+              }
+            >
+              <Button size="icon" variant="ghost" className="shrink-0">
+                <FileIcon className="size-4" />
+              </Button>
+              <p className="grow truncate font-semibold">{note.previewTitle}</p>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost" className="shrink-0">
+                    <EllipsisVerticalIcon className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuLabel>
+                    <p>{note.previewTitle}</p>
+                    <p className="font-normal">
+                      Created:{" "}
+                      <time>
+                        {formatRelativeDateTime(new Date(note.createdAt))}
+                      </time>
+                    </p>
+                    {Boolean(note.updatedAt) && (
+                      <p className="font-normal">
+                        Updated:{" "}
+                        <time>
+                          {formatRelativeDateTime(new Date(note.updatedAt!))}
+                        </time>
+                      </p>
+                    )}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem>
+                    <PinIcon className="mr-2 size-4" />
+                    <span>Pin</span>
+                    {/* <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut> */}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <LockIcon className="mr-2 size-4" />
+                    <span>Protect</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <ArrowUpToLineIcon className="mr-2 size-4" />
+                    <span>Move to top</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <MoveUpIcon className="mr-2 size-4" />
+                    <span>Move up</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <ArrowUpDownIcon className="mr-2 size-4" />
+                    <span>Reorder</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <MoveDownIcon className="mr-2 size-4" />
+                    <span>Move down</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <ArrowDownToLineIcon className="mr-2 size-4" />
+                    <span>Move to bottom</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">
+                    <TrashIcon className="mr-2 size-4" />
+                    <span>Delete</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </NavLink>
           );
         });
       })}
-      <li>
-        {/* TODO: infinite scroll */}
-        <Button
-          onClick={() => query.fetchNextPage()}
-          disabled={!query.hasNextPage}
+
+      {notesQuery.hasNextPage && (
+        <InView
+          as="div"
+          onChange={(isInView) => {
+            if (isInView) {
+              notesQuery.fetchNextPage();
+            }
+          }}
         >
-          Load more
-        </Button>
-      </li>
-    </ul>
+          Loading more...
+        </InView>
+      )}
+    </div>
   );
 }

@@ -64,6 +64,10 @@
     @apply border-border;
   }
 
+  html[class="dark"] {
+    color-scheme: dark;
+  }
+
   body {
     @apply bg-background text-foreground;
   }

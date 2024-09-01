@@ -45,3 +45,20 @@ export const webStorage = {
     }
   },
 };
+
+export function formatRelativeDateTime(date: Date) {
+  const now = new Date();
+
+  if (date.toDateString() === now.toDateString()) {
+    return new Intl.DateTimeFormat(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}

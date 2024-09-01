@@ -9,41 +9,7 @@ import {
 const DEFAULT_SLICE = 25;
 
 export const NotesMockApi = {
-  async getPinnedPaginated(
-    queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: DEFAULT_SLICE },
-  ) {
-    // TODO: validate request
-    const response: PaginatedNotesSchemaType = {
-      data: [],
-      meta: {
-        hasMore: false,
-        count: 0,
-        cursor: queryParams.cursor,
-        slice: queryParams.slice || DEFAULT_SLICE,
-      },
-    };
-
-    const stored = webStorage.getItem<NoteSchemaType[]>(
-      PINNED_NOTES_STORAGE_KEY,
-    );
-
-    if (!stored) return response;
-
-    const count = stored.length;
-    const nextCursor = Math.min(
-      queryParams.cursor + (queryParams.slice || DEFAULT_SLICE),
-      count,
-    );
-    const currentSlice = stored.slice(queryParams.cursor, nextCursor);
-
-    response.data = currentSlice;
-    response.meta.hasMore = nextCursor < count;
-    response.meta.count = count;
-    response.meta.cursor = nextCursor;
-
-    return response;
-  },
-  async getOthersPaginated(
+  async getPaginated(
     queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: DEFAULT_SLICE },
   ) {
     // TODO: validate request

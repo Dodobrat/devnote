@@ -7,19 +7,8 @@ import {
 import { instance } from "./axios";
 
 export const NotesApi = {
-  getPinnedPaginated(
-    queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
-  ) {
-    return instance.get<PaginatedNotesSchemaType>("/notes/pinned/list", {
-      params: queryParams,
-    });
-  },
-  getOthersPaginated(
-    queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
-  ) {
-    return instance.get<PaginatedNotesSchemaType>("/notes/list", {
-      params: queryParams,
-    });
+  getPaginated(params: PaginatedQuerySchemaType = { cursor: 0, slice: 50 }) {
+    return instance.get<PaginatedNotesSchemaType>("/notes/list", { params });
   },
   getById(id: NoteSchemaType["id"]) {
     // if locked, require password

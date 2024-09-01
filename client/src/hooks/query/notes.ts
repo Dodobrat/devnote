@@ -5,32 +5,15 @@ import { NoteSchemaType } from "~/types";
 
 const notesQueryKeys = {
   all: () => ["notes"],
-  pinnedList: () => [...notesQueryKeys.all(), "pinned"],
-  regularList: () => [...notesQueryKeys.all(), "regular"],
+  list: () => [...notesQueryKeys.all(), "list"],
   byIdRoot: () => [...notesQueryKeys.all(), "byId"],
   byId: (id: NoteSchemaType["id"]) => [...notesQueryKeys.byIdRoot(), id],
 };
 
-export function usePinnedNotes() {
+export function useNotes() {
   return useInfiniteQuery({
-    queryKey: notesQueryKeys.pinnedList(),
-    queryFn: ({ pageParam }) => {
-      return NotesApi.getPinnedPaginated({ cursor: pageParam });
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => {
-      if (!lastPage.data?.meta?.hasMore) return undefined;
-      return lastPage.data.meta.cursor;
-    },
-  });
-}
-
-export function useRegularNotes() {
-  return useInfiniteQuery({
-    queryKey: notesQueryKeys.regularList(),
-    queryFn: ({ pageParam }) => {
-      return NotesApi.getOthersPaginated({ cursor: pageParam });
-    },
+    queryKey: notesQueryKeys.list(),
+    queryFn: ({ pageParam }) => NotesApi.getPaginated({ cursor: pageParam }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
       if (!lastPage.data?.meta?.hasMore) return undefined;

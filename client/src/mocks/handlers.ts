@@ -5,20 +5,6 @@ import { intSchema, paginatedQuerySchema } from "~/types";
 import { NotesMockApi } from "./mockApi";
 
 const notesHandlers = [
-  http.get("/notes/pinned/list", async ({ request }) => {
-    const searchParams = new URL(request.url).searchParams;
-    const parsedSearchParams = Object.fromEntries(searchParams.entries());
-
-    const result = paginatedQuerySchema.safeParse(parsedSearchParams);
-
-    if (!result.success) {
-      return HttpResponse.json({ error: result.error }, { status: 400 });
-    }
-
-    const response = await NotesMockApi.getPinnedPaginated(result.data);
-
-    return HttpResponse.json(response);
-  }),
   http.get("/notes/list", async ({ request }) => {
     const searchParams = new URL(request.url).searchParams;
     const parsedSearchParams = Object.fromEntries(searchParams.entries());
@@ -26,10 +12,13 @@ const notesHandlers = [
     const result = paginatedQuerySchema.safeParse(parsedSearchParams);
 
     if (!result.success) {
-      return HttpResponse.json({ error: result.error }, { status: 400 });
+      return HttpResponse.json(
+        { error: result.error.message },
+        { status: 400 },
+      );
     }
 
-    const response = await NotesMockApi.getOthersPaginated(result.data);
+    const response = await NotesMockApi.getPaginated(result.data);
 
     return HttpResponse.json(response);
   }),
@@ -39,7 +28,10 @@ const notesHandlers = [
     const result = intSchema.safeParse(id);
 
     if (!result.success) {
-      return HttpResponse.json({ error: result.error }, { status: 400 });
+      return HttpResponse.json(
+        { error: result.error.message },
+        { status: 400 },
+      );
     }
 
     const response = await NotesMockApi.getById(result.data);

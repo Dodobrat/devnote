@@ -4,7 +4,7 @@ import { Sidebar } from "./components";
 
 export function NotesLayout() {
   return (
-    <main className="gap flex h-screen overflow-hidden p-4">
+    <main className="flex h-screen overflow-auto">
       <Sidebar />
       <Outlet />
     </main>

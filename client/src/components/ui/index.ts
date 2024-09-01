@@ -3,6 +3,7 @@ export * from "./card";
 export * from "./command";
 export * from "./dialog";
 export * from "./drawer";
+export * from "./dropdown-menu";
 export * from "./input";
 export * from "./skeleton";
 export * from "./sonner";
