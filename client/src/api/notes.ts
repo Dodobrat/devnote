@@ -10,7 +10,7 @@ export const NotesApi = {
   getPinnedPaginated(
     queryParams: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
   ) {
-    return instance.get<PaginatedNotesSchemaType>("/notes/list/pinned", {
+    return instance.get<PaginatedNotesSchemaType>("/notes/pinned/list", {
       params: queryParams,
     });
   },
@@ -23,7 +23,7 @@ export const NotesApi = {
   },
   getById(id: NoteSchemaType["id"]) {
     // if locked, require password
-    return instance.get<NoteSchemaType>("/notes/:id", { params: id });
+    return instance.get<NoteSchemaType>(`/notes/${id}`);
   },
   create() {
     return instance.post<void, NoteSchemaType>("/notes");

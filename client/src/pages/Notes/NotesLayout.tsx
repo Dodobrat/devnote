@@ -1,10 +1,12 @@
 import { Outlet } from "react-router-dom";
 
+import { Sidebar } from "./components";
+
 export function NotesLayout() {
   return (
-    <div>
-      NotesLayout
+    <main className="gap flex h-screen overflow-hidden p-4">
+      <Sidebar />
       <Outlet />
-    </div>
+    </main>
   );
 }

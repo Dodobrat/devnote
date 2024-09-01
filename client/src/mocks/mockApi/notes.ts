@@ -6,7 +6,7 @@ import {
   PaginatedQuerySchemaType,
 } from "~/types";
 
-const DEFAULT_SLICE = 10;
+const DEFAULT_SLICE = 25;
 
 export const NotesMockApi = {
   async getPinnedPaginated(

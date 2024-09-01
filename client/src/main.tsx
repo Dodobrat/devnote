@@ -18,7 +18,7 @@ import { AppRoutes } from "./routes";
 import "./index.css";
 
 async function enableMocking() {
-  // when / if using real BE, return before import
+  // when or if using real BE, return before import
 
   const { worker } = await import("./mocks/browser");
 
@@ -26,11 +26,7 @@ async function enableMocking() {
 }
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 0,
-    },
-  },
+  defaultOptions: { queries: { retry: 0 } },
 });
 
 const router = createBrowserRouter(

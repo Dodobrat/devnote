@@ -38,6 +38,7 @@ export default tseslint.config(
         },
       ],
       "simple-import-sort/exports": "error",
+      "@typescript-eslint/no-unused-vars": "off",
       "no-unused-vars": "off",
       "no-duplicate-imports": "error",
       "unused-imports/no-unused-imports": "error",

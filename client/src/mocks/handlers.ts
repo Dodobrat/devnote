@@ -5,7 +5,7 @@ import { intSchema, paginatedQuerySchema } from "~/types";
 import { NotesMockApi } from "./mockApi";
 
 const notesHandlers = [
-  http.get("/notes/list/pinned", async ({ request }) => {
+  http.get("/notes/pinned/list", async ({ request }) => {
     const searchParams = new URL(request.url).searchParams;
     const parsedSearchParams = Object.fromEntries(searchParams.entries());
 
@@ -43,6 +43,8 @@ const notesHandlers = [
     }
 
     const response = await NotesMockApi.getById(result.data);
+
+    if (!response) return HttpResponse.json(response, { status: 404 });
 
     return HttpResponse.json(response);
   }),
