@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { InView } from "react-intersection-observer";
-import { generatePath, NavLink } from "react-router-dom";
+import { generatePath, Link, NavLink } from "react-router-dom";
 import {
   ArrowDownToLineIcon,
   ArrowUpDownIcon,
@@ -9,10 +9,8 @@ import {
   CalendarIcon,
   CreditCardIcon,
   EllipsisVerticalIcon,
-  FileIcon,
   LaptopMinimalIcon,
   LockIcon,
-  MenuIcon,
   MoonIcon,
   MoveDownIcon,
   MoveUpIcon,
@@ -62,18 +60,26 @@ export function Sidebar() {
   // TODO: mobile view
   return (
     <div className="h-screen p-4">
-      <Card className="isolate h-full w-80 overflow-hidden">
+      <Card className="isolate h-full w-96 overflow-hidden">
         <div className="flex h-full flex-col overflow-auto overscroll-contain">
-          <CardHeader className="sticky top-0 z-10 space-y-0 bg-card/75 p-4 backdrop-blur-sm">
-            <CardTitle>DevNote</CardTitle>
-            <SearchNotes />
+          <CardHeader className="sticky top-0 z-50 flex-row items-center justify-between space-y-0 bg-card/75 p-4 backdrop-blur-sm">
+            <Link
+              to={AppRoutes.Notes}
+              className="outline-transparent focus-visible:underline"
+            >
+              <CardTitle>DevNote</CardTitle>
+            </Link>
+            <div className="flex items-center gap-2">
+              <SearchNotes />
+              <NotesActions />
+            </div>
           </CardHeader>
 
           <CardContent className="grow p-0">
             <NotesList />
           </CardContent>
 
-          <CardFooter className="sticky bottom-0 z-10 justify-between space-y-0 bg-card/75 p-4 backdrop-blur-sm">
+          <CardFooter className="sticky bottom-0 z-50 justify-between space-y-0 bg-card/75 p-4 backdrop-blur-sm">
             <Button size="icon">
               <PanelLeftCloseIcon className="size-5" />
             </Button>
@@ -110,12 +116,7 @@ function SearchNotes() {
 
   return (
     <>
-      <Button
-        size="icon"
-        variant="ghost"
-        className="absolute right-2 top-2"
-        onClick={() => setShowSearch(true)}
-      >
+      <Button size="icon" variant="ghost" onClick={() => setShowSearch(true)}>
         <SearchIcon />
       </Button>
 
@@ -165,6 +166,30 @@ function SearchNotes() {
   );
 }
 
+function NotesActions() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button size="icon" variant="ghost" className="shrink-0">
+          <EllipsisVerticalIcon className="size-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side="right">
+        <DropdownMenuLabel>Notes actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <ArrowUpDownIcon className="mr-2 size-4" />
+          <span>Toggle Reorder Mode</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="text-destructive">
+          <TrashIcon className="mr-2 size-4" />
+          <span>Bulk Delete</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 function NotesList() {
   const notesQuery = useNotes();
 
@@ -186,22 +211,25 @@ function NotesList() {
               to={generatePath(AppRoutes.NoteById, { id: String(note.id) })}
               className={({ isActive }) =>
                 cn([
-                  "flex items-center gap-2 p-2",
-                  isActive && "bg-secondary text-secondary-foreground",
+                  "relative flex items-center gap-2 px-4 py-1 outline-transparent ring-primary focus-visible:z-10 focus-visible:ring",
+                  "before:absolute before:inset-y-0 before:left-0 before:-z-10 before:w-2 before:rounded-r",
+                  isActive && "font-bold before:bg-primary",
                 ])
               }
             >
-              <Button size="icon" variant="ghost" className="shrink-0">
-                <FileIcon className="size-4" />
-              </Button>
-              <p className="grow truncate font-semibold">{note.previewTitle}</p>
+              <p className="grow truncate">{note.previewTitle}</p>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="icon" variant="ghost" className="shrink-0">
                     <EllipsisVerticalIcon className="size-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                <DropdownMenuContent
+                  align="start"
+                  side="right"
+                  // Prevent navigating to the specific note
+                  // onClick={(e) => e.stopPropagation()}
+                >
                   <DropdownMenuLabel>
                     <p>{note.previewTitle}</p>
                     <p className="font-normal">
