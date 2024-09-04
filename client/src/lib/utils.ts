@@ -62,29 +62,57 @@ export function formatRelativeDateTime(date: Date) {
     year: "numeric",
   }).format(date);
 }
-
-export function debounce<T extends (...args: Parameters<T>) => void>(
-  fn: T,
-  delay = 300,
-) {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
+export function remToPx(rem: number): number {
+  const rootFontSize = parseFloat(
+    getComputedStyle(document.documentElement).fontSize,
+  );
+  return rem * rootFontSize;
 }
 
-// export function debounce<T extends (...args: any[]) => void>(
-//   func: T,
-//   delay = 500,
-// ): (...args: Parameters<T>) => void {
-//   let timeoutId: ReturnType<typeof setTimeout>;
+export function getCssVarValue(varName: string): string {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(`--${varName}`)
+    .trim();
+}
 
-//   return (...args: Parameters<T>) => {
-//     clearTimeout(timeoutId);
+function hslToHex(h: number, s: number, l: number): string {
+  s /= 100;
+  l /= 100;
 
-//     timeoutId = setTimeout(() => {
-//       func(...args);
-//     }, delay);
-//   };
-// }
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color)
+      .toString(16)
+      .padStart(2, "0"); // Convert to hex and pad with zeroes
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+export function getHexFromCssVar(varName: string): string {
+  const hslValue = getCssVarValue(varName);
+
+  // Match and parse the HSL values
+  const [h, s, l] = hslValue.match(/\d+(\.\d+)?/g)?.map(Number) || [0, 0, 0];
+
+  return hslToHex(h, s, l);
+}
+
+type RangeParams = {
+  targetValue: number;
+  diff: number;
+  value: number;
+};
+
+export function getIsInRange({
+  targetValue,
+  diff,
+  value,
+}: RangeParams): boolean {
+  const lowerBound = targetValue - diff;
+  const upperBound = targetValue + diff;
+
+  // Check if the value is within the range
+  return value >= lowerBound && value <= upperBound;
+}
