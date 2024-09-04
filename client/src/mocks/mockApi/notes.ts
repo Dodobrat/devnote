@@ -1,4 +1,4 @@
-import { NOTES_STORAGE_KEY, PINNED_NOTES_STORAGE_KEY } from "~/constants";
+import { NOTES_STORAGE_KEY } from "~/constants";
 import { webStorage } from "~/lib/utils";
 import {
   NoteSchemaType,
@@ -43,21 +43,11 @@ export const NotesMockApi = {
   },
   async getById(id: NoteSchemaType["id"]) {
     // TODO: if locked, require password
-    const storedPinned = webStorage.getItem<NoteSchemaType[]>(
-      PINNED_NOTES_STORAGE_KEY,
-    );
     const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
 
-    if (!storedPinned && !stored) return null;
+    if (!stored) return null;
 
     let match: NoteSchemaType | null = null;
-
-    for (const note of storedPinned || []) {
-      if (note.id === id) {
-        match = note;
-        break;
-      }
-    }
 
     for (const note of stored || []) {
       if (note.id === id) {
@@ -90,8 +80,20 @@ export const NotesMockApi = {
 
     return newNote;
   },
-  update() {
+  async update(body: NoteSchemaType) {
     // update specific fields of a note by id
+    const currentDate = new Date();
+
+    const updatedNote: NoteSchemaType = {
+      ...body,
+      updatedAt: currentDate,
+    };
+
+    webStorage.setItem<NoteSchemaType[]>(NOTES_STORAGE_KEY, (oldNotes = []) =>
+      oldNotes.map((note) => (note.id === updatedNote.id ? updatedNote : note)),
+    );
+
+    return { success: true };
   },
   reorderPinned() {
     // after reordering the PINNED notes, send the note id, with the old and new index ( on FE, enter drag mode )

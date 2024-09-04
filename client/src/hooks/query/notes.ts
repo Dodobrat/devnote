@@ -35,3 +35,9 @@ export function useCreateNote() {
     mutationFn: NotesApi.create,
   });
 }
+
+export function useUpdateNote() {
+  return useMutation({
+    mutationFn: NotesApi.update,
+  });
+}

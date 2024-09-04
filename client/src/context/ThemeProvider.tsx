@@ -9,6 +9,7 @@ export enum ThemeMode {
 }
 
 type ThemeProviderState = {
+  resolvedTheme: ThemeMode;
   theme: ThemeMode;
   setTheme: (theme: ThemeMode) => void;
 };
@@ -42,7 +43,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     root.classList.add(theme);
   }, [theme]);
 
-  const value = {
+  const resolvedTheme =
+    theme === ThemeMode.System
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? ThemeMode.Dark
+        : ThemeMode.Light
+      : theme;
+
+  const value: ThemeProviderState = {
+    resolvedTheme,
     theme,
     setTheme: (theme: ThemeMode) => {
       localStorage.setItem(THEME_STORAGE_KEY, theme);

@@ -17,8 +17,9 @@ export const NotesApi = {
   create() {
     return instance.post<void, NoteSchemaType>("/notes");
   },
-  update() {
+  update(body: NoteSchemaType) {
     // update specific fields of a note by id
+    return instance.put<{ success: boolean }>(`/notes/${body.id}`, body);
   },
   reorderPinned() {
     // after reordering the PINNED notes, send the note id, with the old and new index ( on FE, enter drag mode )

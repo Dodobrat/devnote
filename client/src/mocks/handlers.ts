@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-import { intSchema, paginatedQuerySchema } from "~/types";
+import { intSchema, NoteSchemaType, paginatedQuerySchema } from "~/types";
 
 import { NotesMockApi } from "./mockApi";
 
@@ -43,6 +43,13 @@ const notesHandlers = [
   http.post("/notes", async () => {
     const response = await NotesMockApi.create();
     return HttpResponse.json(response);
+  }),
+  http.put("/notes/:id", async ({ request }) => {
+    const body = await request.json();
+
+    const response = await NotesMockApi.update(body as NoteSchemaType);
+
+    return HttpResponse.json(response, { status: 200 });
   }),
 ];
 

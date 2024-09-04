@@ -1,3 +1,5 @@
+import { Editor } from "~/components/Editor";
+
 export function Note() {
-  return <div>Note</div>;
+  return <Editor />;
 }

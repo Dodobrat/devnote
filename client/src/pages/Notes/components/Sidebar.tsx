@@ -57,10 +57,27 @@ import { cn, formatRelativeDateTime } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
 export function Sidebar() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   // TODO: mobile view
   return (
-    <div className="h-screen p-4">
-      <Card className="isolate h-full w-96 overflow-hidden">
+    <>
+      {/* Sidebar placeholder */}
+      <div className={cn("shrink-0", isSidebarOpen ? "w-[25rem]" : "w-0")} />
+
+      <Button
+        size="icon"
+        className="fixed bottom-8 left-8 z-50"
+        onClick={() => setIsSidebarOpen((v) => !v)}
+      >
+        <PanelLeftCloseIcon className="size-5" />
+      </Button>
+
+      <Card
+        className={cn(
+          "fixed bottom-4 left-4 isolate h-[calc(100vh-2rem)] w-96 origin-bottom-left overflow-hidden fill-mode-forwards",
+          isSidebarOpen ? "block" : "hidden",
+        )}
+      >
         <div className="flex h-full flex-col overflow-auto overscroll-contain">
           <CardHeader className="sticky top-0 z-50 flex-row items-center justify-between space-y-0 bg-card/75 p-4 backdrop-blur-sm">
             <Link
@@ -79,15 +96,12 @@ export function Sidebar() {
             <NotesList />
           </CardContent>
 
-          <CardFooter className="sticky bottom-0 z-50 justify-between space-y-0 bg-card/75 p-4 backdrop-blur-sm">
-            <Button size="icon">
-              <PanelLeftCloseIcon className="size-5" />
-            </Button>
+          <CardFooter className="sticky bottom-0 z-50 justify-end space-y-0 bg-card/75 p-4 backdrop-blur-sm">
             <ThemeSwitch />
           </CardFooter>
         </div>
       </Card>
-    </div>
+    </>
   );
 }
 
@@ -265,10 +279,6 @@ function NotesList() {
                   <DropdownMenuItem>
                     <MoveUpIcon className="mr-2 size-4" />
                     <span>Move up</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <ArrowUpDownIcon className="mr-2 size-4" />
-                    <span>Reorder</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <MoveDownIcon className="mr-2 size-4" />
