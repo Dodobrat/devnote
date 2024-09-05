@@ -24,6 +24,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
   ResizablePanelGroupProps,
+  Separator,
 } from "../ui";
 import { EditorOutput } from "./EditorOutput";
 
@@ -330,7 +331,7 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   hover: { enabled: false },
   inlayHints: { enabled: "off" },
   inlineSuggest: { enabled: false },
-  lineDecorationsWidth: 0,
+  lineDecorationsWidth: 16,
   lineNumbers: "off",
   minimap: { enabled: false },
   parameterHints: { enabled: false },
@@ -342,6 +343,7 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   tabCompletion: "off",
   wordBasedSuggestions: "off",
   wordWrap: "on",
+  padding: { top: 32, bottom: 32 },
 };
 
 export function Editor() {
@@ -470,7 +472,7 @@ export function Editor() {
               setResizableState((v) => ({ ...v, isDisabled: false }))
             }
             className={cn(
-              "z-50 flex gap-2 rounded-lg bg-border p-2",
+              "z-50 flex items-center justify-center gap-1 rounded-lg border-4 bg-background p-1",
               resizableState.leftCollapsed &&
                 resizableState.direction === "vertical" &&
                 "translate-y-1/2 rounded-t-none",
@@ -485,11 +487,12 @@ export function Editor() {
                 "-translate-x-1/2 rounded-r-none",
               resizableState.direction === "horizontal"
                 ? "flex-col"
-                : "flex-row",
+                : "h-12 flex-row",
             )}
           >
             <Button
               size="icon"
+              variant="ghost"
               disabled={resizableState.leftCollapsed}
               onClick={() => leftPanelRef.current?.collapse()}
             >
@@ -499,8 +502,10 @@ export function Editor() {
                 <ArrowUpFromLineIcon />
               )}
             </Button>
+            <Separator orientation={resizableState.direction} />
             <Button
               size="icon"
+              variant="ghost"
               onClick={() =>
                 setResizableState((v) => ({
                   ...v,
@@ -515,15 +520,19 @@ export function Editor() {
                 <SquareSplitVerticalIcon />
               )}
             </Button>
+            <Separator orientation={resizableState.direction} />
             <Button
               size="icon"
+              variant="ghost"
               disabled={resizableState.isReset}
               onClick={() => leftPanelRef.current?.resize(50)}
             >
               <RotateCcwIcon />
             </Button>
+            <Separator orientation={resizableState.direction} />
             <Button
               size="icon"
+              variant="ghost"
               disabled={resizableState.rightCollapsed}
               onClick={() => rightPanelRef.current?.collapse()}
             >

@@ -11,7 +11,7 @@ export function EditorOutput({ value = "" }: { value: string }) {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div className="prose prose-zinc h-full max-w-none overflow-auto hyphens-auto break-all border-l px-4 dark:prose-invert">
+    <div className="prose prose-zinc h-full max-w-none overflow-auto hyphens-auto break-all border-l p-8 dark:prose-invert">
       <style>
         {resolvedTheme === ThemeMode.Dark ? githubDarkTheme : githubLightTheme}
       </style>
