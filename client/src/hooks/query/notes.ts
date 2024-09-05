@@ -41,3 +41,9 @@ export function useUpdateNote() {
     mutationFn: NotesApi.update,
   });
 }
+
+export function useDeleteNote() {
+  return useMutation({
+    mutationFn: NotesApi.delete,
+  });
+}
