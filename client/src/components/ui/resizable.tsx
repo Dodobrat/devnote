@@ -32,7 +32,6 @@ const ResizableHandle = ({
   <ResizablePrimitive.PanelResizeHandle
     className={cn(
       "relative flex w-2 items-center justify-center bg-border",
-      // "[&[data-panel-group-direction=vertical]>div]:rotate-90",
       "data-[panel-group-direction=vertical]:h-2",
       "data-[panel-group-direction=vertical]:w-full",
       "data-[panel-group-direction=vertical]:after:-translate-y-1/2",

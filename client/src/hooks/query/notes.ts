@@ -3,7 +3,7 @@ import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 import { NotesApi } from "~/api";
 import { NoteSchemaType } from "~/types";
 
-const notesQueryKeys = {
+export const notesQueryKeys = {
   all: () => ["notes"],
   list: () => [...notesQueryKeys.all(), "list"],
   byIdRoot: () => [...notesQueryKeys.all(), "byId"],

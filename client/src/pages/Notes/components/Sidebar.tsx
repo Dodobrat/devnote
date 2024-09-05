@@ -52,7 +52,7 @@ import {
   TabsTrigger,
 } from "~/components/ui";
 import { ThemeMode, useTheme } from "~/context";
-import { useNotes } from "~/hooks/query";
+import { useDeleteNote, useNotes } from "~/hooks/query";
 import { cn, formatRelativeDateTime } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
@@ -206,6 +206,7 @@ function NotesActions() {
 
 function NotesList() {
   const notesQuery = useNotes();
+  const deleteNoteMutation = useDeleteNote();
 
   if (notesQuery.isLoading) {
     return <div>Loading...</div>;
@@ -288,7 +289,16 @@ function NotesList() {
                     <ArrowDownToLineIcon className="mr-2 size-4" />
                     <span>Move to bottom</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={() => {
+                      deleteNoteMutation.mutate(note.id, {
+                        onSettled: () => {
+                          notesQuery.refetch();
+                        },
+                      });
+                    }}
+                  >
                     <TrashIcon className="mr-2 size-4" />
                     <span>Delete</span>
                   </DropdownMenuItem>

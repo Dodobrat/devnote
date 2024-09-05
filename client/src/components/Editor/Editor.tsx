@@ -353,11 +353,15 @@ export function Editor() {
     leftCollapsed: boolean;
     rightCollapsed: boolean;
     isReset: boolean;
+    isDisabled: boolean;
+    isDragging: boolean;
   }>({
     direction: "horizontal",
     leftCollapsed: false,
     rightCollapsed: false,
     isReset: true,
+    isDisabled: false,
+    isDragging: false,
   });
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -442,8 +446,29 @@ export function Editor() {
             }}
           />
         </ResizablePanel>
-        <ResizableHandle>
+        <ResizableHandle
+          disabled={resizableState.isDisabled}
+          onDragging={(isDragging) =>
+            setResizableState((v) => ({ ...v, isDragging }))
+          }
+        >
           <div
+            onPointerEnter={() =>
+              setResizableState((v) =>
+                v.isDragging ? v : { ...v, isDisabled: true },
+              )
+            }
+            onPointerDown={() =>
+              setResizableState((v) =>
+                v.isDragging ? v : { ...v, isDisabled: true },
+              )
+            }
+            onPointerLeave={() =>
+              setResizableState((v) => ({ ...v, isDisabled: false }))
+            }
+            onPointerCancel={() =>
+              setResizableState((v) => ({ ...v, isDisabled: false }))
+            }
             className={cn(
               "z-50 flex gap-2 rounded-lg bg-border p-2",
               resizableState.leftCollapsed &&

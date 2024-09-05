@@ -196,7 +196,7 @@ export const NotesMockApi = {
 
       const currLength = stored.length;
 
-      const filteredNotes = stored.filter((n) => n.id === result.data);
+      const filteredNotes = stored.filter((n) => n.id !== result.data);
 
       if (currLength === filteredNotes.length) {
         return HttpResponse.json(
@@ -204,6 +204,8 @@ export const NotesMockApi = {
           { status: 404 },
         );
       }
+
+      webStorage.setItem<NoteSchemaType[]>(NOTES_STORAGE_KEY, filteredNotes);
 
       return HttpResponse.json(true, { status: 200 });
     });
