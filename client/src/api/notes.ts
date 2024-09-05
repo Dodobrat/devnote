@@ -17,9 +17,9 @@ export const NotesApi = {
   create() {
     return instance.post<void, NoteSchemaType>("/notes");
   },
-  update(body: NoteSchemaType) {
+  update(body: Partial<NoteSchemaType>) {
     // update specific fields of a note by id
-    return instance.put<{ success: boolean }>(`/notes/${body.id}`, body);
+    return instance.put<boolean>(`/notes/${body.id}`, body);
   },
   reorderPinned() {
     // after reordering the PINNED notes, send the note id, with the old and new index ( on FE, enter drag mode )
@@ -30,8 +30,9 @@ export const NotesApi = {
   search() {
     // search for a word, creation date, update date, tag in the note title or the note body
   },
-  delete() {
-    // delete a note forever ( ask for password on locked notes )
+  delete(id: NoteSchemaType["id"]) {
+    // if locked, require password
+    return instance.delete<boolean>(`/notes/${id}`);
   },
   protect() {
     // encrypt a note with a password ( encrypt with the password locally and send the note encrypted )
