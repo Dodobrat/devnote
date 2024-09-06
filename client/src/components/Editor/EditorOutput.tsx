@@ -3,9 +3,12 @@ import hljs from "highlight.js";
 import githubLightTheme from "highlight.js/styles/github.min.css?inline";
 import githubDarkTheme from "highlight.js/styles/github-dark.min.css?inline";
 import Markdown from "markdown-to-jsx";
+import { toast } from "sonner";
 
 import { ThemeMode, useTheme } from "~/context";
 import { cn } from "~/lib/utils";
+
+import { Button } from "../ui";
 
 export function EditorOutput({ value = "" }: { value: string }) {
   const { resolvedTheme } = useTheme();
@@ -41,11 +44,35 @@ function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
   const ref = useRef<HTMLPreElement>(null);
 
   return (
-    <pre
-      {...props}
-      className={cn(props.className, "border bg-transparent p-0")}
-      ref={ref}
-    />
+    <>
+      <div className="relative bottom-3 -mb-5 flex h-0 justify-end px-4">
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={(e) => {
+            const codeEl =
+              e.currentTarget.parentElement?.nextSibling?.firstChild;
+
+            const copyToClipboard = () => {
+              const codeContent = (codeEl as HTMLElement).innerText;
+              navigator.clipboard
+                .writeText(codeContent)
+                .then(() => toast.success("Copied to clipboard!"))
+                .catch(() => toast.error("Failed to copy text :("));
+            };
+
+            copyToClipboard();
+          }}
+        >
+          Copy
+        </Button>
+      </div>
+      <pre
+        {...props}
+        className={cn(props.className, "border bg-transparent p-0")}
+        ref={ref}
+      />
+    </>
   );
 }
 
@@ -62,5 +89,11 @@ function Code(props: React.ComponentPropsWithoutRef<"code">) {
     ref.current.removeAttribute("data-highlighted");
   }, [props.className, props.children]);
 
-  return <code {...props} ref={ref} />;
+  return (
+    <code
+      {...props}
+      className={cn(props.className, "!block !overflow-x-auto !p-4")}
+      ref={ref}
+    />
+  );
 }

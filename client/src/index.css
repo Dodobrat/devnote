@@ -4,13 +4,6 @@
 
 @layer base {
   :root {
-    --font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-      "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  }
-}
-
-@layer base {
-  :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
@@ -67,15 +60,42 @@
 }
 
 @layer base {
+  :root {
+    --screen-sm: screen("sm");
+    --screen-md: screen("md");
+    --screen-lg: screen("lg");
+    --screen-xl: screen("xl");
+    --screen-2xl: screen("2xl");
+  }
+
   * {
     @apply border-border;
   }
 
-  html[class="dark"] {
+  .dark {
     color-scheme: dark;
   }
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  @media (pointer: fine) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--foreground) var(--background);
+    }
+    ::-webkit-scrollbar {
+      @apply h-3 w-3;
+    }
+    ::-webkit-scrollbar-thumb {
+      @apply rounded-full border-2 border-solid border-background bg-foreground/30;
+    }
+    ::-webkit-scrollbar-track {
+      @apply bg-background;
+    }
+    ::-webkit-scrollbar-corner {
+      @apply bg-background;
+    }
   }
 }

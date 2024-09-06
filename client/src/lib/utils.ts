@@ -69,34 +69,8 @@ export function remToPx(rem: number): number {
   return rem * rootFontSize;
 }
 
-export function getCssVarValue(varName: string): string {
-  return getComputedStyle(document.documentElement)
-    .getPropertyValue(`--${varName}`)
-    .trim();
-}
-
-function hslToHex(h: number, s: number, l: number): string {
-  s /= 100;
-  l /= 100;
-
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) => {
-    const k = (n + h / 30) % 12;
-    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-    return Math.round(255 * color)
-      .toString(16)
-      .padStart(2, "0"); // Convert to hex and pad with zeroes
-  };
-  return `#${f(0)}${f(8)}${f(4)}`;
-}
-
-export function getHexFromCssVar(varName: string): string {
-  const hslValue = getCssVarValue(varName);
-
-  // Match and parse the HSL values
-  const [h, s, l] = hslValue.match(/\d+(\.\d+)?/g)?.map(Number) || [0, 0, 0];
-
-  return hslToHex(h, s, l);
+export function getCssVar(name: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name);
 }
 
 type RangeParams = {
