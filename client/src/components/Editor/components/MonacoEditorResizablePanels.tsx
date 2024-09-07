@@ -1,3 +1,4 @@
+import { ImperativePanelHandle } from "react-resizable-panels";
 import {
   ArrowDownFromLineIcon,
   ArrowLeftFromLineIcon,
@@ -18,11 +19,7 @@ import {
 import { storeKeys, usePersisQueryStore, useQueryStore } from "~/hooks/store";
 import { cn, getIsInRange } from "~/lib/utils";
 
-import {
-  defaultResizePanels,
-  defaultResizeState,
-  EditorResizablePanelsRefs,
-} from "../types";
+import { defaultResizeState } from "../types";
 
 export function EditorResizableGroup({
   children,
@@ -59,9 +56,9 @@ export function EditorResizePanel({ children }: { children: React.ReactNode }) {
     defaultResizeState,
   );
 
-  const [panels, setPanels] = useQueryStore<EditorResizablePanelsRefs>(
-    storeKeys.editorLayoutPanels,
-    defaultResizePanels,
+  const [, setPanel] = useQueryStore<ImperativePanelHandle | null>(
+    storeKeys.editorLayoutLeftPanel,
+    null,
   );
 
   return (
@@ -87,11 +84,7 @@ export function EditorResizePanel({ children }: { children: React.ReactNode }) {
           setState((v) => ({ ...v, isReset: false }));
         }
       }}
-      ref={(left) => {
-        if (!left) return;
-        if (panels.left) return;
-        setPanels((v) => ({ ...v, left }));
-      }}
+      ref={setPanel}
     >
       {children}
     </ResizablePanel>
@@ -108,9 +101,9 @@ export function EditorOutputResizePanel({
     defaultResizeState,
   );
 
-  const [panels, setPanels] = useQueryStore<EditorResizablePanelsRefs>(
-    storeKeys.editorLayoutPanels,
-    defaultResizePanels,
+  const [, setPanel] = useQueryStore<ImperativePanelHandle | null>(
+    storeKeys.editorLayoutRightPanel,
+    null,
   );
 
   return (
@@ -125,11 +118,7 @@ export function EditorOutputResizePanel({
       onExpand={() => {
         setState((v) => ({ ...v, rightCollapsed: false }));
       }}
-      ref={(right) => {
-        if (!right) return;
-        if (panels.right) return;
-        setPanels((v) => ({ ...v, right }));
-      }}
+      ref={setPanel}
     >
       {children}
     </ResizablePanel>
@@ -142,9 +131,13 @@ export function EditorResizeHandle() {
     defaultResizeState,
   );
 
-  const [panels] = useQueryStore<EditorResizablePanelsRefs>(
-    storeKeys.editorLayoutPanels,
-    defaultResizePanels,
+  const [leftPanel] = useQueryStore<ImperativePanelHandle | null>(
+    storeKeys.editorLayoutLeftPanel,
+    null,
+  );
+  const [rightPanel] = useQueryStore<ImperativePanelHandle | null>(
+    storeKeys.editorLayoutRightPanel,
+    null,
   );
 
   const isHorizontal = state.direction === "horizontal";
@@ -179,7 +172,7 @@ export function EditorResizeHandle() {
           size="icon"
           variant="ghost"
           disabled={state.leftCollapsed}
-          onClick={() => panels.left?.collapse()}
+          onClick={() => leftPanel?.collapse()}
         >
           {isHorizontal ? <ArrowLeftFromLineIcon /> : <ArrowUpFromLineIcon />}
         </Button>
@@ -209,7 +202,7 @@ export function EditorResizeHandle() {
           size="icon"
           variant="ghost"
           disabled={state.isReset}
-          onClick={() => panels.left?.resize(DEFAULT_RESIZE_PANEL_SIZE)}
+          onClick={() => leftPanel?.resize(DEFAULT_RESIZE_PANEL_SIZE)}
         >
           <RotateCcwIcon />
         </Button>
@@ -218,7 +211,7 @@ export function EditorResizeHandle() {
           size="icon"
           variant="ghost"
           disabled={state.rightCollapsed}
-          onClick={() => panels.right?.collapse()}
+          onClick={() => rightPanel?.collapse()}
         >
           {isHorizontal ? (
             <ArrowRightFromLineIcon />

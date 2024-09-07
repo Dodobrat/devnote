@@ -1,5 +1,3 @@
-import { ImperativePanelHandle } from "react-resizable-panels";
-
 import { ResizablePanelGroupProps } from "~/components/ui";
 
 export type EditorResizablePanelsLayout = {
@@ -22,14 +20,4 @@ export const defaultResizeState: EditorResizablePanelsLayout = {
   isReset: true,
   isDisabled: false,
   isDragging: false,
-};
-
-export type EditorResizablePanelsRefs = {
-  left: ImperativePanelHandle | null;
-  right: ImperativePanelHandle | null;
-};
-
-export const defaultResizePanels: EditorResizablePanelsRefs = {
-  left: null,
-  right: null,
 };
