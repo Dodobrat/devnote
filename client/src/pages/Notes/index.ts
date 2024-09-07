@@ -1,3 +1,1 @@
-export * from "./Note";
-export * from "./NotesLayout";
-export * from "./NotesWelcome";
+export * from "./Notes";

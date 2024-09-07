@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import {
   generatePath,
   useLocation,
@@ -10,7 +9,7 @@ import * as monaco from "monaco-editor";
 import { toast } from "sonner";
 
 import { ThemeMode, useTheme } from "~/context";
-import { useCreateNote, useNote, useUpdateNote } from "~/hooks/query";
+import { useCreateNote, useUpdateNote } from "~/hooks/query";
 import { storeKeys, useQueryStore } from "~/hooks/store";
 import { remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
@@ -240,32 +239,36 @@ export function MonacoEditor() {
 
   const params = useParams<{ id: string }>();
   const id = parseInt(params.id!);
-  const { data } = useNote(id);
 
   const [note, setNote] = useQueryStore(storeKeys.rawNote, "");
 
-  useEffect(() => {
-    if (!data?.data) return;
-    setNote((v) => v || data.data.note);
-  }, [data?.data, setNote]);
-
   return (
     <MonacoEditorBase
-      key={id}
       theme={
         resolvedTheme === ThemeMode.Dark ? "devnote-dark" : "devnote-light"
       }
       defaultLanguage="markdown"
       options={editorOptions}
+      value={note}
+      onChange={(noteValue) => setNote(noteValue || "")}
       onMount={(editor) => {
         if (location.state) {
-          console.log("MOUNT", location.state);
+          const isValidLineNumber = Number.isInteger(
+            parseInt(location.state.lineNumber),
+          );
+          const isValidColumn = Number.isInteger(
+            parseInt(location.state.column),
+          );
+          const isValidPosition = isValidLineNumber && isValidColumn;
 
-          editor.setPosition(location.state);
-          editor.focus();
-          // clear after navigate
-          window.history.replaceState(null, "");
-          location.state = null;
+          if (isValidPosition) {
+            editor.setPosition(location.state);
+            editor.focus();
+
+            // clear after navigate
+            window.history.replaceState(null, "");
+            location.state = null;
+          }
         }
 
         editor.addCommand(
@@ -297,8 +300,6 @@ export function MonacoEditor() {
           );
         });
       }}
-      value={note}
-      onChange={(noteValue) => setNote(noteValue || "")}
     />
   );
 }

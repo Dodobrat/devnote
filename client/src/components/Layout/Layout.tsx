@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { NavLink, NavLinkProps, Outlet } from "react-router-dom";
 import {
-  CircleChevronLeftIcon,
   CircleHelpIcon,
   FileCode2Icon,
   LogsIcon,
   NotebookTabsIcon,
+  PanelLeftCloseIcon,
+  PanelLeftOpenIcon,
   PlusIcon,
-  SearchIcon,
   Settings2Icon,
 } from "lucide-react";
 
@@ -52,12 +52,13 @@ function Navigation() {
       className={cn(
         "relative z-50 shrink-0 transition-[width]",
         sidebarState === SidebarState.Minimized &&
-          "fine:hover:[&>[data-sidebar]]:w-72 fine:hover:[&>[data-sidebar]]:px-3 w-0 md:w-[4.5rem]",
+          "fine:hover:[&>[data-sidebar]]:w-72 fine:hover:[&>[data-sidebar]]:px-3 fine:hover:[&>[data-sidebar]]:border-r w-0 md:w-[4.5rem]",
         sidebarState === SidebarState.Expanded &&
           "w-0 md:w-[4.5rem] lg:w-72 [&>[data-sidebar]]:w-72",
       )}
     >
       {/* TODO: skip navigation link */}
+
       <div
         data-overlay
         className={cn(
@@ -111,12 +112,13 @@ function Navigation() {
           </SidebarIconItem>
           <p className="whitespace-nowrap">Notes</p>
         </SidebarItem>
-        <SidebarItem to={AppRoutes.Search}>
+        {/* <SidebarItem to={AppRoutes.Search}>
           <SidebarIconItem>
             <SearchIcon className="size-5" />
           </SidebarIconItem>
           <p className="whitespace-nowrap">Search</p>
-        </SidebarItem>
+        </SidebarItem> */}
+
         <div className="grow" />
 
         <Separator />
@@ -141,9 +143,9 @@ function Navigation() {
         </SidebarItem>
 
         <Separator />
+
         {/* Toggle placeholder */}
         <div className="sticky -bottom-4 h-10 w-full shrink-0 bg-gradient-to-t from-background via-background to-transparent" />
-
         <Button
           size="icon"
           variant="secondary"
@@ -156,7 +158,11 @@ function Navigation() {
             );
           }}
         >
-          <CircleChevronLeftIcon />
+          {sidebarState === SidebarState.Minimized ? (
+            <PanelLeftOpenIcon />
+          ) : (
+            <PanelLeftCloseIcon />
+          )}
         </Button>
       </div>
     </nav>

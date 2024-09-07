@@ -1,3 +1,4 @@
+import { PageCardBase } from "../Layout";
 import {
   EditorOutput,
   EditorOutputResizePanel,
@@ -9,7 +10,7 @@ import {
 
 export function Editor() {
   return (
-    <div className="isolate grow overflow-hidden md:p-4 md:pl-0">
+    <PageCardBase>
       <EditorResizableGroup>
         <EditorResizePanel>
           <MonacoEditor />
@@ -21,6 +22,6 @@ export function Editor() {
           <EditorOutput />
         </EditorOutputResizePanel>
       </EditorResizableGroup>
-    </div>
+    </PageCardBase>
   );
 }
