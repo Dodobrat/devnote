@@ -142,7 +142,7 @@ function Navigation() {
 
         <Separator />
         {/* Toggle placeholder */}
-        <div className="h-10" />
+        <div className="sticky -bottom-4 h-10 w-full shrink-0 bg-gradient-to-t from-background via-background to-transparent" />
 
         <Button
           size="icon"

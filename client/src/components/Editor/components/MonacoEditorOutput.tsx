@@ -5,31 +5,37 @@ import githubDarkTheme from "highlight.js/styles/github-dark.min.css?inline";
 import Markdown from "markdown-to-jsx";
 import { toast } from "sonner";
 
+import { Button } from "~/components/ui";
 import { ThemeMode, useTheme } from "~/context";
+import { storeKeys, useQueryStore } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
-import { Button } from "../ui";
-
-export function EditorOutput({ value = "" }: { value: string }) {
+export function EditorOutput() {
   const { resolvedTheme } = useTheme();
 
+  const [note] = useQueryStore(storeKeys.rawNote, "");
+
   return (
-    <div className="prose prose-zinc h-full max-w-none overflow-auto hyphens-auto break-all border-l p-8 dark:prose-invert">
-      <style>
-        {resolvedTheme === ThemeMode.Dark ? githubDarkTheme : githubLightTheme}
-      </style>
-      <Markdown
-        options={{
-          wrapper: "article",
-          overrides: {
-            hr: Hr,
-            code: Code,
-            pre: Pre,
-          },
-        }}
-      >
-        {value}
-      </Markdown>
+    <div className="h-full w-full overflow-auto border-l p-8">
+      <div className="prose prose-zinc mx-auto hyphens-auto break-all dark:prose-invert">
+        <style>
+          {resolvedTheme === ThemeMode.Dark
+            ? githubDarkTheme
+            : githubLightTheme}
+        </style>
+        <Markdown
+          options={{
+            wrapper: "article",
+            overrides: {
+              hr: Hr,
+              code: Code,
+              pre: Pre,
+            },
+          }}
+        >
+          {note}
+        </Markdown>
+      </div>
     </div>
   );
 }

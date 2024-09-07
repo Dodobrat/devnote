@@ -91,7 +91,18 @@ export const NotesMockApi = {
   },
 
   create() {
-    return http.post("/notes", async () => {
+    return http.post("/notes", async ({ request }) => {
+      const body = await request.json();
+
+      const result = noteSchema.pick({ note: true }).safeParse(body);
+
+      if (!result.success) {
+        return HttpResponse.json(
+          { error: result.error.message },
+          { status: 400 },
+        );
+      }
+
       const currentDate = new Date();
 
       const newNote: NoteSchemaType = {
@@ -100,7 +111,7 @@ export const NotesMockApi = {
         updatedAt: null,
         isPinned: false,
         isProtected: false,
-        note: "",
+        note: result.data.note,
         previewTitle: "New Note",
         tags: [],
         order: 0,

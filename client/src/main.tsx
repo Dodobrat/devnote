@@ -9,10 +9,11 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
+import { Editor } from "./components/Editor";
 import { Layout } from "./components/Layout";
 import { Toaster } from "./components/ui";
 import { ThemeProvider } from "./context";
-import { Note, NotesWelcome, NotFound } from "./pages";
+import { Note, NotFound } from "./pages";
 import { AppRoutes } from "./routes";
 
 import "./index.css";
@@ -85,7 +86,7 @@ const router = createBrowserRouter(
       {/* Initial page should be a new note with some instructions on how to get started  */}
       {/* Cmd + S -> create a new note and redirect to it to continue editing */}
 
-      <Route index element={<NotesWelcome />} />
+      <Route index element={<Editor />} />
       <Route path={AppRoutes.NoteById} element={<Note />} />
       {/* <Route path={AppRoutes.Settings} element={<Settings />} /> */}
       <Route path="*" element={<NotFound />} />

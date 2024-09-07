@@ -1,3 +1,5 @@
+import { AxiosResponse } from "axios";
+
 import {
   NoteSchemaType,
   PaginatedNotesSchemaType,
@@ -14,8 +16,8 @@ export const NotesApi = {
     // if locked, require password
     return instance.get<NoteSchemaType>(`/notes/${id}`);
   },
-  create() {
-    return instance.post<void, NoteSchemaType>("/notes");
+  create(body: Pick<NoteSchemaType, "note">) {
+    return instance.post<void, AxiosResponse<NoteSchemaType>>("/notes", body);
   },
   update(body: Partial<NoteSchemaType>) {
     // update specific fields of a note by id
