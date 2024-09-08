@@ -10,7 +10,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { Layout } from "./components/Layout";
-import { Toaster } from "./components/ui";
+import { Toaster, TooltipProvider } from "./components/ui";
 import { ThemeProvider } from "./context";
 import {
   Changelog,
@@ -102,7 +102,9 @@ enableMocking().then(() => {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <RouterProvider router={router} />
+          <TooltipProvider>
+            <RouterProvider router={router} />
+          </TooltipProvider>
           <Toaster />
         </ThemeProvider>
         <ReactQueryDevtools />

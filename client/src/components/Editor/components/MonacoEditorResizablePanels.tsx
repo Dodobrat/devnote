@@ -15,6 +15,9 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
   Separator,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
 } from "~/components/ui";
 import { storeKeys, usePersisQueryStore, useQueryStore } from "~/hooks/store";
 import { cn, getIsInRange } from "~/lib/utils";
@@ -36,7 +39,7 @@ export function EditorResizableGroup({
   return (
     <ResizablePanelGroup
       direction={state!.direction}
-      className="max-w-full md:rounded-lg md:border"
+      className="max-w-full bg-card shadow-lg md:rounded-lg md:border"
       onLayout={([leftSize, rightSize]) => {
         setState((v) => ({ ...v, leftSize, rightSize }));
       }}
@@ -168,57 +171,93 @@ export function EditorResizeHandle() {
           isHorizontal ? "flex-col" : "h-14 flex-row",
         )}
       >
-        <Button
-          size="icon"
-          variant="ghost"
-          disabled={state.leftCollapsed}
-          onClick={() => leftPanel?.collapse()}
-        >
-          {isHorizontal ? <ArrowLeftFromLineIcon /> : <ArrowUpFromLineIcon />}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              disabled={state.leftCollapsed}
+              onClick={() => leftPanel?.collapse()}
+            >
+              {isHorizontal ? (
+                <ArrowLeftFromLineIcon />
+              ) : (
+                <ArrowUpFromLineIcon />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side={isHorizontal ? "right" : "top"}>
+            <p>Collapse editor</p>
+          </TooltipContent>
+        </Tooltip>
 
         <Separator orientation={state.direction} />
 
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => {
-            setState((v) => ({
-              ...v,
-              isDisabled: false,
-              direction:
-                v.direction === "horizontal" ? "vertical" : "horizontal",
-            }));
-          }}
-        >
-          {isHorizontal ? (
-            <SquareSplitHorizontalIcon />
-          ) : (
-            <SquareSplitVerticalIcon />
-          )}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => {
+                setState((v) => ({
+                  ...v,
+                  isDisabled: false,
+                  direction:
+                    v.direction === "horizontal" ? "vertical" : "horizontal",
+                }));
+              }}
+            >
+              {isHorizontal ? (
+                <SquareSplitHorizontalIcon />
+              ) : (
+                <SquareSplitVerticalIcon />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side={isHorizontal ? "right" : "top"}>
+            <p>Toggle split view direction</p>
+          </TooltipContent>
+        </Tooltip>
+
         <Separator orientation={state.direction} />
-        <Button
-          size="icon"
-          variant="ghost"
-          disabled={state.isReset}
-          onClick={() => leftPanel?.resize(DEFAULT_RESIZE_PANEL_SIZE)}
-        >
-          <RotateCcwIcon />
-        </Button>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              disabled={state.isReset}
+              onClick={() => leftPanel?.resize(DEFAULT_RESIZE_PANEL_SIZE)}
+            >
+              <RotateCcwIcon />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side={isHorizontal ? "right" : "top"}>
+            <p>Reset panel sizes</p>
+          </TooltipContent>
+        </Tooltip>
+
         <Separator orientation={state.direction} />
-        <Button
-          size="icon"
-          variant="ghost"
-          disabled={state.rightCollapsed}
-          onClick={() => rightPanel?.collapse()}
-        >
-          {isHorizontal ? (
-            <ArrowRightFromLineIcon />
-          ) : (
-            <ArrowDownFromLineIcon />
-          )}
-        </Button>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              disabled={state.rightCollapsed}
+              onClick={() => rightPanel?.collapse()}
+            >
+              {isHorizontal ? (
+                <ArrowRightFromLineIcon />
+              ) : (
+                <ArrowDownFromLineIcon />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side={isHorizontal ? "right" : "top"}>
+            <p>Collapse preview</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </ResizableHandle>
   );

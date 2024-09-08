@@ -16,8 +16,8 @@ export function EditorOutput() {
   const [note] = useQueryStore(storeKeys.rawNote, "");
 
   return (
-    <div className="h-full w-full overflow-auto border-l p-8">
-      <div className="prose prose-zinc mx-auto hyphens-auto break-all dark:prose-invert">
+    <div className="h-full w-full overflow-auto p-8">
+      <div className="prose mx-auto hyphens-auto break-all dark:prose-invert">
         <style>
           {resolvedTheme === ThemeMode.Dark
             ? githubDarkTheme

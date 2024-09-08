@@ -43,6 +43,9 @@ export const NotesMockApi = {
 
       if (!stored) return HttpResponse.json(response, { status: 200 });
 
+      // from order 0 up
+      stored.sort((a, b) => (a.order >= b.order ? 1 : -1));
+
       const count = stored.length;
       const nextCursor = Math.min(
         params.cursor + (params.slice || DEFAULT_SLICE),
@@ -57,6 +60,10 @@ export const NotesMockApi = {
 
       return HttpResponse.json(response, { status: 200 });
     });
+  },
+
+  search() {
+    // search for a word, creation date, update date, tag in the note title or the note body
   },
 
   getById() {
@@ -178,18 +185,7 @@ export const NotesMockApi = {
     });
   },
 
-  reorderPinned() {
-    // after reordering the PINNED notes, send the note id, with the old and new index ( on FE, enter drag mode )
-  },
-  reorder() {
-    // after reordering the notes, send the note id, with the old and new index ( on FE, enter drag mode )
-  },
-  search() {
-    // search for a word, creation date, update date, tag in the note title or the note body
-  },
-
   delete() {
-    // ( ask for password on locked notes )
     return http.delete("/notes/:id", async ({ params }) => {
       const { id } = params;
       const result = intSchema.safeParse(id);
@@ -220,19 +216,5 @@ export const NotesMockApi = {
 
       return HttpResponse.json(true, { status: 200 });
     });
-  },
-
-  protect() {
-    // encrypt a note with a password ( encrypt with the password locally and send the note encrypted )
-    // DON'T store passwords
-  },
-  expose() {
-    // decrypt a note and override existing encrypted note with decrypted text
-  },
-  pin() {
-    // pin the note and bring it to the top
-  },
-  unPin() {
-    // unpin the note and bring it to the top of the other notes
   },
 };

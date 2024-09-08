@@ -15,7 +15,14 @@ import { useMediaQuery } from "~/hooks";
 import { cn, getCssVar } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
-import { Button, ButtonProps, Separator } from "../ui";
+import {
+  Button,
+  ButtonProps,
+  Separator,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../ui";
 
 export function Layout() {
   return (
@@ -52,7 +59,7 @@ function Navigation() {
       className={cn(
         "relative z-50 shrink-0 transition-[width]",
         sidebarState === SidebarState.Minimized &&
-          "fine:hover:[&>[data-sidebar]]:w-72 fine:hover:[&>[data-sidebar]]:px-3 fine:hover:[&>[data-sidebar]]:border-r w-0 md:w-[4.5rem]",
+          "fine:hover:[&>[data-sidebar]]:w-72 fine:hover:[&>[data-sidebar]]:bg-background fine:hover:[&>[data-sidebar]]:px-3 fine:hover:[&>[data-sidebar]]:border-r w-0 md:-mr-4 md:w-[4.5rem]",
         sidebarState === SidebarState.Expanded &&
           "w-0 md:w-[4.5rem] lg:w-72 [&>[data-sidebar]]:w-72",
       )}
@@ -77,6 +84,7 @@ function Navigation() {
           "flex flex-col items-start justify-start gap-2",
           "overflow-y-auto overflow-x-hidden",
           "bg-background px-3 py-4",
+          sidebarState === SidebarState.Minimized && "bg-transparent",
           isMobileView && sidebarState === SidebarState.Minimized && "px-0",
         )}
       >
@@ -146,24 +154,31 @@ function Navigation() {
 
         {/* Toggle placeholder */}
         <div className="sticky -bottom-4 h-10 w-full shrink-0 bg-gradient-to-t from-background via-background to-transparent" />
-        <Button
-          size="icon"
-          variant="secondary"
-          className="fixed bottom-4 left-4"
-          onClick={() => {
-            setSidebarState((v) =>
-              v === SidebarState.Minimized
-                ? SidebarState.Expanded
-                : SidebarState.Minimized,
-            );
-          }}
-        >
-          {sidebarState === SidebarState.Minimized ? (
-            <PanelLeftOpenIcon />
-          ) : (
-            <PanelLeftCloseIcon />
-          )}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="outline"
+              className="fixed bottom-4 left-4"
+              onClick={() => {
+                setSidebarState((v) =>
+                  v === SidebarState.Minimized
+                    ? SidebarState.Expanded
+                    : SidebarState.Minimized,
+                );
+              }}
+            >
+              {sidebarState === SidebarState.Minimized ? (
+                <PanelLeftOpenIcon />
+              ) : (
+                <PanelLeftCloseIcon />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Toggle sidebar</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
     </nav>
   );

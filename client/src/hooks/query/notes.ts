@@ -16,8 +16,8 @@ export function useNotes() {
     queryFn: ({ pageParam }) => NotesApi.getPaginated({ cursor: pageParam }),
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
-      if (!lastPage.data?.meta?.hasMore) return undefined;
-      return lastPage.data.meta.cursor;
+      if (!lastPage.meta?.hasMore) return undefined;
+      return lastPage.meta.cursor;
     },
   });
 }

@@ -4,7 +4,8 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
+    /* --background: 0 0% 100%; Original */
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -34,7 +35,8 @@
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 240 5.9% 10%;
+    /* --card: 240 10% 3.9%; Original */
     --card-foreground: 0 0% 98%;
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
@@ -78,24 +80,5 @@
 
   body {
     @apply bg-background text-foreground;
-  }
-
-  @media (pointer: fine) {
-    * {
-      scrollbar-width: thin;
-      scrollbar-color: var(--foreground) var(--background);
-    }
-    ::-webkit-scrollbar {
-      @apply h-3 w-3;
-    }
-    ::-webkit-scrollbar-thumb {
-      @apply rounded-full border-2 border-solid border-background bg-foreground/30;
-    }
-    ::-webkit-scrollbar-track {
-      @apply bg-background;
-    }
-    ::-webkit-scrollbar-corner {
-      @apply bg-background;
-    }
   }
 }

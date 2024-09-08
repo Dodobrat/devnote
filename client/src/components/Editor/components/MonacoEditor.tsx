@@ -252,6 +252,8 @@ export function MonacoEditor() {
       value={note}
       onChange={(noteValue) => setNote(noteValue || "")}
       onMount={(editor) => {
+        // After creation of a new note and redirect to edit page,
+        // return the cursor to the last known location
         if (location.state) {
           const isValidLineNumber = Number.isInteger(
             parseInt(location.state.lineNumber),
@@ -271,11 +273,13 @@ export function MonacoEditor() {
           }
         }
 
+        // Disable manual toggle for suggestions
         editor.addCommand(
           monaco.KeyMod.WinCtrl | monaco.KeyCode.Space,
           () => undefined,
         );
 
+        // Override CMD + S
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
           const cursorPosition = editor.getPosition();
 
@@ -285,14 +289,10 @@ export function MonacoEditor() {
             { note: editor.getValue() },
             {
               onSuccess: (res) => {
-                toast.success(`${res.data.previewTitle} was created!`);
+                toast.success(`${res.previewTitle} was created!`);
 
                 navigate(
-                  {
-                    pathname: generatePath(AppRoutes.NoteById, {
-                      id: String(res.data.id),
-                    }),
-                  },
+                  generatePath(AppRoutes.NoteById, { id: String(res.id) }),
                   { state: cursorPosition },
                 );
               },

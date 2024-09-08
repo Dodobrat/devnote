@@ -4,49 +4,40 @@ import {
   NoteSchemaType,
   PaginatedNotesSchemaType,
   PaginatedQuerySchemaType,
+  UpdateNoteSchemaType,
 } from "~/types";
 
 import { instance } from "./axios";
 
 export const NotesApi = {
-  getPaginated(params: PaginatedQuerySchemaType = { cursor: 0, slice: 50 }) {
-    return instance.get<PaginatedNotesSchemaType>("/notes/list", { params });
+  async getPaginated(
+    params: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
+  ) {
+    return instance
+      .get<PaginatedNotesSchemaType>("/notes/list", { params })
+      .then(({ data }) => data);
   },
-  getById(id: NoteSchemaType["id"]) {
-    // if locked, require password
-    return instance.get<NoteSchemaType>(`/notes/${id}`);
-  },
-  create(body: Pick<NoteSchemaType, "note">) {
-    return instance.post<void, AxiosResponse<NoteSchemaType>>("/notes", body);
-  },
-  update(body: Partial<NoteSchemaType>) {
-    // update specific fields of a note by id
-    return instance.put<boolean>(`/notes/${body.id}`, body);
-  },
-  reorderPinned() {
-    // after reordering the PINNED notes, send the note id, with the old and new index ( on FE, enter drag mode )
-  },
-  reorder() {
-    // after reordering the notes, send the note id, with the old and new index ( on FE, enter drag mode )
-  },
-  search() {
+  async search() {
     // search for a word, creation date, update date, tag in the note title or the note body
   },
-  delete(id: NoteSchemaType["id"]) {
+  async getById(id: NoteSchemaType["id"]) {
     // if locked, require password
-    return instance.delete<boolean>(`/notes/${id}`);
+    return instance
+      .get<NoteSchemaType>(`/notes/${id}`)
+      .then(({ data }) => data);
   },
-  protect() {
-    // encrypt a note with a password ( encrypt with the password locally and send the note encrypted )
-    // DON'T store passwords
+  async create(body: Pick<NoteSchemaType, "note">) {
+    return instance
+      .post<void, AxiosResponse<NoteSchemaType>>("/notes", body)
+      .then(({ data }) => data);
   },
-  expose() {
-    // decrypt a note and override existing encrypted note with decrypted text
+  async update(body: UpdateNoteSchemaType) {
+    // update specific fields of a note by id
+    return instance
+      .put<boolean>(`/notes/${body.id}`, body)
+      .then(({ data }) => data);
   },
-  pin() {
-    // pin the note and bring it to the top
-  },
-  unPin() {
-    // unpin the note and bring it to the top of the other notes
+  async delete(id: NoteSchemaType["id"]) {
+    return instance.delete<boolean>(`/notes/${id}`).then(({ data }) => data);
   },
 };

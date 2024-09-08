@@ -13,9 +13,9 @@ export function Note() {
   const [, setNote] = useQueryStore(storeKeys.rawNote, "");
 
   useEffect(() => {
-    if (!data?.data) return;
-    setNote(data.data.note);
-  }, [data?.data, setNote]);
+    if (!data) return;
+    setNote(data.note);
+  }, [data, setNote]);
 
   return <Editor />;
 }
