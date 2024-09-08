@@ -32,7 +32,6 @@ export function useQueryStore<T>(storeKey: string, initialData: T) {
 
   const set = useCallback(
     (v: T | ((prev: T) => T)) => {
-      console.log("HELLO STORE", v);
       queryClient.setQueryData<T>(generateQueryKey(storeKey), (prev) => {
         const valueToStore = v instanceof Function ? v(prev as NoInfer<T>) : v;
         return valueToStore;
@@ -58,7 +57,6 @@ export function usePersisQueryStore<T>(storeKey: string, initialData: T) {
 
   const set = useCallback(
     (v: T | ((prev: T) => T)) => {
-      console.log("HELLO", v);
       queryClient.setQueryData<T>(generateQueryKey(storeKey), (prev) => {
         const valueToStore = v instanceof Function ? v(prev as NoInfer<T>) : v;
         webStorage.setItem<T>(storeKey, valueToStore);

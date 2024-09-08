@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import MonacoEditorBase, { loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
+import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import { toast } from "sonner";
 
 import { ThemeMode, useTheme } from "~/context";
@@ -13,6 +14,12 @@ import { useCreateNote, useUpdateNote } from "~/hooks/query";
 import { storeKeys, useQueryStore } from "~/hooks/store";
 import { remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
+
+self.MonacoEnvironment = {
+  getWorker() {
+    return new editorWorker();
+  },
+};
 
 loader.config({ monaco });
 

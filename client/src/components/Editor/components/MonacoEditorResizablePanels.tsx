@@ -34,8 +34,6 @@ export function EditorResizableGroup({
     defaultResizeState,
   );
 
-  console.log({ state });
-
   return (
     <ResizablePanelGroup
       direction={state!.direction}

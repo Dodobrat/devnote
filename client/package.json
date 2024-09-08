@@ -10,8 +10,7 @@
     "lint:check": "bun eslint .",
     "format": "bun prettier . --write",
     "format:check": "bun prettier . --check",
-    "preview": "vite preview",
-    "monaco:migrate": "cp -R node_modules/monaco-editor public/monaco-editor"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@monaco-editor/react": "4.6.0",
