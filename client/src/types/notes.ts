@@ -31,7 +31,9 @@ export const updateNotePinStateSchema = noteSchema.pick({
   isPinned: true,
 });
 
-export const updateNoteOrderSchema = z.array(noteSchema.pick({ id: true }));
+export const updateNoteOrderSchema = z.object({
+  order: z.array(intSchema.positive()),
+});
 
 export type NoteSchemaType = z.infer<typeof noteSchema>;
 export type UpdateNoteSchemaType = z.infer<typeof updateNoteSchema>;

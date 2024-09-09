@@ -45,9 +45,7 @@ export const NotesApi = {
       .then(({ data }) => data);
   },
   async updateOrder(body: UpdateNoteOrderSchemaType) {
-    return instance
-      .put<boolean>(`/notes/${body.id}/order`, body)
-      .then(({ data }) => data);
+    return instance.put<boolean>(`/notes/order`, body).then(({ data }) => data);
   },
   async delete(id: NoteSchemaType["id"]) {
     return instance.delete<boolean>(`/notes/${id}`).then(({ data }) => data);

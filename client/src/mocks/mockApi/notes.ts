@@ -280,10 +280,10 @@ export const NotesMockApi = {
             {} as Record<string, NoteSchemaType>,
           );
 
-          const updated = result.data.flatMap((x) => {
-            const match = objList[x.id];
+          const updated = result.data.order.flatMap((x, idx) => {
+            const match = objList[x];
             if (!match) return [];
-            return match;
+            return { ...match, order: idx };
           });
 
           return updated;

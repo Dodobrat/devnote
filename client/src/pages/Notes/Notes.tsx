@@ -1,16 +1,21 @@
+import { useEffect, useState } from "react";
 import { InView } from "react-intersection-observer";
-import { GripVerticalIcon } from "lucide-react";
+import { Reorder, useDragControls } from "framer-motion";
+import { toast } from "sonner";
 
 import { PageCard } from "~/components/Layout";
-import { useNotes } from "~/hooks/query";
+import { Separator } from "~/components/ui";
+import { useNotes, useUpdateNoteOrder } from "~/hooks/query";
+import { cn } from "~/lib/utils";
+import { NoteSchemaType } from "~/types";
 
 import {
   NoteDelete,
+  NoteDragHandle,
   NoteEditTitle,
   NoteLink,
   NotePin,
   NoteProtect,
-  NoteReorderDropdown,
 } from "./components";
 
 export function Notes() {
@@ -26,6 +31,30 @@ export function Notes() {
 
 function NotesList() {
   const notesQuery = useNotes();
+  const updateNoteOrderMutation = useUpdateNoteOrder();
+
+  const [pinnedNotes, setPinnedNotes] = useState<NoteSchemaType[]>([]);
+  const [notes, setNotes] = useState<NoteSchemaType[]>([]);
+
+  useEffect(() => {
+    if (!notesQuery.data) return;
+
+    const pinned: NoteSchemaType[] = [];
+    const regular: NoteSchemaType[] = [];
+
+    for (const note of notesQuery.data) {
+      if (note.isPinned) {
+        pinned.push(note);
+      }
+
+      if (!note.isPinned) {
+        regular.push(note);
+      }
+    }
+
+    setPinnedNotes(pinned);
+    setNotes(regular);
+  }, [notesQuery.data]);
 
   if (notesQuery.isLoading) {
     return <div>Loading...</div>;
@@ -35,37 +64,114 @@ function NotesList() {
     return <div>No data</div>;
   }
 
+  const updateNoteOrder = () => {
+    const dataToSend = [
+      ...pinnedNotes.map((x) => x.id),
+      ...notes.map((x) => x.id),
+    ];
+    updateNoteOrderMutation.mutate(
+      { order: dataToSend },
+      {
+        onSuccess: () => notesQuery.refetch(),
+        onError: () => toast.error("Error reordering notes"),
+      },
+    );
+  };
+
+  const showSeparator = Boolean(pinnedNotes.length) && Boolean(notes.length);
+
   return (
-    <div className="grid divide-y">
-      {notesQuery.data?.map((note) => (
-        <article className="flex items-start gap-2 py-4" key={note.id}>
-          {/* Reorder handle */}
-          <div className="flex h-full w-10 shrink-0 items-center justify-center rounded-lg bg-muted px-2">
-            <GripVerticalIcon className="size-5" />
-          </div>
+    <>
+      <Reorder.Group
+        className="grid"
+        axis="y"
+        as="div"
+        values={pinnedNotes}
+        onReorder={setPinnedNotes}
+        layoutScroll
+      >
+        {pinnedNotes.map((pinnedNote) => (
+          <NoteItem
+            note={pinnedNote}
+            key={pinnedNote.id}
+            onReorderEnd={updateNoteOrder}
+          />
+        ))}
+      </Reorder.Group>
 
-          <div className="grid grow grid-cols-[1fr_auto] gap-2 md:grid-cols-[auto_1fr_auto]">
-            <NoteLink note={note} />
+      {showSeparator && <Separator />}
 
-            <div className="flex shrink-0 gap-2 md:order-1">
-              <NotePin note={note} />
-              <NoteProtect note={note} />
-            </div>
-
-            <div className="ml-auto flex shrink-0 gap-2 md:order-3">
-              <NoteEditTitle note={note} />
-              <NoteReorderDropdown note={note} />
-              <NoteDelete note={note} />
-            </div>
-          </div>
-        </article>
-      ))}
+      <Reorder.Group
+        className="grid"
+        axis="y"
+        as="div"
+        values={notes}
+        onReorder={setNotes}
+        layoutScroll
+      >
+        {notes.map((note) => (
+          <NoteItem note={note} key={note.id} onReorderEnd={updateNoteOrder} />
+        ))}
+      </Reorder.Group>
 
       {notesQuery.hasNextPage && !notesQuery.isFetching && (
         <InView onChange={(isInView) => isInView && notesQuery.fetchNextPage()}>
           Loading more...
         </InView>
       )}
-    </div>
+    </>
+  );
+}
+
+function NoteItem({
+  note,
+  onReorderEnd,
+}: {
+  note: NoteSchemaType;
+  onReorderEnd?: () => void;
+}) {
+  const controls = useDragControls();
+  const [isDragging, setIsDragging] = useState(false);
+
+  return (
+    <Reorder.Item
+      as="article"
+      className={cn(
+        "-mx-4 flex items-start gap-2 rounded-lg bg-card px-4 py-4 transition-shadow",
+        isDragging && "cursor-grabbing shadow-xl",
+      )}
+      value={note}
+      dragListener={false}
+      dragControls={controls}
+      onDragStart={() => setIsDragging(true)}
+      onDragEnd={() => {
+        setIsDragging(false);
+        onReorderEnd?.();
+      }}
+    >
+      <div
+        className={cn(
+          "order-1 grid grow grid-cols-[1fr_auto] gap-2 md:grid-cols-[auto_1fr_auto]",
+          isDragging && "pointer-events-none",
+        )}
+      >
+        <NoteLink note={note} />
+
+        <div className="flex shrink-0 gap-2 md:order-1">
+          <NotePin note={note} />
+          <NoteProtect note={note} />
+        </div>
+
+        <div className="ml-auto flex shrink-0 gap-2 md:order-3">
+          <NoteEditTitle note={note} />
+          <NoteDelete note={note} />
+        </div>
+      </div>
+
+      <NoteDragHandle
+        onPointerDown={(e) => controls.start(e)}
+        className={isDragging ? "pointer-events-none" : ""}
+      />
+    </Reorder.Item>
   );
 }
