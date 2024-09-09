@@ -26,6 +26,12 @@ export function NoteDragHandle(props: ButtonProps) {
             setOpen(false);
             props.onPointerDown?.(e);
           }}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+              setOpen(false);
+            }
+            props.onKeyDown?.(e);
+          }}
         >
           <GripVerticalIcon className="size-5" />
         </Button>

@@ -15,7 +15,6 @@ import {
   NoteEditTitle,
   NoteLink,
   NotePin,
-  NoteProtect,
 } from "./components";
 
 export function Notes() {
@@ -71,12 +70,40 @@ function NotesList() {
     ];
     updateNoteOrderMutation.mutate(
       { order: dataToSend },
-      {
-        onSuccess: () => notesQuery.refetch(),
-        onError: () => toast.error("Error reordering notes"),
-      },
+      { onError: () => toast.error("Error reordering notes") },
     );
   };
+
+  const updateOrderOnKeyDown =
+    (
+      note: NoteSchemaType,
+      setState: React.Dispatch<React.SetStateAction<NoteSchemaType[]>>,
+    ) =>
+    (dir: NoteReorderDirection) => {
+      setState((prev) => {
+        const index = prev.findIndex((x) => x.id === note.id);
+        const newIndex = dir === "up" ? index - 1 : index + 1;
+
+        if (newIndex < 0) {
+          toast.error("Can't move note up");
+          return prev;
+        }
+
+        if (newIndex >= prev.length) {
+          toast.error("Can't move note down");
+          return prev;
+        }
+
+        const newNotes = [...prev];
+
+        newNotes.splice(index, 1);
+        newNotes.splice(newIndex, 0, note);
+
+        return newNotes;
+      });
+
+      updateNoteOrder();
+    };
 
   const showSeparator = Boolean(pinnedNotes.length) && Boolean(notes.length);
 
@@ -95,6 +122,7 @@ function NotesList() {
             note={pinnedNote}
             key={pinnedNote.id}
             onReorderEnd={updateNoteOrder}
+            onKeyboardReorder={updateOrderOnKeyDown(pinnedNote, setPinnedNotes)}
           />
         ))}
       </Reorder.Group>
@@ -110,7 +138,12 @@ function NotesList() {
         layoutScroll
       >
         {notes.map((note) => (
-          <NoteItem note={note} key={note.id} onReorderEnd={updateNoteOrder} />
+          <NoteItem
+            note={note}
+            key={note.id}
+            onReorderEnd={updateNoteOrder}
+            onKeyboardReorder={updateOrderOnKeyDown(note, setNotes)}
+          />
         ))}
       </Reorder.Group>
 
@@ -123,12 +156,16 @@ function NotesList() {
   );
 }
 
+type NoteReorderDirection = "up" | "down";
+
 function NoteItem({
   note,
   onReorderEnd,
+  onKeyboardReorder,
 }: {
   note: NoteSchemaType;
   onReorderEnd?: () => void;
+  onKeyboardReorder: (dir: NoteReorderDirection) => void;
 }) {
   const controls = useDragControls();
   const [isDragging, setIsDragging] = useState(false);
@@ -159,7 +196,7 @@ function NoteItem({
 
         <div className="flex shrink-0 gap-2 md:order-1">
           <NotePin note={note} />
-          <NoteProtect note={note} />
+          {/* <NoteProtect note={note} /> */}
         </div>
 
         <div className="ml-auto flex shrink-0 gap-2 md:order-3">
@@ -171,6 +208,15 @@ function NoteItem({
       <NoteDragHandle
         onPointerDown={(e) => controls.start(e)}
         className={isDragging ? "pointer-events-none" : ""}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowUp") {
+            onKeyboardReorder("up");
+          }
+
+          if (e.key === "ArrowDown") {
+            onKeyboardReorder("down");
+          }
+        }}
       />
     </Reorder.Item>
   );
