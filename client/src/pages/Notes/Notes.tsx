@@ -31,41 +31,37 @@ function NotesList() {
     return <div>Loading...</div>;
   }
 
-  if (!notesQuery.data?.pages?.[0]?.data?.length) {
+  if (!notesQuery.data?.length) {
     return <div>No data</div>;
   }
 
   return (
     <div className="grid divide-y">
-      {notesQuery.data?.pages?.map((page) => {
-        return page.data?.map((note) => {
-          return (
-            <article key={note.id} className="flex items-start gap-2 py-4">
-              {/* Reorder handle */}
-              <div className="flex h-full w-10 shrink-0 items-center justify-center rounded-lg bg-muted px-2">
-                <GripVerticalIcon className="size-5" />
-              </div>
+      {notesQuery.data?.map((note) => (
+        <article className="flex items-start gap-2 py-4" key={note.id}>
+          {/* Reorder handle */}
+          <div className="flex h-full w-10 shrink-0 items-center justify-center rounded-lg bg-muted px-2">
+            <GripVerticalIcon className="size-5" />
+          </div>
 
-              <div className="flex grow flex-wrap items-start gap-2">
-                <NoteLink note={note} />
+          <div className="grid grow grid-cols-[1fr_auto] gap-2 md:grid-cols-[auto_1fr_auto]">
+            <NoteLink note={note} />
 
-                <div className="flex shrink-0 gap-2 md:order-1">
-                  <NotePin note={note} />
-                  <NoteProtect note={note} />
-                </div>
+            <div className="flex shrink-0 gap-2 md:order-1">
+              <NotePin note={note} />
+              <NoteProtect note={note} />
+            </div>
 
-                <div className="ml-auto flex shrink-0 gap-2 md:order-3">
-                  <NoteEditTitle note={note} />
-                  <NoteReorderDropdown note={note} />
-                  <NoteDelete note={note} />
-                </div>
-              </div>
-            </article>
-          );
-        });
-      })}
+            <div className="ml-auto flex shrink-0 gap-2 md:order-3">
+              <NoteEditTitle note={note} />
+              <NoteReorderDropdown note={note} />
+              <NoteDelete note={note} />
+            </div>
+          </div>
+        </article>
+      ))}
 
-      {notesQuery.hasNextPage && (
+      {notesQuery.hasNextPage && !notesQuery.isFetching && (
         <InView onChange={(isInView) => isInView && notesQuery.fetchNextPage()}>
           Loading more...
         </InView>

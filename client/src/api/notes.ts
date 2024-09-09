@@ -4,6 +4,8 @@ import {
   NoteSchemaType,
   PaginatedNotesSchemaType,
   PaginatedQuerySchemaType,
+  UpdateNoteOrderSchemaType,
+  UpdateNotePinStateSchemaType,
   UpdateNoteSchemaType,
 } from "~/types";
 
@@ -35,6 +37,16 @@ export const NotesApi = {
     // update specific fields of a note by id
     return instance
       .put<boolean>(`/notes/${body.id}`, body)
+      .then(({ data }) => data);
+  },
+  async updatePinState(body: UpdateNotePinStateSchemaType) {
+    return instance
+      .put<boolean>(`/notes/${body.id}/pin-state`, body)
+      .then(({ data }) => data);
+  },
+  async updateOrder(body: UpdateNoteOrderSchemaType) {
+    return instance
+      .put<boolean>(`/notes/${body.id}/order`, body)
       .then(({ data }) => data);
   },
   async delete(id: NoteSchemaType["id"]) {

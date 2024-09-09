@@ -39,10 +39,12 @@ enum SidebarState {
 }
 
 function Navigation() {
-  const [sidebarState, setSidebarState] = useState(SidebarState.Expanded);
-
   const isLargerThanLg = useMediaQuery(getCssVar("--screen-lg"));
   const isLargerThanMd = useMediaQuery(getCssVar("--screen-md"));
+
+  const [sidebarState, setSidebarState] = useState(
+    isLargerThanLg ? SidebarState.Expanded : SidebarState.Minimized,
+  );
 
   useEffect(() => {
     if (isLargerThanMd && !isLargerThanLg) {
@@ -59,7 +61,7 @@ function Navigation() {
       className={cn(
         "relative z-50 shrink-0 transition-[width]",
         sidebarState === SidebarState.Minimized &&
-          "fine:hover:[&>[data-sidebar]]:w-72 fine:hover:[&>[data-sidebar]]:bg-background fine:hover:[&>[data-sidebar]]:px-3 fine:hover:[&>[data-sidebar]]:border-r w-0 md:-mr-4 md:w-[4.5rem]",
+          "w-0 md:-mr-4 md:w-[4.5rem] fine:hover:[&>[data-sidebar]]:w-72 fine:hover:[&>[data-sidebar]]:border-r fine:hover:[&>[data-sidebar]]:bg-background fine:hover:[&>[data-sidebar]]:px-3",
         sidebarState === SidebarState.Expanded &&
           "w-0 md:w-[4.5rem] lg:w-72 [&>[data-sidebar]]:w-72",
       )}

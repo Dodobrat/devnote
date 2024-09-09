@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { PencilIcon } from "lucide-react";
+import { toast } from "sonner";
 import { ZodError } from "zod";
 
 import {
@@ -70,6 +71,8 @@ function NoteEditTitleForm({
           { id: note.id, previewTitle: title },
           {
             onSuccess: (_, variables) => {
+              toast.success("Note title updated");
+
               queryClient.setQueryData<InfiniteData<PaginatedNotesSchemaType>>(
                 notesQueryKeys.list(),
                 (prev) => {

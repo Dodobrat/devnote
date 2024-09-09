@@ -8,9 +8,12 @@ import {
   NoteSchemaType,
   PaginatedNotesSchemaType,
   paginatedQuerySchema,
+  updateNoteOrderSchema,
+  updateNotePinStateSchema,
+  updateNoteSchema,
 } from "~/types";
 
-const DEFAULT_SLICE = 25;
+const DEFAULT_SLICE = 50;
 
 export const NotesMockApi = {
   getPaginated() {
@@ -42,9 +45,6 @@ export const NotesMockApi = {
       const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
 
       if (!stored) return HttpResponse.json(response, { status: 200 });
-
-      // from order 0 up
-      stored.sort((a, b) => (a.order >= b.order ? 1 : -1));
 
       const count = stored.length;
       const nextCursor = Math.min(
@@ -140,7 +140,7 @@ export const NotesMockApi = {
     return http.put("/notes/:id", async ({ request }) => {
       const body = await request.json();
 
-      const result = noteSchema.partial().safeParse(body);
+      const result = updateNoteSchema.safeParse(body);
 
       if (!result.success) {
         return HttpResponse.json(
@@ -167,9 +167,7 @@ export const NotesMockApi = {
       const updatedNote: NoteSchemaType = {
         ...matchingNote,
         updatedAt: currentDate,
-        isPinned: result.data.isPinned ?? matchingNote.isPinned,
         isProtected: result.data.isProtected ?? matchingNote.isProtected,
-        order: result.data.order ?? matchingNote.order,
         note: result.data.note ?? matchingNote.note,
         previewTitle: result.data.previewTitle ?? matchingNote.previewTitle,
         tags: result.data.tags?.length ? result.data.tags : matchingNote.tags,
@@ -179,6 +177,117 @@ export const NotesMockApi = {
         oldNotes.map((note) =>
           note.id === updatedNote.id ? updatedNote : note,
         ),
+      );
+
+      return HttpResponse.json(true, { status: 200 });
+    });
+  },
+
+  updatePinState() {
+    return http.put("/notes/:id/pin-state", async ({ request }) => {
+      const body = await request.json();
+
+      const result = updateNotePinStateSchema.safeParse(body);
+
+      if (!result.success) {
+        return HttpResponse.json(
+          { error: result.error.message },
+          { status: 400 },
+        );
+      }
+
+      const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
+
+      if (!stored) return HttpResponse.json(null, { status: 404 });
+
+      const matchingNote = stored.find((n) => n.id === result.data.id);
+
+      if (!matchingNote) {
+        return HttpResponse.json(
+          { message: "Note not found" },
+          { status: 404 },
+        );
+      }
+
+      const currentDate = new Date();
+
+      const updatedNote: NoteSchemaType = {
+        ...matchingNote,
+        updatedAt: currentDate,
+        isPinned: result.data.isPinned,
+      };
+
+      webStorage.setItem<NoteSchemaType[]>(
+        NOTES_STORAGE_KEY,
+        (oldNotes = []) => {
+          const pinnedNotes = oldNotes.filter(
+            (n) => n.isPinned && n.id !== updatedNote.id,
+          );
+          const unpinnedNotes = oldNotes.filter(
+            (n) => !n.isPinned && n.id !== updatedNote.id,
+          );
+
+          const unOrderedNotes = [
+            ...pinnedNotes.map((x, idx) => ({
+              ...x,
+              order: idx,
+            })),
+            {
+              ...updatedNote,
+              order: pinnedNotes.length,
+            },
+            ...unpinnedNotes.map((x, idx) => ({
+              ...x,
+              order: pinnedNotes.length + idx + 1,
+            })),
+          ];
+
+          unOrderedNotes.sort((a, b) => a.order - b.order);
+
+          return unOrderedNotes;
+        },
+      );
+
+      return HttpResponse.json(true, { status: 200 });
+    });
+  },
+
+  updateOrder() {
+    return http.put("/notes/order", async ({ request }) => {
+      const body = await request.json();
+
+      const result = updateNoteOrderSchema.safeParse(body);
+
+      if (!result.success) {
+        return HttpResponse.json(
+          { error: result.error.message },
+          { status: 400 },
+        );
+      }
+
+      const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
+
+      if (!stored) return HttpResponse.json(null, { status: 404 });
+
+      webStorage.setItem<NoteSchemaType[]>(
+        NOTES_STORAGE_KEY,
+        (oldNotes = []) => {
+          const objList = oldNotes.reduce(
+            (acc, curr) => {
+              acc[curr.id] = curr;
+              return acc;
+            },
+            {} as Record<string, NoteSchemaType>,
+          );
+
+          const updated = result.data.flatMap((x) => {
+            const match = objList[x.id];
+            if (!match) return [];
+            return match;
+          });
+
+          return updated;
+        },
       );
 
       return HttpResponse.json(true, { status: 200 });

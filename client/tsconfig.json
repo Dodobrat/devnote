@@ -5,6 +5,8 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
+    "noErrorTruncation": true,
+
     "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]

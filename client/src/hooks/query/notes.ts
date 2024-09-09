@@ -19,6 +19,9 @@ export function useNotes() {
       if (!lastPage.meta?.hasMore) return undefined;
       return lastPage.meta.cursor;
     },
+    select: (data) => {
+      return data.pages.flatMap((page) => page.data);
+    },
   });
 }
 
@@ -39,6 +42,18 @@ export function useCreateNote() {
 export function useUpdateNote() {
   return useMutation({
     mutationFn: NotesApi.update,
+  });
+}
+
+export function useUpdateNotePinState() {
+  return useMutation({
+    mutationFn: NotesApi.updatePinState,
+  });
+}
+
+export function useUpdateNoteOrder() {
+  return useMutation({
+    mutationFn: NotesApi.updateOrder,
   });
 }
 

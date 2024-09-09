@@ -9,9 +9,9 @@ export function NoteLink({ note }: { note: NoteSchemaType }) {
     <NavLink
       to={generatePath(AppRoutes.NoteById, { id: String(note.id) })}
       className={cn([
-        "w-full md:order-2 md:w-auto",
-        "text-lg font-semibold leading-tight",
-        "grow truncate rounded-lg px-4 py-2 md:h-full",
+        "col-span-full md:order-2 md:col-span-1",
+        "truncate text-lg font-semibold leading-tight",
+        "grow rounded-lg px-4 py-2 md:h-full",
         "focus:outline-none focus-visible:ring",
         "hover:bg-muted",
       ])}

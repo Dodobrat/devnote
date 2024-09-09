@@ -5,5 +5,7 @@ export const handlers = [
   NotesMockApi.getById(),
   NotesMockApi.create(),
   NotesMockApi.update(),
+  NotesMockApi.updatePinState(),
+  NotesMockApi.updateOrder(),
   NotesMockApi.delete(),
 ];

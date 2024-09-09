@@ -17,11 +17,28 @@ export const noteSchema = z.object({
 });
 
 export const updateNoteSchema = noteSchema
+  .pick({
+    isProtected: true,
+    note: true,
+    previewTitle: true,
+    tags: true,
+  })
   .partial()
   .merge(noteSchema.pick({ id: true }));
 
+export const updateNotePinStateSchema = noteSchema.pick({
+  id: true,
+  isPinned: true,
+});
+
+export const updateNoteOrderSchema = z.array(noteSchema.pick({ id: true }));
+
 export type NoteSchemaType = z.infer<typeof noteSchema>;
 export type UpdateNoteSchemaType = z.infer<typeof updateNoteSchema>;
+export type UpdateNotePinStateSchemaType = z.infer<
+  typeof updateNotePinStateSchema
+>;
+export type UpdateNoteOrderSchemaType = z.infer<typeof updateNoteOrderSchema>;
 
 export const paginationMetaSchema = z.object({
   hasMore: z.boolean(),
