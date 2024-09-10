@@ -10,11 +10,12 @@ import { webStorage } from "~/lib/utils";
 
 export const storeKeys = {
   all: "devnote",
-  rawNote: "devnote.rawNote",
-  editorLayout: "devnote.editorLayout",
-  editorLayoutLeftPanel: "devnote.editorLayout.leftPanel",
-  editorLayoutRightPanel: "devnote.editorLayout.rightPanel",
-};
+  sidebarState: "devnote.sidebarState",
+  rawNote: "devnote.editor.note",
+  editorLayout: "devnote.editor.layout",
+  editorLayoutLeftPanel: "devnote.editor.layout.leftPanel",
+  editorLayoutRightPanel: "devnote.editor.layout.rightPanel",
+} as const;
 
 function generateQueryKey(key: string): QueryKey {
   return key.split(".");

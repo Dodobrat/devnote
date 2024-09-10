@@ -42,11 +42,11 @@ function NotesList() {
     const regular: NoteSchemaType[] = [];
 
     for (const note of notesQuery.data) {
-      if (note.isPinned) {
+      if (note?.isPinned) {
         pinned.push(note);
       }
 
-      if (!note.isPinned) {
+      if (!note?.isPinned) {
         regular.push(note);
       }
     }

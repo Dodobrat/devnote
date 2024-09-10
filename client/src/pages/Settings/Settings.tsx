@@ -31,7 +31,7 @@ function SettingsSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex flex-col gap-2">
+    <section className="flex flex-col items-start gap-2">
       <header>
         <h2 className="text-lg font-semibold md:text-xl">{title}</h2>
         {description && <p className="text-muted-foreground">{description}</p>}

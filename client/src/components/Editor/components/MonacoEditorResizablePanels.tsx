@@ -23,16 +23,31 @@ import { storeKeys, usePersisQueryStore, useQueryStore } from "~/hooks/store";
 import { cn, getIsInRange } from "~/lib/utils";
 
 import { defaultResizeState } from "../types";
+// TODO: global store
+function useResizeState() {
+  return usePersisQueryStore(storeKeys.editorLayout, defaultResizeState);
+}
+
+function useLeftPanelState() {
+  return useQueryStore<ImperativePanelHandle | null>(
+    storeKeys.editorLayoutLeftPanel,
+    null,
+  );
+}
+
+function useRightPanelState() {
+  return useQueryStore<ImperativePanelHandle | null>(
+    storeKeys.editorLayoutRightPanel,
+    null,
+  );
+}
 
 export function EditorResizableGroup({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [state, setState] = usePersisQueryStore(
-    storeKeys.editorLayout,
-    defaultResizeState,
-  );
+  const [state, setState] = useResizeState();
 
   return (
     <ResizablePanelGroup
@@ -52,15 +67,8 @@ const COLLAPSED_RESIZE_PANEL_SIZE = 0;
 const MIN_RESIZE_PANEL_SIZE = 20;
 
 export function EditorResizePanel({ children }: { children: React.ReactNode }) {
-  const [state, setState] = usePersisQueryStore(
-    storeKeys.editorLayout,
-    defaultResizeState,
-  );
-
-  const [, setPanel] = useQueryStore<ImperativePanelHandle | null>(
-    storeKeys.editorLayoutLeftPanel,
-    null,
-  );
+  const [state, setState] = useResizeState();
+  const [, setPanel] = useLeftPanelState();
 
   return (
     <ResizablePanel
@@ -97,15 +105,8 @@ export function EditorOutputResizePanel({
 }: {
   children: React.ReactNode;
 }) {
-  const [state, setState] = usePersisQueryStore(
-    storeKeys.editorLayout,
-    defaultResizeState,
-  );
-
-  const [, setPanel] = useQueryStore<ImperativePanelHandle | null>(
-    storeKeys.editorLayoutRightPanel,
-    null,
-  );
+  const [state, setState] = useResizeState();
+  const [, setPanel] = useRightPanelState();
 
   return (
     <ResizablePanel
@@ -127,19 +128,9 @@ export function EditorOutputResizePanel({
 }
 
 export function EditorResizeHandle() {
-  const [state, setState] = usePersisQueryStore(
-    storeKeys.editorLayout,
-    defaultResizeState,
-  );
-
-  const [leftPanel] = useQueryStore<ImperativePanelHandle | null>(
-    storeKeys.editorLayoutLeftPanel,
-    null,
-  );
-  const [rightPanel] = useQueryStore<ImperativePanelHandle | null>(
-    storeKeys.editorLayoutRightPanel,
-    null,
-  );
+  const [state, setState] = useResizeState();
+  const [leftPanel] = useLeftPanelState();
+  const [rightPanel] = useRightPanelState();
 
   const isHorizontal = state.direction === "horizontal";
   const isVertical = state.direction === "vertical";
