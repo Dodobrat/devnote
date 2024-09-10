@@ -23,28 +23,6 @@ self.MonacoEnvironment = {
 
 loader.config({ monaco });
 
-// :root {
-//   --background: #ffffff;
-//   --foreground: #090909;
-//   --card: #ffffff;
-//   --card-foreground: #090909;
-//   --popover: #ffffff;
-//   --popover-foreground: #090909;
-//   --primary: #0a0a0a;
-//   --primary-foreground: #fafafa;
-//   --secondary: #f2f2f2;
-//   --secondary-foreground: #0a0a0a;
-//   --muted: #f2f2f2;
-//   --muted-foreground: #777777;
-//   --accent: #f2f2f2;
-//   --accent-foreground: #0a0a0a;
-//   --destructive: #e60000;
-//   --destructive-foreground: #fafafa;
-//   --border: #e5e5e5;
-//   --input: #e5e5e5;
-//   --ring: #0a0a0a;
-// }
-
 monaco.editor.defineTheme("devnote-light", {
   base: "vs",
   inherit: true,
@@ -169,40 +147,19 @@ monaco.editor.defineTheme("devnote-light", {
   },
 });
 
-// .dark {
-//   --background: #090909;
-//   --foreground: #fafafa;
-//   --card: #090909;
-//   --card-foreground: #fafafa;
-//   --popover: #090909;
-//   --popover-foreground: #fafafa;
-//   --primary: #fafafa;
-//   --primary-foreground: #0a0a0a;
-//   --secondary: #2d2d2d;
-//   --secondary-foreground: #fafafa;
-//   --muted: #2d2d2d;
-//   --muted-foreground: #a3a3a3;
-//   --accent: #2d2d2d;
-//   --accent-foreground: #fafafa;
-//   --destructive: #7a0000;
-//   --destructive-foreground: #fafafa;
-//   --border: #2d2d2d;
-//   --input: #2d2d2d;
-//   --ring: #d9d9d9;
-// }
-
 monaco.editor.defineTheme("devnote-dark", {
   base: "vs-dark",
   inherit: true,
   rules: [],
   colors: {
-    "editor.background": "#090909",
+    "editor.background": "#18181b",
     "editor.foreground": "#fafafa",
   },
 });
 
 const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   acceptSuggestionOnEnter: "off",
+  automaticLayout: true,
   contextmenu: false,
   cursorBlinking: "solid",
   cursorSmoothCaretAnimation: "on",
@@ -224,8 +181,12 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   padding: { top: 32, bottom: 32 },
   parameterHints: { enabled: false },
   quickSuggestions: false,
+  renderLineHighlight: "all",
+  renderLineHighlightOnlyWhenFocus: true,
   renderWhitespace: "all",
+  scrollbar: { vertical: "visible" },
   scrollBeyondLastLine: false,
+  smoothScrolling: true,
   snippetSuggestions: "none",
   stickyScroll: { enabled: true, maxLineCount: 5 },
   suggest: { showWords: false },
@@ -251,12 +212,13 @@ export function MonacoEditor() {
 
   return (
     <MonacoEditorBase
+      language="markdown"
       theme={
         resolvedTheme === ThemeMode.Dark ? "devnote-dark" : "devnote-light"
       }
-      defaultLanguage="markdown"
       options={editorOptions}
       value={note}
+      className="[&_.slider]:!rounded-lg [&_.slider]:!shadow-[inset_0_0_0_0.2rem_hsl(var(--card))]"
       onChange={(noteValue) => setNote(noteValue || "")}
       onMount={(editor) => {
         // After creation of a new note and redirect to edit page,
@@ -272,12 +234,16 @@ export function MonacoEditor() {
 
           if (isValidPosition) {
             editor.setPosition(location.state);
+            editor.revealPosition(location.state);
             editor.focus();
 
             // clear after navigate
             window.history.replaceState(null, "");
             location.state = null;
           }
+        } else {
+          editor.setPosition({ lineNumber: 1, column: 1 });
+          editor.focus();
         }
 
         // Disable manual toggle for suggestions
@@ -296,7 +262,7 @@ export function MonacoEditor() {
             { note: editor.getValue() },
             {
               onSuccess: (res) => {
-                toast.success(`${res.previewTitle} was created!`);
+                toast.success(`${res.previewTitle} was created`);
 
                 navigate(
                   generatePath(AppRoutes.NoteById, { id: String(res.id) }),

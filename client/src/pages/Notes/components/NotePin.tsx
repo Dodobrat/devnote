@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { PinIcon, PinOffIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -8,11 +7,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui";
-import { notesQueryKeys, useUpdateNotePinState } from "~/hooks/query";
+import { useUpdateNotePinState } from "~/hooks/query";
 import { NoteSchemaType } from "~/types";
 
 export function NotePin({ note }: { note: NoteSchemaType }) {
-  const queryClient = useQueryClient();
   const updatePinStateMutation = useUpdateNotePinState();
 
   return (
@@ -23,20 +21,12 @@ export function NotePin({ note }: { note: NoteSchemaType }) {
           variant="ghost"
           onClick={() => {
             updatePinStateMutation.mutate(
+              { id: note.id, isPinned: !note.isPinned },
               {
-                id: note.id,
-                isPinned: !note.isPinned,
-              },
-              {
-                onSuccess: () => {
+                onSuccess: () =>
                   toast.success(
                     `Note ${note.isPinned ? "unpinned" : "pinned"}`,
-                  );
-
-                  queryClient.invalidateQueries({
-                    queryKey: notesQueryKeys.list(),
-                  });
-                },
+                  ),
               },
             );
           }}

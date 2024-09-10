@@ -1,5 +1,11 @@
-import { useEffect, useState } from "react";
-import { NavLink, NavLinkProps, Outlet } from "react-router-dom";
+import { cloneElement, useEffect, useState } from "react";
+import {
+  NavLink,
+  NavLinkProps,
+  useLocation,
+  useOutlet,
+} from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import {
   CircleHelpIcon,
   FileCode2Icon,
@@ -24,11 +30,25 @@ import {
   TooltipTrigger,
 } from "../ui";
 
+function AnimatedOutlet() {
+  const location = useLocation();
+  const element = useOutlet();
+
+  return (
+    <AnimatePresence mode="wait" initial={true}>
+      {element && cloneElement(element, { key: location.pathname })}
+    </AnimatePresence>
+  );
+}
+
 export function Layout() {
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div
+      className="flex h-screen overflow-hidden"
+      style={{ perspective: "1000px" }}
+    >
       <Navigation />
-      <Outlet />
+      <AnimatedOutlet />
     </div>
   );
 }
@@ -39,6 +59,8 @@ enum SidebarState {
 }
 
 function Navigation() {
+  const location = useLocation();
+
   const isLargerThanLg = useMediaQuery(getCssVar("--screen-lg"));
   const isLargerThanMd = useMediaQuery(getCssVar("--screen-md"));
 
@@ -55,6 +77,13 @@ function Navigation() {
   }, [isLargerThanLg, isLargerThanMd]);
 
   const isMobileView = !isLargerThanMd && !isLargerThanLg;
+  const isTabletView = isLargerThanMd && !isLargerThanLg;
+
+  useEffect(() => {
+    if (isTabletView) {
+      setSidebarState(SidebarState.Minimized);
+    }
+  }, [isTabletView, location.pathname]);
 
   return (
     <nav
@@ -194,7 +223,7 @@ function SidebarItem(props: NavLinkProps) {
         cn(
           "flex w-full items-center rounded-lg p-1",
           "focus:outline-none focus-visible:ring",
-          "fine:hover:bg-muted",
+          "hover:bg-muted",
           isActive && "",
           props.className,
         )

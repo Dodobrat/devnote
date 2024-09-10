@@ -47,8 +47,7 @@ const router = createBrowserRouter(
       <Route path={AppRoutes.Help} element={<Help />} />
       <Route path={AppRoutes.Changelog} element={<Changelog />} />
       <Route path={AppRoutes.Settings} element={<Settings />} />
-      {/* Layout should mimic VSCode with the vertical tabs ( ability to change position left or right ( default left ) ) */}
-      {/* Tabs:
+      {/* NAV:
             -TOP START--------------------------
             - Go Premium - Coming soon
             - Account - Coming Soon
@@ -61,15 +60,8 @@ const router = createBrowserRouter(
               -- Navigate to root page with an empty editor and the quick start hints
 
             - Notes
-              -- Search by title ( https://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string )
-              -- drag and drop to reorder if not searching ( toggle reorder mode )
-              -- bulk delete via bulk delete mode with confirmation
               -- perform actions per note
-                --- ( PREMIUM - Coming Soon ) pin / unpin note
-                --- lock / unlock note
                 --- TAG note
-                --- reorder actions...
-                --- delete note with confirmation
 
             -TOP END--------------------------
 

@@ -1,7 +1,13 @@
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import { NotesApi } from "~/api";
-import { NoteSchemaType } from "~/types";
+import { NoteSchemaType, PaginatedNotesSchemaType } from "~/types";
 
 export const notesQueryKeys = {
   all: () => ["notes"],
@@ -40,14 +46,40 @@ export function useCreateNote() {
 }
 
 export function useUpdateNote() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: NotesApi.update,
+    onSuccess: (_, variables) => {
+      queryClient.setQueryData<InfiniteData<PaginatedNotesSchemaType>>(
+        notesQueryKeys.list(),
+        (prev) => {
+          if (!prev) return prev;
+
+          const updated = prev.pages.map((p) => ({
+            ...p,
+            data: p.data.map((n) =>
+              n.id === variables.id ? { ...n, ...variables } : n,
+            ),
+          }));
+
+          return { ...prev, pages: updated };
+        },
+      );
+    },
   });
 }
 
 export function useUpdateNotePinState() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: NotesApi.updatePinState,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: notesQueryKeys.list(),
+      });
+    },
   });
 }
 
@@ -58,7 +90,15 @@ export function useUpdateNoteOrder() {
 }
 
 export function useDeleteNote() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: NotesApi.delete,
+    onSuccess: () => {
+      // TODO: see if order is updated
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.list(),
+      });
+    },
   });
 }

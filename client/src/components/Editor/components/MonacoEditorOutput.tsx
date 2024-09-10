@@ -63,8 +63,8 @@ function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
               const codeContent = (codeEl as HTMLElement).innerText;
               navigator.clipboard
                 .writeText(codeContent)
-                .then(() => toast.success("Copied to clipboard!"))
-                .catch(() => toast.error("Failed to copy text :("));
+                .then(() => toast.success("Copied to clipboard"))
+                .catch(() => toast.error("Failed to copy text"));
             };
 
             copyToClipboard();

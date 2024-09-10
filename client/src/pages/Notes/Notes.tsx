@@ -70,7 +70,7 @@ function NotesList() {
     ];
     updateNoteOrderMutation.mutate(
       { order: dataToSend },
-      { onError: () => toast.error("Error reordering notes") },
+      { onError: () => toast.error("Failed to reorder notes") },
     );
   };
 
@@ -85,12 +85,12 @@ function NotesList() {
         const newIndex = dir === "up" ? index - 1 : index + 1;
 
         if (newIndex < 0) {
-          toast.error("Can't move note up");
+          toast.info("Can't move note up");
           return prev;
         }
 
         if (newIndex >= prev.length) {
-          toast.error("Can't move note down");
+          toast.info("Can't move note down");
           return prev;
         }
 
