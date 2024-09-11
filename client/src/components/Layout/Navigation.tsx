@@ -2,13 +2,13 @@ import { useEffect } from "react";
 import { NavLink, NavLinkProps, useLocation } from "react-router-dom";
 import {
   CircleHelpIcon,
-  FileCode2Icon,
   LogsIcon,
   NotebookTabsIcon,
   PanelLeftCloseIcon,
   PanelLeftOpenIcon,
   PlusIcon,
   Settings2Icon,
+  TerminalIcon,
 } from "lucide-react";
 
 import { useMediaQuery } from "~/hooks";
@@ -96,7 +96,7 @@ export function Navigation() {
       >
         <SidebarItem to={AppRoutes.Root}>
           <SidebarIconItem variant="default">
-            <FileCode2Icon />
+            <TerminalIcon />
           </SidebarIconItem>
           <p className="whitespace-nowrap text-2xl font-bold text-foreground">
             DevNote
