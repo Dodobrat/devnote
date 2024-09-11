@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import { ThemeMode, useTheme } from "~/context";
 import { useCreateNote, useUpdateNote } from "~/hooks/query";
-import { storeKeys, useQueryStore } from "~/hooks/store";
+import { useEditorNote } from "~/hooks/store/editor";
 import { remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
@@ -208,7 +208,7 @@ export function MonacoEditor() {
   const params = useParams<{ id: string }>();
   const id = parseInt(params.id!);
 
-  const [note, setNote] = useQueryStore(storeKeys.rawNote, "");
+  const { note, setNote } = useEditorNote();
 
   return (
     <MonacoEditorBase
@@ -218,8 +218,8 @@ export function MonacoEditor() {
       }
       options={editorOptions}
       value={note}
+      onChange={setNote}
       className="[&_.slider]:!rounded-lg [&_.slider]:!shadow-[inset_0_0_0_0.2rem_hsl(var(--card))]"
-      onChange={(noteValue) => setNote(noteValue || "")}
       onMount={(editor) => {
         // After creation of a new note and redirect to edit page,
         // return the cursor to the last known location

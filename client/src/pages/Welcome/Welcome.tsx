@@ -1,12 +1,12 @@
 import { useEffect, useRef } from "react";
 
 import { Editor } from "~/components/Editor";
-import { storeKeys, useQueryStore } from "~/hooks/store";
+import { useEditorNote } from "~/hooks/store/editor";
 
 const WELCOME_TEXT = "#HELLO WORLD!";
 
 export function Welcome() {
-  const [, setNote] = useQueryStore(storeKeys.rawNote, "");
+  const { setNote } = useEditorNote();
   const setNoteInitialRef = useRef(setNote);
 
   useEffect(() => {

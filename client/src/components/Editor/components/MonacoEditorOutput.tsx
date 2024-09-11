@@ -7,13 +7,13 @@ import { toast } from "sonner";
 
 import { Button } from "~/components/ui";
 import { ThemeMode, useTheme } from "~/context";
-import { storeKeys, useQueryStore } from "~/hooks/store";
+import { useEditorNote } from "~/hooks/store/editor";
 import { cn } from "~/lib/utils";
 
 export function EditorOutput() {
   const { resolvedTheme } = useTheme();
 
-  const [note] = useQueryStore(storeKeys.rawNote, "");
+  const { note } = useEditorNote();
 
   return (
     <div className="h-full w-full overflow-auto p-8">
@@ -27,7 +27,6 @@ export function EditorOutput() {
           options={{
             wrapper: "article",
             overrides: {
-              hr: Hr,
               code: Code,
               pre: Pre,
             },
@@ -38,12 +37,6 @@ export function EditorOutput() {
       </div>
     </div>
   );
-}
-
-function Hr(props: React.ComponentPropsWithoutRef<"hr">) {
-  const ref = useRef<HTMLHRElement>(null);
-
-  return <hr {...props} ref={ref} />;
 }
 
 function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
@@ -95,10 +88,15 @@ function Code(props: React.ComponentPropsWithoutRef<"code">) {
     ref.current.removeAttribute("data-highlighted");
   }, [props.className, props.children]);
 
+  const isParentPre = ref.current?.parentElement?.tagName === "PRE";
+
   return (
     <code
       {...props}
-      className={cn(props.className, "!block !overflow-x-auto !p-4")}
+      className={cn(
+        props.className,
+        isParentPre && "!block !overflow-x-auto !p-4",
+      )}
       ref={ref}
     />
   );

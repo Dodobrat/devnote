@@ -1,4 +1,3 @@
-import { ImperativePanelHandle } from "react-resizable-panels";
 import {
   ArrowDownFromLineIcon,
   ArrowLeftFromLineIcon,
@@ -19,39 +18,23 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui";
-import { storeKeys, usePersisQueryStore, useQueryStore } from "~/hooks/store";
+import {
+  useEditorLayoutState,
+  useEditorPanelHandle,
+  usePreviewPanelHandle,
+} from "~/hooks/store/editor";
 import { cn, getIsInRange } from "~/lib/utils";
-
-import { defaultResizeState } from "../types";
-// TODO: global store
-function useResizeState() {
-  return usePersisQueryStore(storeKeys.editorLayout, defaultResizeState);
-}
-
-function useLeftPanelState() {
-  return useQueryStore<ImperativePanelHandle | null>(
-    storeKeys.editorLayoutLeftPanel,
-    null,
-  );
-}
-
-function useRightPanelState() {
-  return useQueryStore<ImperativePanelHandle | null>(
-    storeKeys.editorLayoutRightPanel,
-    null,
-  );
-}
 
 export function EditorResizableGroup({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [state, setState] = useResizeState();
+  const [state, setState] = useEditorLayoutState();
 
   return (
     <ResizablePanelGroup
-      direction={state!.direction}
+      direction={state.direction}
       className="max-w-full bg-card shadow-lg md:rounded-lg md:border"
       onLayout={([leftSize, rightSize]) => {
         setState((v) => ({ ...v, leftSize, rightSize }));
@@ -67,21 +50,17 @@ const COLLAPSED_RESIZE_PANEL_SIZE = 0;
 const MIN_RESIZE_PANEL_SIZE = 20;
 
 export function EditorResizePanel({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useResizeState();
-  const [, setPanel] = useLeftPanelState();
+  const [state, setState] = useEditorLayoutState();
+  const [, setEditorPanelHandle] = useEditorPanelHandle();
 
   return (
     <ResizablePanel
       collapsible
       collapsedSize={COLLAPSED_RESIZE_PANEL_SIZE}
-      defaultSize={state.leftSize ?? DEFAULT_RESIZE_PANEL_SIZE}
+      defaultSize={state.editorSize ?? DEFAULT_RESIZE_PANEL_SIZE}
       minSize={MIN_RESIZE_PANEL_SIZE}
-      onCollapse={() => {
-        setState((v) => ({ ...v, leftCollapsed: true }));
-      }}
-      onExpand={() => {
-        setState((v) => ({ ...v, leftCollapsed: false }));
-      }}
+      onCollapse={() => setState((v) => ({ ...v, editorCollapsed: true }))}
+      onExpand={() => setState((v) => ({ ...v, editorCollapsed: false }))}
       onResize={(value) => {
         const isReset = getIsInRange({ targetValue: 50, diff: 1, value });
 
@@ -93,7 +72,7 @@ export function EditorResizePanel({ children }: { children: React.ReactNode }) {
           setState((v) => ({ ...v, isReset: false }));
         }
       }}
-      ref={setPanel}
+      ref={setEditorPanelHandle}
     >
       {children}
     </ResizablePanel>
@@ -105,22 +84,18 @@ export function EditorOutputResizePanel({
 }: {
   children: React.ReactNode;
 }) {
-  const [state, setState] = useResizeState();
-  const [, setPanel] = useRightPanelState();
+  const [state, setState] = useEditorLayoutState();
+  const [, setPreviewPanelHandle] = usePreviewPanelHandle();
 
   return (
     <ResizablePanel
       collapsible
       collapsedSize={COLLAPSED_RESIZE_PANEL_SIZE}
-      defaultSize={state.rightSize ?? DEFAULT_RESIZE_PANEL_SIZE}
+      defaultSize={state.previewSize ?? DEFAULT_RESIZE_PANEL_SIZE}
       minSize={MIN_RESIZE_PANEL_SIZE}
-      onCollapse={() => {
-        setState((v) => ({ ...v, rightCollapsed: true }));
-      }}
-      onExpand={() => {
-        setState((v) => ({ ...v, rightCollapsed: false }));
-      }}
-      ref={setPanel}
+      onCollapse={() => setState((v) => ({ ...v, previewCollapsed: true }))}
+      onExpand={() => setState((v) => ({ ...v, previewCollapsed: false }))}
+      ref={setPreviewPanelHandle}
     >
       {children}
     </ResizablePanel>
@@ -128,9 +103,9 @@ export function EditorOutputResizePanel({
 }
 
 export function EditorResizeHandle() {
-  const [state, setState] = useResizeState();
-  const [leftPanel] = useLeftPanelState();
-  const [rightPanel] = useRightPanelState();
+  const [state, setState] = useEditorLayoutState();
+  const [editorPanelHandle] = useEditorPanelHandle();
+  const [previewPanelHandle] = usePreviewPanelHandle();
 
   const isHorizontal = state.direction === "horizontal";
   const isVertical = state.direction === "vertical";
@@ -153,10 +128,12 @@ export function EditorResizeHandle() {
         onPointerCancel={() => setState((v) => ({ ...v, isDisabled: false }))}
         className={cn(
           "z-50 flex items-center justify-center gap-1 rounded-lg border-4 bg-background p-1",
-          isVertical && state.leftCollapsed && "translate-y-1/2 rounded-t-none",
-          isVertical && state.rightCollapsed && "-translate-y-1/2 rounded-b-none", // prettier-ignore
-          isHorizontal && state.leftCollapsed && "translate-x-1/2 rounded-l-none", // prettier-ignore
-          isHorizontal && state.rightCollapsed && "-translate-x-1/2 rounded-r-none", // prettier-ignore
+          isVertical &&
+            state.editorCollapsed &&
+            "translate-y-1/2 rounded-t-none",
+          isVertical && state.previewCollapsed && "-translate-y-1/2 rounded-b-none", // prettier-ignore
+          isHorizontal && state.editorCollapsed && "translate-x-1/2 rounded-l-none", // prettier-ignore
+          isHorizontal && state.previewCollapsed && "-translate-x-1/2 rounded-r-none", // prettier-ignore
           isHorizontal ? "flex-col" : "h-14 flex-row",
         )}
       >
@@ -165,8 +142,8 @@ export function EditorResizeHandle() {
             <Button
               size="icon"
               variant="ghost"
-              disabled={state.leftCollapsed}
-              onClick={() => leftPanel?.collapse()}
+              disabled={state.editorCollapsed}
+              onClick={() => editorPanelHandle?.collapse()}
             >
               {isHorizontal ? (
                 <ArrowLeftFromLineIcon />
@@ -216,7 +193,9 @@ export function EditorResizeHandle() {
               size="icon"
               variant="ghost"
               disabled={state.isReset}
-              onClick={() => leftPanel?.resize(DEFAULT_RESIZE_PANEL_SIZE)}
+              onClick={() =>
+                editorPanelHandle?.resize(DEFAULT_RESIZE_PANEL_SIZE)
+              }
             >
               <RotateCcwIcon />
             </Button>
@@ -233,8 +212,8 @@ export function EditorResizeHandle() {
             <Button
               size="icon"
               variant="ghost"
-              disabled={state.rightCollapsed}
-              onClick={() => rightPanel?.collapse()}
+              disabled={state.previewCollapsed}
+              onClick={() => previewPanelHandle?.collapse()}
             >
               {isHorizontal ? (
                 <ArrowRightFromLineIcon />
