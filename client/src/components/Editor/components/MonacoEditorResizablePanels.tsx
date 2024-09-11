@@ -36,8 +36,8 @@ export function EditorResizableGroup({
     <ResizablePanelGroup
       direction={state.direction}
       className="max-w-full bg-card shadow-lg md:rounded-lg md:border"
-      onLayout={([leftSize, rightSize]) => {
-        setState((v) => ({ ...v, leftSize, rightSize }));
+      onLayout={([editorSize, previewSize]) => {
+        setState((v) => ({ ...v, editorSize, previewSize }));
       }}
     >
       {children}

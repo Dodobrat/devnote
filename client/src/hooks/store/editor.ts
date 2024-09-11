@@ -37,14 +37,14 @@ export function useEditorLayoutState() {
 
 export function useEditorPanelHandle() {
   return useQueryStore<ImperativePanelHandle | null>(
-    storeKeys.editorLayoutLeftPanel,
+    storeKeys.editorLayoutEditorPanel,
     null,
   );
 }
 
 export function usePreviewPanelHandle() {
   return useQueryStore<ImperativePanelHandle | null>(
-    storeKeys.editorLayoutRightPanel,
+    storeKeys.editorLayoutPreviewPanel,
     null,
   );
 }

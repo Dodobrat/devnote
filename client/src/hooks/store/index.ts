@@ -14,8 +14,8 @@ export const storeKeys = {
   editorNote: "devnote.editor.note",
   editorAutosave: "devnote.editor.autosave",
   editorLayout: "devnote.editor.layout",
-  editorLayoutLeftPanel: "devnote.editor.layout.leftPanel",
-  editorLayoutRightPanel: "devnote.editor.layout.rightPanel",
+  editorLayoutEditorPanel: "devnote.editor.layout.editorPanel",
+  editorLayoutPreviewPanel: "devnote.editor.layout.previewPanel",
 } as const;
 
 function generateQueryKey(key: string): QueryKey {
