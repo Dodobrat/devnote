@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Calculator,
   Calendar,
@@ -8,7 +8,7 @@ import {
   User,
 } from "lucide-react";
 
-import { getIsMac } from "~/lib/utils";
+import { useKeyDownEvent } from "~/hooks";
 
 import {
   CommandDialog,
@@ -23,34 +23,22 @@ import {
   DialogTitle,
 } from "../ui";
 
-export function CommandPrompt() {
+export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isMac = getIsMac();
-
-      // if key combination is ctrl / cmd + k
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        console.log("ctrl + k");
-        setOpen(true);
-      }
-
-      // if key combination is ctrl / cmd + Shift + p
-      //   if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === "p") {
-      //     e.preventDefault();
-      //     console.log("ctrl + shift + p");
-      //   }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+  useKeyDownEvent((e, isMac) => {
+    // if key combination is ctrl / cmd + k
+    // or
+    // if key combination is ctrl / cmd + Shift + p
+    if (
+      ((isMac ? e.metaKey : e.ctrlKey) && e.key === "k") ||
+      ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === "p")
+    ) {
+      e.preventDefault();
+      setOpen(true);
+    }
+  });
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>

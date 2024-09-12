@@ -1,3 +1,4 @@
+import { EditorKeyboardShortcuts } from "../KeyboardShortcuts";
 import { PageCardBase } from "../Layout";
 import {
   EditorOutput,
@@ -22,6 +23,8 @@ export function Editor() {
           <EditorOutput />
         </EditorOutputResizePanel>
       </EditorResizableGroup>
+
+      <EditorKeyboardShortcuts />
     </PageCardBase>
   );
 }

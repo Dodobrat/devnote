@@ -10,10 +10,16 @@ import * as monaco from "monaco-editor";
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import { toast } from "sonner";
 
+import { DEFAULT_RESIZE_PANEL_SIZE } from "~/constants";
 import { ThemeMode, useTheme } from "~/context";
+import { useKeyDownEvent } from "~/hooks";
 import { useCreateNote, useUpdateNote } from "~/hooks/query";
-import { useEditorNote } from "~/hooks/store/editor";
-import { getIsMac, remToPx } from "~/lib/utils";
+import {
+  useEditorNote,
+  useEditorPanelHandle,
+  usePreviewPanelHandle,
+} from "~/hooks/store/editor";
+import { remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
 self.MonacoEnvironment = {
@@ -237,23 +243,47 @@ export function MonacoEditor() {
     [createMutation, id, navigate, updateMutation],
   );
 
+  useKeyDownEvent((e, isMac) => {
+    if ((isMac ? e.metaKey : e.ctrlKey) && e.key === "s") {
+      e.preventDefault();
+      saveNote(editorInstance);
+    }
+  });
+
+  const [editorPanelHandle] = useEditorPanelHandle();
+  const [previewPanelHandle] = usePreviewPanelHandle();
+
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isMac = getIsMac();
+    if (!editorInstance) return;
+    // Override CMD + Shift + <
+    editorInstance.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Comma,
+      () => editorPanelHandle?.collapse(),
+    );
 
-      // if key combination is ctrl / cmd + s
-      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === "s") {
-        e.preventDefault();
-        saveNote(editorInstance);
-      }
-    };
+    // Override CMD + Shift + >
+    editorInstance.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Period,
+      () => previewPanelHandle?.collapse(),
+    );
 
-    document.addEventListener("keydown", handleKeyDown);
+    // Override CMD + Shift + ?
+    editorInstance.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Semicolon,
+      () => editorPanelHandle?.resize(DEFAULT_RESIZE_PANEL_SIZE),
+    );
+  }, [editorInstance, editorPanelHandle, previewPanelHandle]);
 
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [editorInstance, saveNote]);
+  useEffect(() => {
+    if (!editorInstance) return;
+    // Override CMD + Enter
+    editorInstance.addCommand(
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
+      () => {
+        navigate(AppRoutes.Root);
+      },
+    );
+  }, [editorInstance, navigate]);
 
   return (
     <MonacoEditorBase

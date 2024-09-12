@@ -2,7 +2,8 @@ import { cloneElement } from "react";
 import { useLocation, useOutlet } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 
-import { CommandPrompt } from "../CommandPrompt";
+import { CommandPalette } from "../CommandPalette";
+import { GlobalKeyboardShortcuts } from "../KeyboardShortcuts";
 import { Navigation } from "./Navigation";
 
 function AnimatedOutlet() {
@@ -22,7 +23,8 @@ export function Layout() {
       className="flex h-screen overflow-hidden"
       style={{ perspective: "1000px" }}
     >
-      <CommandPrompt />
+      <GlobalKeyboardShortcuts />
+      <CommandPalette />
       <Navigation />
       <AnimatedOutlet />
     </div>

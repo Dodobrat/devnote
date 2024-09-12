@@ -19,6 +19,11 @@ import {
   TooltipTrigger,
 } from "~/components/ui";
 import {
+  COLLAPSED_RESIZE_PANEL_SIZE,
+  DEFAULT_RESIZE_PANEL_SIZE,
+  MIN_RESIZE_PANEL_SIZE,
+} from "~/constants";
+import {
   useEditorLayoutState,
   useEditorPanelHandle,
   usePreviewPanelHandle,
@@ -44,10 +49,6 @@ export function EditorResizableGroup({
     </ResizablePanelGroup>
   );
 }
-
-const DEFAULT_RESIZE_PANEL_SIZE = 50;
-const COLLAPSED_RESIZE_PANEL_SIZE = 0;
-const MIN_RESIZE_PANEL_SIZE = 20;
 
 export function EditorResizePanel({ children }: { children: React.ReactNode }) {
   const [state, setState] = useEditorLayoutState();
@@ -174,9 +175,9 @@ export function EditorResizeHandle() {
               }}
             >
               {isHorizontal ? (
-                <SquareSplitHorizontalIcon />
-              ) : (
                 <SquareSplitVerticalIcon />
+              ) : (
+                <SquareSplitHorizontalIcon />
               )}
             </Button>
           </TooltipTrigger>
