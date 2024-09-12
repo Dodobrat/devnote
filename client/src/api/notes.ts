@@ -3,7 +3,7 @@ import { AxiosResponse } from "axios";
 import {
   NoteSchemaType,
   PaginatedNotesSchemaType,
-  PaginatedQuerySchemaType,
+  PaginatedSearchQuerySchemaType,
   UpdateNoteOrderSchemaType,
   UpdateNotePinStateSchemaType,
   UpdateNoteSchemaType,
@@ -13,14 +13,15 @@ import { instance } from "./axios";
 
 export const NotesApi = {
   async getPaginated(
-    params: PaginatedQuerySchemaType = { cursor: 0, slice: 50 },
+    params: PaginatedSearchQuerySchemaType = {
+      cursor: 0,
+      // slice: 50,
+      // query: "",
+    },
   ) {
     return instance
       .get<PaginatedNotesSchemaType>("/notes/list", { params })
       .then(({ data }) => data);
-  },
-  async search() {
-    // search for a word, creation date, update date, tag in the note title or the note body
   },
   async getById(id: NoteSchemaType["id"]) {
     // if locked, require password

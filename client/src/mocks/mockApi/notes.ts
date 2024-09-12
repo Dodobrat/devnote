@@ -7,7 +7,7 @@ import {
   noteSchema,
   NoteSchemaType,
   PaginatedNotesSchemaType,
-  paginatedQuerySchema,
+  paginatedSearchQuerySchema,
   updateNoteOrderSchema,
   updateNotePinStateSchema,
   updateNoteSchema,
@@ -21,7 +21,7 @@ export const NotesMockApi = {
       const searchParams = new URL(request.url).searchParams;
       const parsedSearchParams = Object.fromEntries(searchParams.entries());
 
-      const result = paginatedQuerySchema.safeParse(parsedSearchParams);
+      const result = paginatedSearchQuerySchema.safeParse(parsedSearchParams);
 
       if (!result.success) {
         return HttpResponse.json(
@@ -51,7 +51,16 @@ export const NotesMockApi = {
         params.cursor + (params.slice || DEFAULT_SLICE),
         count,
       );
-      const currentSlice = stored.slice(params.cursor, nextCursor);
+
+      const filteredNotes = stored.filter((n) => {
+        if (!params.query) return true;
+        const noteKeywords = [n.previewTitle, n.note, n.createdAt, ...n.tags]
+          .join(" ")
+          .toLocaleLowerCase();
+        return noteKeywords.includes(params.query.toLocaleLowerCase());
+      });
+
+      const currentSlice = filteredNotes.slice(params.cursor, nextCursor);
 
       response.data = currentSlice;
       response.meta.hasMore = nextCursor < count;
@@ -60,10 +69,6 @@ export const NotesMockApi = {
 
       return HttpResponse.json(response, { status: 200 });
     });
-  },
-
-  search() {
-    // search for a word, creation date, update date, tag in the note title or the note body
   },
 
   getById() {
@@ -112,6 +117,15 @@ export const NotesMockApi = {
 
       const currentDate = new Date();
 
+      const formattedDate = currentDate.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      });
+
       const newNote: NoteSchemaType = {
         id: currentDate.getTime(),
         createdAt: currentDate,
@@ -119,7 +133,7 @@ export const NotesMockApi = {
         isPinned: false,
         isProtected: false,
         note: result.data.note,
-        previewTitle: "New Note",
+        previewTitle: `New Note - ${formattedDate}`,
         tags: [],
         order: 0,
       };

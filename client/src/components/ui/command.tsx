@@ -23,7 +23,11 @@ Command.displayName = CommandPrimitive.displayName;
 
 type CommandDialogProps = DialogProps;
 
-const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
+const CommandDialog = ({
+  children,
+  shouldFilter,
+  ...props
+}: CommandDialogProps & { shouldFilter?: boolean }) => {
   return (
     <Dialog {...props}>
       <DialogContent
@@ -36,6 +40,7 @@ const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
         )}
       >
         <Command
+          shouldFilter={shouldFilter}
           className={cn(
             "rounded-none md:rounded-lg",
             "[&_[cmdk-group-heading]]:px-2",

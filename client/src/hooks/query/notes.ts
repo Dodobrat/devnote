@@ -7,19 +7,29 @@ import {
 } from "@tanstack/react-query";
 
 import { NotesApi } from "~/api";
-import { NoteSchemaType, PaginatedNotesSchemaType } from "~/types";
+import {
+  NoteSchemaType,
+  PaginatedNotesSchemaType,
+  PaginatedSearchQuerySchemaType,
+} from "~/types";
 
 export const notesQueryKeys = {
   all: () => ["notes"],
   list: () => [...notesQueryKeys.all(), "list"],
+  listQuery: (query: PaginatedSearchQuerySchemaType["query"]) => [
+    ...notesQueryKeys.list(),
+    query,
+  ],
   byIdRoot: () => [...notesQueryKeys.all(), "byId"],
   byId: (id: NoteSchemaType["id"]) => [...notesQueryKeys.byIdRoot(), id],
 };
 
-export function useNotes() {
+export function useNotes(query?: PaginatedSearchQuerySchemaType["query"]) {
   return useInfiniteQuery({
-    queryKey: notesQueryKeys.list(),
-    queryFn: ({ pageParam }) => NotesApi.getPaginated({ cursor: pageParam }),
+    queryKey: notesQueryKeys.listQuery(query),
+    queryFn: ({ pageParam }) =>
+      NotesApi.getPaginated({ cursor: pageParam, query }),
+    enabled: typeof query === "string" ? Boolean(query.length >= 2) : true,
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
       if (!lastPage.meta?.hasMore) return undefined;

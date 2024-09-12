@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { generatePath, useNavigate } from "react-router-dom";
 import { MilestoneIcon, StickyNoteIcon, TerminalIcon } from "lucide-react";
 
 import { useActions, useKeyDownEvent } from "~/hooks";
+import { useNotes } from "~/hooks/query";
 import { getIsMac } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
@@ -39,8 +40,15 @@ export function CommandPalette() {
     setPrompt("");
   };
 
+  const isSearchingNote =
+    Boolean(prompt) && !prompt.startsWith("/") && !prompt.startsWith(">");
+
   return (
-    <CommandDialog open={open} onOpenChange={setOpen}>
+    <CommandDialog
+      open={open}
+      onOpenChange={setOpen}
+      shouldFilter={!isSearchingNote}
+    >
       <DialogTitle className="sr-only">Command prompt</DialogTitle>
       <DialogDescription className="sr-only">
         Execute actions or navigate to pages
@@ -78,6 +86,10 @@ export function CommandPalette() {
 
         <PageCommandGroup prompt={prompt} closeAndReset={closeAndReset} />
         <ActionsCommandGroup prompt={prompt} closeAndReset={closeAndReset} />
+        <NotesSearchCommandGroup
+          prompt={prompt}
+          closeAndReset={closeAndReset}
+        />
       </CommandList>
     </CommandDialog>
   );
@@ -117,11 +129,11 @@ function PageCommandGroup({
     <CommandGroup heading="Pages">
       {pages.map(({ to, label, shortcut }) => (
         <CommandItem
+          key={to}
           onSelect={() => {
             navigate(to);
             closeAndReset();
           }}
-          key={to}
           keywords={[to, label]}
         >
           <MilestoneIcon className="mr-2 size-4" />
@@ -138,6 +150,40 @@ function PageCommandGroup({
         <MilestoneIcon className="mr-2 size-4" />
         <span>Go to {prompt}</span>
       </CommandItem>
+    </CommandGroup>
+  );
+}
+
+function NotesSearchCommandGroup({
+  prompt,
+  closeAndReset,
+}: {
+  prompt: string;
+  closeAndReset: () => void;
+}) {
+  const navigate = useNavigate();
+
+  const { data } = useNotes(prompt || undefined);
+
+  const isNoteSearchPrompt =
+    Boolean(prompt) && !prompt.startsWith("/") && !prompt.startsWith(">");
+  if (!isNoteSearchPrompt) return null;
+  if (!data?.length) return null;
+
+  return (
+    <CommandGroup heading="Notes">
+      {data.map((note) => (
+        <CommandItem
+          key={note.id}
+          onSelect={() => {
+            navigate(generatePath(AppRoutes.NoteById, { id: String(note.id) }));
+            closeAndReset();
+          }}
+        >
+          <StickyNoteIcon className="mr-2 size-4" />
+          <span>{note.previewTitle}</span>
+        </CommandItem>
+      ))}
     </CommandGroup>
   );
 }
@@ -209,11 +255,11 @@ function ActionsCommandGroup({
     <CommandGroup heading="Actions">
       {commandActions.map(({ label, action, shortcut }) => (
         <CommandItem
+          key={label}
           onSelect={() => {
             action();
             closeAndReset();
           }}
-          key={label}
           keywords={[label]}
         >
           <TerminalIcon className="mr-2 size-4" />

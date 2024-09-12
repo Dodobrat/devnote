@@ -36,7 +36,7 @@ export function NoteDragHandle(props: ButtonProps) {
           <GripVerticalIcon className="size-5" />
         </Button>
       </TooltipTrigger>
-      <TooltipContent>
+      <TooltipContent align="start">
         <p>Drag to reorder</p>
       </TooltipContent>
     </Tooltip>

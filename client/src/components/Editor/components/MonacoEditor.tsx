@@ -297,12 +297,9 @@ export function MonacoEditor() {
       onChange={(value) => {
         setNote(value);
 
-        if (isAutosaving) {
+        if (id && isAutosaving) {
           clearTimeout(autoSaveRef.current);
-          autoSaveRef.current = setTimeout(() => {
-            if (!id) return;
-            saveNote(editorInstance);
-          }, 500);
+          autoSaveRef.current = setTimeout(() => saveNote(editorInstance), 500);
         }
       }}
       className="[&_.slider]:!rounded-lg [&_.slider]:!shadow-[inset_0_0_0_0.2rem_hsl(var(--card))]"

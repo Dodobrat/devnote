@@ -58,5 +58,12 @@ export const paginatedQuerySchema = paginationMetaSchema
   .pick({ cursor: true, slice: true })
   .partial({ slice: true });
 
+export const paginatedSearchQuerySchema = paginatedQuerySchema.extend({
+  query: titleSchema.max(100).optional(),
+});
+
 export type PaginatedNotesSchemaType = z.infer<typeof paginatedNotesSchema>;
 export type PaginatedQuerySchemaType = z.infer<typeof paginatedQuerySchema>;
+export type PaginatedSearchQuerySchemaType = z.infer<
+  typeof paginatedSearchQuerySchema
+>;
