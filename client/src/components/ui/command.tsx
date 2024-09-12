@@ -26,8 +26,32 @@ type CommandDialogProps = DialogProps;
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
   return (
     <Dialog {...props}>
-      <DialogContent className="overflow-hidden p-0 shadow-lg">
-        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+      <DialogContent
+        className={cn(
+          "top-0 max-w-full translate-y-0 md:top-4 md:max-w-screen-sm",
+          "overflow-hidden p-0 shadow-lg",
+          "border-transparent md:border-border",
+          "rounded-none md:rounded-lg",
+          "h-full md:h-auto",
+        )}
+      >
+        <Command
+          className={cn(
+            "rounded-none md:rounded-lg",
+            "[&_[cmdk-group-heading]]:px-2",
+            "[&_[cmdk-group-heading]]:font-medium",
+            "[&_[cmdk-group-heading]]:text-muted-foreground",
+            "[&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0",
+            "[&_[cmdk-group]]:px-2",
+            "[&_[cmdk-input-wrapper]_svg]:h-5",
+            "[&_[cmdk-input-wrapper]_svg]:w-5",
+            "[&_[cmdk-input]]:h-12",
+            "[&_[cmdk-item]]:px-2",
+            "[&_[cmdk-item]]:py-3",
+            "[&_[cmdk-item]_svg]:h-5",
+            "[&_[cmdk-item]_svg]:w-5",
+          )}
+        >
           {children}
         </Command>
       </DialogContent>
@@ -60,7 +84,10 @@ const CommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden", className)}
+    className={cn(
+      "overflow-y-auto overflow-x-hidden md:max-h-[300px]",
+      className,
+    )}
     {...props}
   />
 ));

@@ -74,3 +74,7 @@ export function getIsInRange({
   // Check if the value is within the range
   return value >= lowerBound && value <= upperBound;
 }
+
+export function getIsMac() {
+  return window.navigator.platform.match("Mac");
+}

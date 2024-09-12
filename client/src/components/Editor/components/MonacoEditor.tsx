@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from "react";
 import {
   generatePath,
   useLocation,
@@ -12,7 +13,7 @@ import { toast } from "sonner";
 import { ThemeMode, useTheme } from "~/context";
 import { useCreateNote, useUpdateNote } from "~/hooks/query";
 import { useEditorNote } from "~/hooks/store/editor";
-import { remToPx } from "~/lib/utils";
+import { getIsMac, remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
 self.MonacoEnvironment = {
@@ -196,6 +197,8 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   wordWrap: "on",
 };
 
+type MonacoEditor = monaco.editor.IStandaloneCodeEditor | null;
+
 export function MonacoEditor() {
   const { resolvedTheme } = useTheme();
 
@@ -210,6 +213,48 @@ export function MonacoEditor() {
 
   const { note, setNote } = useEditorNote();
 
+  const [editorInstance, setEditorInstance] = useState<MonacoEditor>(null);
+
+  const saveNote = useCallback(
+    (editor: MonacoEditor) => {
+      const cursorPosition = editor?.getPosition();
+
+      if (id) return updateMutation.mutate({ id, note: editor?.getValue() });
+
+      return createMutation.mutate(
+        { note: editor?.getValue() || "" },
+        {
+          onSuccess: (res) => {
+            toast.success(`${res.previewTitle} was created`);
+
+            navigate(generatePath(AppRoutes.NoteById, { id: String(res.id) }), {
+              state: cursorPosition,
+            });
+          },
+        },
+      );
+    },
+    [createMutation, id, navigate, updateMutation],
+  );
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isMac = getIsMac();
+
+      // if key combination is ctrl / cmd + s
+      if ((isMac ? e.metaKey : e.ctrlKey) && e.key === "s") {
+        e.preventDefault();
+        saveNote(editorInstance);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [editorInstance, saveNote]);
+
   return (
     <MonacoEditorBase
       language="markdown"
@@ -221,6 +266,7 @@ export function MonacoEditor() {
       onChange={setNote}
       className="[&_.slider]:!rounded-lg [&_.slider]:!shadow-[inset_0_0_0_0.2rem_hsl(var(--card))]"
       onMount={(editor) => {
+        setEditorInstance(editor);
         // After creation of a new note and redirect to edit page,
         // return the cursor to the last known location
         if (location.state) {
@@ -254,23 +300,7 @@ export function MonacoEditor() {
 
         // Override CMD + S
         editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
-          const cursorPosition = editor.getPosition();
-
-          if (id) return updateMutation.mutate({ id, note: editor.getValue() });
-
-          return createMutation.mutate(
-            { note: editor.getValue() },
-            {
-              onSuccess: (res) => {
-                toast.success(`${res.previewTitle} was created`);
-
-                navigate(
-                  generatePath(AppRoutes.NoteById, { id: String(res.id) }),
-                  { state: cursorPosition },
-                );
-              },
-            },
-          );
+          saveNote(editor);
         });
       }}
     />
