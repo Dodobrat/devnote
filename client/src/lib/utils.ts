@@ -76,5 +76,5 @@ export function getIsInRange({
 }
 
 export function getIsMac() {
-  return window.navigator.platform.match("Mac");
+  return Boolean(window.navigator.platform.match("Mac"));
 }

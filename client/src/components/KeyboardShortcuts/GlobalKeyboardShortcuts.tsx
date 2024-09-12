@@ -1,38 +1,19 @@
 import { useNavigate } from "react-router-dom";
 
-import { useKeyDownEvent } from "~/hooks";
-import { SidebarState, useSidebarStateStore } from "~/hooks/store/layout";
+import { useActions, useKeyDownEvent } from "~/hooks";
 import { AppRoutes } from "~/routes";
 
 export function GlobalKeyboardShortcuts() {
-  return (
-    <>
-      <GlobalKeyboardShortcutToggleSidebar />
-      <GlobalKeyboardShortcutNewNote />
-    </>
-  );
-}
+  const navigate = useNavigate();
 
-function GlobalKeyboardShortcutToggleSidebar() {
-  const [, setSidebarState] = useSidebarStateStore();
+  const { toggleSidebar } = useActions();
 
   useKeyDownEvent((e, isMac) => {
-    // if key combination is ctrl / cmd + b
     if ((isMac ? e.metaKey : e.ctrlKey) && e.key === "b") {
       e.preventDefault();
-      setSidebarState((v) =>
-        v === SidebarState.Expanded
-          ? SidebarState.Minimized
-          : SidebarState.Expanded,
-      );
+      toggleSidebar();
     }
   });
-
-  return null;
-}
-
-function GlobalKeyboardShortcutNewNote() {
-  const navigate = useNavigate();
 
   useKeyDownEvent((e, isMac) => {
     // if key combination is ctrl / cmd + Enter

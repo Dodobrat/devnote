@@ -23,6 +23,7 @@ import {
   DEFAULT_RESIZE_PANEL_SIZE,
   MIN_RESIZE_PANEL_SIZE,
 } from "~/constants";
+import { useActions } from "~/hooks";
 import {
   useEditorLayoutState,
   useEditorPanelHandle,
@@ -105,8 +106,13 @@ export function EditorOutputResizePanel({
 
 export function EditorResizeHandle() {
   const [state, setState] = useEditorLayoutState();
-  const [editorPanelHandle] = useEditorPanelHandle();
-  const [previewPanelHandle] = usePreviewPanelHandle();
+
+  const {
+    collapseEditorPanel,
+    collapsePreviewPanel,
+    toggleSplitViewMode,
+    resetPanelSizes,
+  } = useActions();
 
   const isHorizontal = state.direction === "horizontal";
   const isVertical = state.direction === "vertical";
@@ -144,7 +150,7 @@ export function EditorResizeHandle() {
               size="icon"
               variant="ghost"
               disabled={state.editorCollapsed}
-              onClick={() => editorPanelHandle?.collapse()}
+              onClick={collapseEditorPanel}
             >
               {isHorizontal ? (
                 <ArrowLeftFromLineIcon />
@@ -162,18 +168,7 @@ export function EditorResizeHandle() {
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => {
-                setState((v) => ({
-                  ...v,
-                  isDisabled: false,
-                  direction:
-                    v.direction === "horizontal" ? "vertical" : "horizontal",
-                }));
-              }}
-            >
+            <Button size="icon" variant="ghost" onClick={toggleSplitViewMode}>
               {isHorizontal ? (
                 <SquareSplitVerticalIcon />
               ) : (
@@ -194,9 +189,7 @@ export function EditorResizeHandle() {
               size="icon"
               variant="ghost"
               disabled={state.isReset}
-              onClick={() =>
-                editorPanelHandle?.resize(DEFAULT_RESIZE_PANEL_SIZE)
-              }
+              onClick={resetPanelSizes}
             >
               <RotateCcwIcon />
             </Button>
@@ -214,7 +207,7 @@ export function EditorResizeHandle() {
               size="icon"
               variant="ghost"
               disabled={state.previewCollapsed}
-              onClick={() => previewPanelHandle?.collapse()}
+              onClick={collapsePreviewPanel}
             >
               {isHorizontal ? (
                 <ArrowRightFromLineIcon />

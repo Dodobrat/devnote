@@ -1,14 +1,10 @@
-import { useState } from "react";
-import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  Settings,
-  Smile,
-  User,
-} from "lucide-react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { MilestoneIcon, StickyNoteIcon, TerminalIcon } from "lucide-react";
 
-import { useKeyDownEvent } from "~/hooks";
+import { useActions, useKeyDownEvent } from "~/hooks";
+import { getIsMac } from "~/lib/utils";
+import { AppRoutes } from "~/routes";
 
 import {
   CommandDialog,
@@ -17,7 +13,6 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
   CommandShortcut,
   DialogDescription,
   DialogTitle,
@@ -29,7 +24,6 @@ export function CommandPalette() {
 
   useKeyDownEvent((e, isMac) => {
     // if key combination is ctrl / cmd + k
-    // or
     // if key combination is ctrl / cmd + Shift + p
     if (
       ((isMac ? e.metaKey : e.ctrlKey) && e.key === "k") ||
@@ -39,6 +33,11 @@ export function CommandPalette() {
       setOpen(true);
     }
   });
+
+  const closeAndReset = () => {
+    setOpen(false);
+    setPrompt("");
+  };
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
@@ -53,39 +52,175 @@ export function CommandPalette() {
       />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Suggestions">
-          <CommandItem>
-            <Calendar className="mr-2 h-4 w-4" />
-            <span>Calendar</span>
-          </CommandItem>
-          <CommandItem>
-            <Smile className="mr-2 h-4 w-4" />
-            <span>Search Emoji</span>
-          </CommandItem>
-          <CommandItem disabled>
-            <Calculator className="mr-2 h-4 w-4" />
-            <span>Calculator</span>
-          </CommandItem>
-        </CommandGroup>
-        <CommandSeparator />
-        <CommandGroup heading="Settings">
-          <CommandItem>
-            <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
-            <CommandShortcut>⌘P</CommandShortcut>
-          </CommandItem>
-          <CommandItem>
-            <CreditCard className="mr-2 h-4 w-4" />
-            <span>Billing</span>
-            <CommandShortcut>⌘B</CommandShortcut>
-          </CommandItem>
-          <CommandItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
-            <CommandShortcut>⌘S</CommandShortcut>
-          </CommandItem>
-        </CommandGroup>
+
+        {!prompt && (
+          <CommandGroup heading="Suggestions">
+            <CommandItem onSelect={() => setPrompt("/")}>
+              <MilestoneIcon className="mr-2 size-4" />
+              <span>
+                Start with a <code className="rounded border px-1">/</code> to
+                navigate to a page
+              </span>
+            </CommandItem>
+            <CommandItem onSelect={() => setPrompt(">")}>
+              <TerminalIcon className="mr-2 size-4" />
+              <span>
+                Start with a <code className="rounded border px-1">&gt;</code>{" "}
+                to execute an action
+              </span>
+            </CommandItem>
+            <CommandItem>
+              <StickyNoteIcon className="mr-2 size-4" />
+              <span>Start with a word to search for notes by title</span>
+            </CommandItem>
+          </CommandGroup>
+        )}
+
+        <PageCommandGroup prompt={prompt} closeAndReset={closeAndReset} />
+        <ActionsCommandGroup prompt={prompt} closeAndReset={closeAndReset} />
       </CommandList>
     </CommandDialog>
+  );
+}
+
+type CommandEntry = {
+  label: string;
+  shortcut?: string;
+};
+
+type PageCommandEntry = CommandEntry & { to: AppRoutes };
+const pages: PageCommandEntry[] = [
+  {
+    to: AppRoutes.Root,
+    label: "New note",
+    shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Enter`,
+  },
+  { to: AppRoutes.Notes, label: "List all notes" },
+  { to: AppRoutes.Help, label: "Help" },
+  { to: AppRoutes.Changelog, label: "Changelog" },
+  { to: AppRoutes.Settings, label: "Settings" },
+];
+
+function PageCommandGroup({
+  prompt,
+  closeAndReset,
+}: {
+  prompt: string;
+  closeAndReset: () => void;
+}) {
+  const navigate = useNavigate();
+
+  const isPagePrompt = prompt.startsWith("/");
+  if (!isPagePrompt) return null;
+
+  return (
+    <CommandGroup heading="Pages">
+      {pages.map(({ to, label, shortcut }) => (
+        <CommandItem
+          onSelect={() => {
+            navigate(to);
+            closeAndReset();
+          }}
+          key={to}
+          keywords={[to, label]}
+        >
+          <MilestoneIcon className="mr-2 size-4" />
+          <span>{label}</span>
+          {Boolean(shortcut) && <CommandShortcut>{shortcut}</CommandShortcut>}
+        </CommandItem>
+      ))}
+      <CommandItem
+        onSelect={() => {
+          navigate(prompt);
+          closeAndReset();
+        }}
+      >
+        <MilestoneIcon className="mr-2 size-4" />
+        <span>Go to {prompt}</span>
+      </CommandItem>
+    </CommandGroup>
+  );
+}
+
+type ActionCommandEntry = CommandEntry & { action: () => void };
+
+function ActionsCommandGroup({
+  prompt,
+  closeAndReset,
+}: {
+  prompt: string;
+  closeAndReset: () => void;
+}) {
+  const actions = useActions();
+
+  const commandActions = useMemo(() => {
+    const options: ActionCommandEntry[] = [
+      {
+        label: "> Change to the light theme",
+        action: actions.setLightTheme,
+      },
+      {
+        label: "> Change to the dark theme",
+        action: actions.setDarkTheme,
+      },
+      {
+        label: "> Change to the system theme",
+        action: actions.setSystemTheme,
+      },
+      {
+        label: "> Collapse editor panel",
+        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Shift + ,`,
+        action: actions.collapseEditorPanel,
+      },
+      {
+        label: "> Collapse preview panel",
+        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Shift + .`,
+        action: actions.collapsePreviewPanel,
+      },
+      {
+        label: "> Reset editor panel sizes",
+        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Shift + ;`,
+        action: actions.resetPanelSizes,
+      },
+      {
+        label: "> Toggle split view mode between horizontal and vertical",
+        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Shift + M`,
+        action: actions.toggleSplitViewMode,
+      },
+      {
+        label: "> Toggle note autosave",
+        action: actions.toggleEditorAutosave,
+      },
+      {
+        label: "> Toggle sidebar open/closed",
+        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + B`,
+        action: actions.toggleSidebar,
+      },
+    ];
+
+    return options;
+  }, [actions]);
+
+  const isActionPrompt = prompt.startsWith(">");
+
+  if (!isActionPrompt) return null;
+
+  return (
+    <CommandGroup heading="Actions">
+      {commandActions.map(({ label, action, shortcut }) => (
+        <CommandItem
+          onSelect={() => {
+            action();
+            closeAndReset();
+          }}
+          key={label}
+          keywords={[label]}
+        >
+          <TerminalIcon className="mr-2 size-4" />
+          <span>{label.replace("> ", "")}</span>
+          {Boolean(shortcut) && <CommandShortcut>{shortcut}</CommandShortcut>}
+        </CommandItem>
+      ))}
+    </CommandGroup>
   );
 }

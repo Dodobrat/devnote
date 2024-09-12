@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   generatePath,
   useLocation,
@@ -10,15 +10,10 @@ import * as monaco from "monaco-editor";
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import { toast } from "sonner";
 
-import { DEFAULT_RESIZE_PANEL_SIZE } from "~/constants";
 import { ThemeMode, useTheme } from "~/context";
-import { useKeyDownEvent } from "~/hooks";
+import { useActions, useKeyDownEvent } from "~/hooks";
 import { useCreateNote, useUpdateNote } from "~/hooks/query";
-import {
-  useEditorNote,
-  useEditorPanelHandle,
-  usePreviewPanelHandle,
-} from "~/hooks/store/editor";
+import { useEditorAutosave, useEditorNote } from "~/hooks/store/editor";
 import { remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
@@ -217,6 +212,7 @@ export function MonacoEditor() {
   const params = useParams<{ id: string }>();
   const id = parseInt(params.id!);
 
+  const autoSaveRef = useRef<ReturnType<typeof setTimeout>>();
   const { note, setNote } = useEditorNote();
 
   const [editorInstance, setEditorInstance] = useState<MonacoEditor>(null);
@@ -250,40 +246,45 @@ export function MonacoEditor() {
     }
   });
 
-  const [editorPanelHandle] = useEditorPanelHandle();
-  const [previewPanelHandle] = usePreviewPanelHandle();
+  const { collapseEditorPanel, collapsePreviewPanel, resetPanelSizes } =
+    useActions();
 
   useEffect(() => {
     if (!editorInstance) return;
     // Override CMD + Shift + <
     editorInstance.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Comma,
-      () => editorPanelHandle?.collapse(),
+      collapseEditorPanel,
     );
 
     // Override CMD + Shift + >
     editorInstance.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Period,
-      () => previewPanelHandle?.collapse(),
+      collapsePreviewPanel,
     );
 
     // Override CMD + Shift + ?
     editorInstance.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Semicolon,
-      () => editorPanelHandle?.resize(DEFAULT_RESIZE_PANEL_SIZE),
+      resetPanelSizes,
     );
-  }, [editorInstance, editorPanelHandle, previewPanelHandle]);
+  }, [
+    collapseEditorPanel,
+    collapsePreviewPanel,
+    editorInstance,
+    resetPanelSizes,
+  ]);
 
   useEffect(() => {
     if (!editorInstance) return;
     // Override CMD + Enter
     editorInstance.addCommand(
       monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      () => {
-        navigate(AppRoutes.Root);
-      },
+      () => navigate(AppRoutes.Root),
     );
   }, [editorInstance, navigate]);
+
+  const [isAutosaving] = useEditorAutosave();
 
   return (
     <MonacoEditorBase
@@ -293,7 +294,17 @@ export function MonacoEditor() {
       }
       options={editorOptions}
       value={note}
-      onChange={setNote}
+      onChange={(value) => {
+        setNote(value);
+
+        if (isAutosaving) {
+          clearTimeout(autoSaveRef.current);
+          autoSaveRef.current = setTimeout(() => {
+            if (!id) return;
+            saveNote(editorInstance);
+          }, 500);
+        }
+      }}
       className="[&_.slider]:!rounded-lg [&_.slider]:!shadow-[inset_0_0_0_0.2rem_hsl(var(--card))]"
       onMount={(editor) => {
         setEditorInstance(editor);
