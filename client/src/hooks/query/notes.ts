@@ -68,9 +68,10 @@ export function useUpdateNote() {
 
           const updated = prev.pages.map((p) => ({
             ...p,
-            data: p.data.map((n) =>
-              n.id === variables.id ? { ...n, ...variables } : n,
-            ),
+            data: p.data.map((n) => {
+              if (n.id !== variables.id) return n;
+              return { ...n, ...variables };
+            }),
           }));
 
           return { ...prev, pages: updated };

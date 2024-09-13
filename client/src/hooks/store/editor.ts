@@ -5,10 +5,6 @@ import { ResizablePanelGroupProps } from "~/components/ui";
 
 import { storeKeys, usePersisQueryStore, useQueryStore } from "./index";
 
-export function useEditorAutosave() {
-  return usePersisQueryStore(storeKeys.editorAutosave, true);
-}
-
 export type EditorResizablePanelsLayout = {
   direction: ResizablePanelGroupProps["direction"];
   editorCollapsed: boolean;
@@ -58,4 +54,8 @@ export function useEditorNote() {
   );
 
   return { note, setNote: setNoteValue };
+}
+
+export function useEditorAutosave() {
+  return usePersisQueryStore(storeKeys.editorAutosave, true);
 }

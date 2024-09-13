@@ -1,3 +1,4 @@
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { z } from "zod";
 
 export const intSchema = z.coerce.number().int();
@@ -67,3 +68,5 @@ export type PaginatedQuerySchemaType = z.infer<typeof paginatedQuerySchema>;
 export type PaginatedSearchQuerySchemaType = z.infer<
   typeof paginatedSearchQuerySchema
 >;
+
+export type MonacoStandaloneEditor = monaco.editor.IStandaloneCodeEditor | null;

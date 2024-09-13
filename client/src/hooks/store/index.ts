@@ -10,6 +10,7 @@ import { webStorage } from "~/lib/utils";
 
 export const storeKeys = {
   all: "devnote",
+  commandPaletteOpenState: "devnote.commandPaletteOpenState",
   sidebarState: "devnote.sidebarState",
   editorNote: "devnote.editor.note",
   editorAutosave: "devnote.editor.autosave",

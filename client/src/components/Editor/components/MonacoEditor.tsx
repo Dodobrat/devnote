@@ -10,12 +10,21 @@ import * as monaco from "monaco-editor";
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import { toast } from "sonner";
 
+import {
+  getIsSaveCurrentNoteKeyCombo,
+  monacoCollapseEditorPanelShortcut,
+  monacoCollapsePreviewPanelShortcut,
+  monacoCreateNewNoteShortcut,
+  monacoResetEditorPanelSizesShortcut,
+  monacoSaveCurrentNoteShortcut,
+} from "~/constants/shortcuts";
 import { ThemeMode, useTheme } from "~/context";
 import { useActions, useKeyDownEvent } from "~/hooks";
 import { useCreateNote, useUpdateNote } from "~/hooks/query";
 import { useEditorAutosave, useEditorNote } from "~/hooks/store/editor";
 import { remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
+import { MonacoStandaloneEditor } from "~/types";
 
 self.MonacoEnvironment = {
   getWorker() {
@@ -198,8 +207,6 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   wordWrap: "on",
 };
 
-type MonacoEditor = monaco.editor.IStandaloneCodeEditor | null;
-
 export function MonacoEditor() {
   const { resolvedTheme } = useTheme();
 
@@ -215,10 +222,11 @@ export function MonacoEditor() {
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>();
   const { note, setNote } = useEditorNote();
 
-  const [editorInstance, setEditorInstance] = useState<MonacoEditor>(null);
+  const [editorInstance, setEditorInstance] =
+    useState<MonacoStandaloneEditor>(null);
 
   const saveNote = useCallback(
-    (editor: MonacoEditor) => {
+    (editor: MonacoStandaloneEditor) => {
       const cursorPosition = editor?.getPosition();
 
       if (id) return updateMutation.mutate({ id, note: editor?.getValue() });
@@ -239,8 +247,8 @@ export function MonacoEditor() {
     [createMutation, id, navigate, updateMutation],
   );
 
-  useKeyDownEvent((e, isMac) => {
-    if ((isMac ? e.metaKey : e.ctrlKey) && e.key === "s") {
+  useKeyDownEvent((e) => {
+    if (getIsSaveCurrentNoteKeyCombo(e)) {
       e.preventDefault();
       saveNote(editorInstance);
     }
@@ -251,21 +259,18 @@ export function MonacoEditor() {
 
   useEffect(() => {
     if (!editorInstance) return;
-    // Override CMD + Shift + <
     editorInstance.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Comma,
+      monacoCollapseEditorPanelShortcut,
       collapseEditorPanel,
     );
 
-    // Override CMD + Shift + >
     editorInstance.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Period,
+      monacoCollapsePreviewPanelShortcut,
       collapsePreviewPanel,
     );
 
-    // Override CMD + Shift + ?
     editorInstance.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Semicolon,
+      monacoResetEditorPanelSizesShortcut,
       resetPanelSizes,
     );
   }, [
@@ -277,10 +282,9 @@ export function MonacoEditor() {
 
   useEffect(() => {
     if (!editorInstance) return;
-    // Override CMD + Enter
-    editorInstance.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      () => navigate(AppRoutes.Root),
+
+    editorInstance.addCommand(monacoCreateNewNoteShortcut, () =>
+      navigate(AppRoutes.Root),
     );
   }, [editorInstance, navigate]);
 
@@ -337,7 +341,7 @@ export function MonacoEditor() {
         );
 
         // Override CMD + S
-        editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+        editor.addCommand(monacoSaveCurrentNoteShortcut, () => {
           saveNote(editor);
         });
       }}
