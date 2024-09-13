@@ -13,6 +13,7 @@ export const storeKeys = {
   commandPaletteOpenState: "devnote.commandPaletteOpenState",
   sidebarState: "devnote.sidebarState",
   editorNote: "devnote.editor.note",
+  editorNotePrevState: "devnote.editor.note.prev",
   editorAutosave: "devnote.editor.autosave",
   editorLayout: "devnote.editor.layout",
   editorLayoutEditorPanel: "devnote.editor.layout.editorPanel",

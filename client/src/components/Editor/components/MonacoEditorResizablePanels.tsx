@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   ArrowDownFromLineIcon,
@@ -33,10 +34,14 @@ import {
   saveCurrentNoteShortcut,
   toggleSplitViewModeShortcut,
 } from "~/constants/shortcuts";
+import { useMonacoInstance } from "~/context";
 import { useActions } from "~/hooks";
+import { useNote, useSaveNote } from "~/hooks/query";
 import {
   useEditorAutosave,
   useEditorLayoutState,
+  useEditorNote,
+  useEditorNotePrevState,
   useEditorPanelHandle,
   usePreviewPanelHandle,
 } from "~/hooks/store/editor";
@@ -246,79 +251,71 @@ export function EditorResizeHandle() {
 
         <Separator orientation={state.direction} />
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="relative"
-              disabled
-              onClick={() => {}}
-            >
-              <SaveIcon />
-              <AutoSaveLegend isFloating />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side={isHorizontal ? "right" : "top"}>
-            <p>
-              Save note{" "}
-              <CommandShortcutSnippet>
-                {saveCurrentNoteShortcut}
-              </CommandShortcutSnippet>
-            </p>
-            <hr className="my-1" />
-            <div>
-              <p>Autosave:</p>
-              <ul>
-                <li>
-                  <AutoSaveLegend status="on" />
-                  On
-                </li>
-                <li>
-                  <AutoSaveLegend status="off" />
-                  Off
-                </li>
-                <li>
-                  <AutoSaveLegend status="unavailable" />
-                  Unavailable
-                </li>
-              </ul>
-            </div>
-          </TooltipContent>
-        </Tooltip>
+        <SaveNoteButton />
       </div>
     </ResizableHandle>
   );
 }
 
-const autoSaveColors = {
-  on: "bg-green-600",
-  off: "bg-red-600",
-  unavailable: "bg-amber-600",
-};
-
-function AutoSaveLegend({
-  status,
-  isFloating,
-}: {
-  status?: keyof typeof autoSaveColors;
-  isFloating?: boolean;
-}) {
+function SaveNoteButton() {
+  // const location = useLocation();
   const params = useParams<{ id: string }>();
   const id = params.id;
 
-  const [editorAutoSaveEnabled] = useEditorAutosave();
+  const [autoSaveEnabled] = useEditorAutosave();
+  const [state] = useEditorLayoutState();
+  const isHorizontal = state.direction === "horizontal";
+
+  const { monacoInstance } = useMonacoInstance();
+
+  const { note } = useEditorNote();
+  const { data } = useNote(parseInt(id || ""));
+
+  const { prevNote, setPrevNote } = useEditorNotePrevState();
+
+  const saveNote = useSaveNote();
+
+  useEffect(() => {
+    if (!data?.note) return;
+    setPrevNote(data?.note);
+  }, [data?.note, setPrevNote]);
+
+  const isDiff = note !== prevNote;
+  const isDirty = id ? isDiff : true;
 
   return (
-    <span
-      className={cn(
-        "pointer-events-none mr-2 inline-block size-3 rounded-full",
-        isFloating && "absolute -right-1 top-1",
-        !status && editorAutoSaveEnabled && autoSaveColors.on,
-        !status && !editorAutoSaveEnabled && autoSaveColors.off,
-        !status && !id && autoSaveColors.unavailable,
-        status && autoSaveColors[status],
-      )}
-    />
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="relative"
+          disabled={!monacoInstance}
+          onClick={() => saveNote(monacoInstance)}
+        >
+          <SaveIcon />
+          <span
+            className={cn(
+              "pointer-events-none absolute left-6 top-1 inline-block size-3 rounded-full bg-primary transition-transform",
+              isDirty ? "scale-100" : "scale-0",
+            )}
+          />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side={isHorizontal ? "right" : "top"}>
+        <p>
+          Save note{" "}
+          <CommandShortcutSnippet>
+            {saveCurrentNoteShortcut}
+          </CommandShortcutSnippet>
+        </p>
+        <hr className="my-1" />
+        {id ? (
+          <p>Autosave {autoSaveEnabled ? <b>Enabled</b> : <b>Disabled</b>}</p>
+        ) : (
+          <p>Autosave is unavailable while creating a note</p>
+        )}
+      </TooltipContent>
+    </Tooltip>
   );
 }

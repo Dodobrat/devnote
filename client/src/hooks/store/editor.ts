@@ -56,6 +56,14 @@ export function useEditorNote() {
   return { note, setNote: setNoteValue };
 }
 
+export function useEditorNotePrevState() {
+  const [prevNote, setPrevNote] = useQueryStore(
+    storeKeys.editorNotePrevState,
+    "",
+  );
+  return { prevNote, setPrevNote };
+}
+
 export function useEditorAutosave() {
   return usePersisQueryStore(storeKeys.editorAutosave, true);
 }

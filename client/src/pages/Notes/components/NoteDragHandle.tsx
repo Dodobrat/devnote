@@ -19,7 +19,7 @@ export function NoteDragHandle(props: ButtonProps) {
           variant="secondary"
           {...props}
           className={cn(
-            "order-0 h-full w-10 shrink-0 cursor-grab p-0 active:cursor-grabbing",
+            "order-0 h-full w-10 shrink-0 cursor-grab touch-none p-0 active:cursor-grabbing",
             props.className,
           )}
           onPointerDown={(e) => {

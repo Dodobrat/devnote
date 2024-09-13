@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+import { generatePath, useNavigate, useParams } from "react-router-dom";
 import {
   InfiniteData,
   useInfiniteQuery,
@@ -5,13 +7,18 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { NotesApi } from "~/api";
+import { AppRoutes } from "~/routes";
 import {
+  MonacoStandaloneEditor,
   NoteSchemaType,
   PaginatedNotesSchemaType,
   PaginatedSearchQuerySchemaType,
 } from "~/types";
+
+import { useEditorNotePrevState } from "../store/editor";
 
 export const notesQueryKeys = {
   all: () => ["notes"],
@@ -112,4 +119,46 @@ export function useDeleteNote() {
       });
     },
   });
+}
+
+export function useSaveNote() {
+  const navigate = useNavigate();
+
+  const updateMutation = useUpdateNote();
+  const createMutation = useCreateNote();
+
+  const params = useParams<{ id: string }>();
+  const id = parseInt(params.id!);
+
+  const { setPrevNote } = useEditorNotePrevState();
+
+  return useCallback(
+    (editor: MonacoStandaloneEditor) => {
+      const cursorPosition = editor?.getPosition();
+
+      if (id)
+        return updateMutation.mutate(
+          { id, note: editor?.getValue() },
+          {
+            onSuccess: (_, variables) => {
+              setPrevNote(variables.note || "");
+            },
+          },
+        );
+
+      return createMutation.mutate(
+        { note: editor?.getValue() || "" },
+        {
+          onSuccess: (res) => {
+            toast.success(`${res.previewTitle} was created`);
+
+            navigate(generatePath(AppRoutes.NoteById, { id: String(res.id) }), {
+              state: cursorPosition,
+            });
+          },
+        },
+      );
+    },
+    [createMutation, id, navigate, setPrevNote, updateMutation],
+  );
 }

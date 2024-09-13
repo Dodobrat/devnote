@@ -1,14 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  generatePath,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import MonacoEditorBase, { loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
-import { toast } from "sonner";
 
 import {
   getIsSaveCurrentNoteKeyCombo,
@@ -18,13 +12,12 @@ import {
   monacoResetEditorPanelSizesShortcut,
   monacoSaveCurrentNoteShortcut,
 } from "~/constants/shortcuts";
-import { ThemeMode, useTheme } from "~/context";
+import { ThemeMode, useMonacoInstance, useTheme } from "~/context";
 import { useActions, useKeyDownEvent } from "~/hooks";
-import { useCreateNote, useUpdateNote } from "~/hooks/query";
+import { useSaveNote } from "~/hooks/query";
 import { useEditorAutosave, useEditorNote } from "~/hooks/store/editor";
 import { remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
-import { MonacoStandaloneEditor } from "~/types";
 
 self.MonacoEnvironment = {
   getWorker() {
@@ -213,44 +206,20 @@ export function MonacoEditor() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const updateMutation = useUpdateNote();
-  const createMutation = useCreateNote();
-
   const params = useParams<{ id: string }>();
   const id = parseInt(params.id!);
 
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>();
   const { note, setNote } = useEditorNote();
 
-  const [editorInstance, setEditorInstance] =
-    useState<MonacoStandaloneEditor>(null);
+  const { monacoInstance, setMonacoInstance } = useMonacoInstance();
 
-  const saveNote = useCallback(
-    (editor: MonacoStandaloneEditor) => {
-      const cursorPosition = editor?.getPosition();
-
-      if (id) return updateMutation.mutate({ id, note: editor?.getValue() });
-
-      return createMutation.mutate(
-        { note: editor?.getValue() || "" },
-        {
-          onSuccess: (res) => {
-            toast.success(`${res.previewTitle} was created`);
-
-            navigate(generatePath(AppRoutes.NoteById, { id: String(res.id) }), {
-              state: cursorPosition,
-            });
-          },
-        },
-      );
-    },
-    [createMutation, id, navigate, updateMutation],
-  );
+  const saveNote = useSaveNote();
 
   useKeyDownEvent((e) => {
     if (getIsSaveCurrentNoteKeyCombo(e)) {
       e.preventDefault();
-      saveNote(editorInstance);
+      saveNote(monacoInstance);
     }
   });
 
@@ -258,35 +227,35 @@ export function MonacoEditor() {
     useActions();
 
   useEffect(() => {
-    if (!editorInstance) return;
-    editorInstance.addCommand(
+    if (!monacoInstance) return;
+    monacoInstance.addCommand(
       monacoCollapseEditorPanelShortcut,
       collapseEditorPanel,
     );
 
-    editorInstance.addCommand(
+    monacoInstance.addCommand(
       monacoCollapsePreviewPanelShortcut,
       collapsePreviewPanel,
     );
 
-    editorInstance.addCommand(
+    monacoInstance.addCommand(
       monacoResetEditorPanelSizesShortcut,
       resetPanelSizes,
     );
   }, [
     collapseEditorPanel,
     collapsePreviewPanel,
-    editorInstance,
+    monacoInstance,
     resetPanelSizes,
   ]);
 
   useEffect(() => {
-    if (!editorInstance) return;
+    if (!monacoInstance) return;
 
-    editorInstance.addCommand(monacoCreateNewNoteShortcut, () =>
+    monacoInstance.addCommand(monacoCreateNewNoteShortcut, () =>
       navigate(AppRoutes.Root),
     );
-  }, [editorInstance, navigate]);
+  }, [monacoInstance, navigate]);
 
   const [isAutosaving] = useEditorAutosave();
 
@@ -303,12 +272,12 @@ export function MonacoEditor() {
 
         if (id && isAutosaving) {
           clearTimeout(autoSaveRef.current);
-          autoSaveRef.current = setTimeout(() => saveNote(editorInstance), 500);
+          autoSaveRef.current = setTimeout(() => saveNote(monacoInstance), 500);
         }
       }}
       className="[&_.slider]:!rounded-lg [&_.slider]:!shadow-[inset_0_0_0_0.2rem_hsl(var(--card))]"
       onMount={(editor) => {
-        setEditorInstance(editor);
+        setMonacoInstance(editor);
         // After creation of a new note and redirect to edit page,
         // return the cursor to the last known location
         if (location.state) {

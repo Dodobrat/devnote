@@ -1,3 +1,5 @@
+import { MonacoInstanceProvider } from "~/context";
+
 import { EditorKeyboardShortcuts } from "../KeyboardShortcuts";
 import { PageCardBase } from "../Layout";
 import {
@@ -13,11 +15,13 @@ export function Editor() {
   return (
     <PageCardBase>
       <EditorResizableGroup>
-        <EditorResizePanel>
-          <MonacoEditor />
-        </EditorResizePanel>
+        <MonacoInstanceProvider>
+          <EditorResizePanel>
+            <MonacoEditor />
+          </EditorResizePanel>
 
-        <EditorResizeHandle />
+          <EditorResizeHandle />
+        </MonacoInstanceProvider>
 
         <EditorOutputResizePanel>
           <EditorOutput />
