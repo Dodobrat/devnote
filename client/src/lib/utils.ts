@@ -78,3 +78,7 @@ export function getIsInRange({
 export function getIsMac() {
   return Boolean(window.navigator.platform.match("Mac"));
 }
+
+export function getMetaKey() {
+  return getIsMac() ? "⌘" : "Ctrl";
+}

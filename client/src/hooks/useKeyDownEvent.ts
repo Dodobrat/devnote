@@ -1,19 +1,10 @@
 import { useEffect } from "react";
 
-import { getIsMac } from "~/lib/utils";
-
-export function useKeyDownEvent(
-  cb: (e: KeyboardEvent, isMac: boolean) => void,
-) {
+export function useKeyDownEvent(cb: (e: KeyboardEvent) => void) {
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isMac = getIsMac();
-      cb(e, Boolean(isMac));
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", cb);
     return () => {
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", cb);
     };
   }, [cb]);
 

@@ -1,5 +1,9 @@
 import { useNavigate } from "react-router-dom";
 
+import {
+  getIsCreateNewNoteKeyCombo,
+  getIsToggleSidebarKeyCombo,
+} from "~/constants/shortcuts";
 import { useActions, useKeyDownEvent } from "~/hooks";
 import { AppRoutes } from "~/routes";
 
@@ -8,16 +12,15 @@ export function GlobalKeyboardShortcuts() {
 
   const { toggleSidebar } = useActions();
 
-  useKeyDownEvent((e, isMac) => {
-    if ((isMac ? e.metaKey : e.ctrlKey) && e.key === "b") {
+  useKeyDownEvent((e) => {
+    if (getIsToggleSidebarKeyCombo(e)) {
       e.preventDefault();
       toggleSidebar();
     }
   });
 
-  useKeyDownEvent((e, isMac) => {
-    // if key combination is ctrl / cmd + Enter
-    if ((isMac ? e.metaKey : e.ctrlKey) && e.key === "Enter") {
+  useKeyDownEvent((e) => {
+    if (getIsCreateNewNoteKeyCombo(e)) {
       e.preventDefault();
       navigate(AppRoutes.Root);
     }

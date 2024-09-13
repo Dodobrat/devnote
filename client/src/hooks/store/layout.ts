@@ -1,7 +1,7 @@
 import { getCssVar } from "~/lib/utils";
 
 import { useMediaQuery } from "../useMediaQuery";
-import { storeKeys, usePersisQueryStore } from "./index";
+import { storeKeys, usePersisQueryStore, useQueryStore } from "./index";
 
 export enum SidebarState {
   Minimized = "minimized",
@@ -15,4 +15,8 @@ export function useSidebarStateStore() {
     storeKeys.sidebarState,
     isLargerThanLg ? SidebarState.Expanded : SidebarState.Minimized,
   );
+}
+
+export function useCommandPaletteOpenStore() {
+  return useQueryStore(storeKeys.commandPaletteOpenState, false);
 }

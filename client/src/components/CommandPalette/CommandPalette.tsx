@@ -2,9 +2,19 @@ import { useMemo, useState } from "react";
 import { generatePath, useNavigate } from "react-router-dom";
 import { MilestoneIcon, StickyNoteIcon, TerminalIcon } from "lucide-react";
 
+import {
+  collapseEditorPanelShortcut,
+  collapsePreviewPanelShortcut,
+  createNewNoteShortcut,
+  getIsOpenCommandPaletteBrowserKeyCombo,
+  getIsOpenCommandPaletteVSCodeKeyCombo,
+  resetEditorPanelSizesShortcut,
+  toggleSidebarShortcut,
+  toggleSplitViewModeShortcut,
+} from "~/constants/shortcuts";
 import { useActions, useKeyDownEvent } from "~/hooks";
 import { useNotes } from "~/hooks/query";
-import { getIsMac } from "~/lib/utils";
+import { useCommandPaletteOpenStore } from "~/hooks/store/layout";
 import { AppRoutes } from "~/routes";
 
 import {
@@ -20,15 +30,13 @@ import {
 } from "../ui";
 
 export function CommandPalette() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useCommandPaletteOpenStore();
   const [prompt, setPrompt] = useState("");
 
-  useKeyDownEvent((e, isMac) => {
-    // if key combination is ctrl / cmd + k
-    // if key combination is ctrl / cmd + Shift + p
+  useKeyDownEvent((e) => {
     if (
-      ((isMac ? e.metaKey : e.ctrlKey) && e.key === "k") ||
-      ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === "p")
+      getIsOpenCommandPaletteVSCodeKeyCombo(e) ||
+      getIsOpenCommandPaletteBrowserKeyCombo(e)
     ) {
       e.preventDefault();
       setOpen(true);
@@ -40,14 +48,15 @@ export function CommandPalette() {
     setPrompt("");
   };
 
-  const isSearchingNote =
-    Boolean(prompt) && !prompt.startsWith("/") && !prompt.startsWith(">");
+  const isPathCommand = prompt.startsWith("/");
+  const isActionCommand = prompt.startsWith(">");
+  const isNotePrompt = Boolean(prompt) && !isPathCommand && !isActionCommand;
 
   return (
     <CommandDialog
       open={open}
       onOpenChange={setOpen}
-      shouldFilter={!isSearchingNote}
+      shouldFilter={!isNotePrompt}
     >
       <DialogTitle className="sr-only">Command prompt</DialogTitle>
       <DialogDescription className="sr-only">
@@ -86,14 +95,16 @@ export function CommandPalette() {
 
         <PageCommandGroup prompt={prompt} closeAndReset={closeAndReset} />
         <ActionsCommandGroup prompt={prompt} closeAndReset={closeAndReset} />
-        <NotesSearchCommandGroup
-          prompt={prompt}
-          closeAndReset={closeAndReset}
-        />
+        <NotesCommandGroup prompt={prompt} closeAndReset={closeAndReset} />
       </CommandList>
     </CommandDialog>
   );
 }
+
+type CommandGroupProps = {
+  prompt: string;
+  closeAndReset: () => void;
+};
 
 type CommandEntry = {
   label: string;
@@ -105,7 +116,7 @@ const pages: PageCommandEntry[] = [
   {
     to: AppRoutes.Root,
     label: "New note",
-    shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Enter`,
+    shortcut: createNewNoteShortcut,
   },
   { to: AppRoutes.Notes, label: "List all notes" },
   { to: AppRoutes.Help, label: "Help" },
@@ -113,61 +124,56 @@ const pages: PageCommandEntry[] = [
   { to: AppRoutes.Settings, label: "Settings" },
 ];
 
-function PageCommandGroup({
-  prompt,
-  closeAndReset,
-}: {
-  prompt: string;
-  closeAndReset: () => void;
-}) {
+function PageCommandGroup({ prompt, closeAndReset }: CommandGroupProps) {
   const navigate = useNavigate();
 
   const isPagePrompt = prompt.startsWith("/");
+
   if (!isPagePrompt) return null;
 
   return (
-    <CommandGroup heading="Pages">
-      {pages.map(({ to, label, shortcut }) => (
+    <>
+      <CommandGroup heading="Pages">
+        {pages.map(({ to, label, shortcut }) => (
+          <CommandItem
+            key={to}
+            onSelect={() => {
+              navigate(to);
+              closeAndReset();
+            }}
+            keywords={[to, label]}
+          >
+            <MilestoneIcon className="mr-2 size-4" />
+            <span>{label}</span>
+            {Boolean(shortcut) && <CommandShortcut>{shortcut}</CommandShortcut>}
+          </CommandItem>
+        ))}
+      </CommandGroup>
+      <CommandGroup heading="">
         <CommandItem
-          key={to}
           onSelect={() => {
-            navigate(to);
+            navigate(prompt);
             closeAndReset();
           }}
-          keywords={[to, label]}
         >
           <MilestoneIcon className="mr-2 size-4" />
-          <span>{label}</span>
-          {Boolean(shortcut) && <CommandShortcut>{shortcut}</CommandShortcut>}
+          <span>Go to {prompt}</span>
         </CommandItem>
-      ))}
-      <CommandItem
-        onSelect={() => {
-          navigate(prompt);
-          closeAndReset();
-        }}
-      >
-        <MilestoneIcon className="mr-2 size-4" />
-        <span>Go to {prompt}</span>
-      </CommandItem>
-    </CommandGroup>
+      </CommandGroup>
+    </>
   );
 }
 
-function NotesSearchCommandGroup({
-  prompt,
-  closeAndReset,
-}: {
-  prompt: string;
-  closeAndReset: () => void;
-}) {
+function NotesCommandGroup({ prompt, closeAndReset }: CommandGroupProps) {
   const navigate = useNavigate();
 
   const { data } = useNotes(prompt || undefined);
 
-  const isNoteSearchPrompt =
-    Boolean(prompt) && !prompt.startsWith("/") && !prompt.startsWith(">");
-  if (!isNoteSearchPrompt) return null;
+  const isPathCommand = prompt.startsWith("/");
+  const isActionCommand = prompt.startsWith(">");
+  const isNotePrompt = Boolean(prompt) && !isPathCommand && !isActionCommand;
+
+  if (!isNotePrompt) return null;
   if (!data?.length) return null;
 
   return (
@@ -189,63 +195,44 @@ function NotesSearchCommandGroup({
 }
 
 type ActionCommandEntry = CommandEntry & { action: () => void };
-
-function ActionsCommandGroup({
-  prompt,
-  closeAndReset,
-}: {
-  prompt: string;
-  closeAndReset: () => void;
-}) {
+function ActionsCommandGroup({ prompt, closeAndReset }: CommandGroupProps) {
   const actions = useActions();
 
-  const commandActions = useMemo(() => {
-    const options: ActionCommandEntry[] = [
-      {
-        label: "> Change to the light theme",
-        action: actions.setLightTheme,
-      },
-      {
-        label: "> Change to the dark theme",
-        action: actions.setDarkTheme,
-      },
-      {
-        label: "> Change to the system theme",
-        action: actions.setSystemTheme,
-      },
-      {
-        label: "> Collapse editor panel",
-        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Shift + ,`,
-        action: actions.collapseEditorPanel,
-      },
-      {
-        label: "> Collapse preview panel",
-        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Shift + .`,
-        action: actions.collapsePreviewPanel,
-      },
-      {
-        label: "> Reset editor panel sizes",
-        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Shift + ;`,
-        action: actions.resetPanelSizes,
-      },
-      {
-        label: "> Toggle split view mode between horizontal and vertical",
-        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + Shift + M`,
-        action: actions.toggleSplitViewMode,
-      },
-      {
-        label: "> Toggle note autosave",
-        action: actions.toggleEditorAutosave,
-      },
-      {
-        label: "> Toggle sidebar open/closed",
-        shortcut: `${getIsMac() ? "⌘" : "Ctrl"} + B`,
-        action: actions.toggleSidebar,
-      },
-    ];
-
-    return options;
-  }, [actions]);
+  const commandActions = useMemo(
+    () =>
+      [
+        { label: "Change to the light theme", action: actions.setLightTheme },
+        { label: "Change to the dark theme", action: actions.setDarkTheme },
+        { label: "Change to the system theme", action: actions.setSystemTheme },
+        { label: "Toggle note autosave", action: actions.toggleEditorAutosave },
+        {
+          label: "Collapse editor panel",
+          shortcut: collapseEditorPanelShortcut,
+          action: actions.collapseEditorPanel,
+        },
+        {
+          label: "Collapse preview panel",
+          shortcut: collapsePreviewPanelShortcut,
+          action: actions.collapsePreviewPanel,
+        },
+        {
+          label: "Reset editor panel sizes",
+          shortcut: resetEditorPanelSizesShortcut,
+          action: actions.resetPanelSizes,
+        },
+        {
+          label: "Toggle split view mode between horizontal and vertical",
+          shortcut: toggleSplitViewModeShortcut,
+          action: actions.toggleSplitViewMode,
+        },
+        {
+          label: "Toggle sidebar open/closed",
+          shortcut: toggleSidebarShortcut,
+          action: actions.toggleSidebar,
+        },
+      ] satisfies ActionCommandEntry[],
+    [actions],
+  );
 
   const isActionPrompt = prompt.startsWith(">");
 
@@ -260,10 +247,10 @@ function ActionsCommandGroup({
             action();
             closeAndReset();
           }}
-          keywords={[label]}
+          keywords={[">", label]}
         >
           <TerminalIcon className="mr-2 size-4" />
-          <span>{label.replace("> ", "")}</span>
+          <span>{label}</span>
           {Boolean(shortcut) && <CommandShortcut>{shortcut}</CommandShortcut>}
         </CommandItem>
       ))}

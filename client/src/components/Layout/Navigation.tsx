@@ -11,14 +11,24 @@ import {
   TerminalIcon,
 } from "lucide-react";
 
+import {
+  openCommandPaletteBrowserShortcut,
+  openCommandPaletteVSCodeShortcut,
+  toggleSidebarShortcut,
+} from "~/constants/shortcuts";
 import { useMediaQuery } from "~/hooks";
-import { SidebarState, useSidebarStateStore } from "~/hooks/store/layout";
+import {
+  SidebarState,
+  useCommandPaletteOpenStore,
+  useSidebarStateStore,
+} from "~/hooks/store/layout";
 import { cn, getCssVar } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
 import {
   Button,
   ButtonProps,
+  CommandShortcutSnippet,
   Separator,
   Tooltip,
   TooltipContent,
@@ -34,6 +44,7 @@ export function Navigation() {
   const isLargerThanMd = useMediaQuery(getCssVar("--screen-md"));
 
   const [sidebarState, setSidebarState] = useSidebarStateStore();
+  const [, setCommandPaletteOpenState] = useCommandPaletteOpenStore();
 
   useEffect(() => {
     if (isLargerThanMd && !isLargerThanLg) {
@@ -55,11 +66,18 @@ export function Navigation() {
   return (
     <nav
       className={cn(
-        "relative z-50 shrink-0 transition-[width]",
-        sidebarState === SidebarState.Minimized &&
-          "w-0 md:-mr-4 md:w-[4.5rem] fine:hover:[&>[data-sidebar]]:w-72 fine:hover:[&>[data-sidebar]]:border-r fine:hover:[&>[data-sidebar]]:bg-background fine:hover:[&>[data-sidebar]]:px-3",
-        sidebarState === SidebarState.Expanded &&
-          "w-0 md:-mr-4 md:w-[4.5rem] lg:w-72 [&>[data-sidebar]]:w-72",
+        "relative z-50 shrink-0 motion-safe:transition-[width]",
+        sidebarState === SidebarState.Minimized && [
+          "w-0 md:-mr-4 md:w-[4.5rem]",
+          "fine:hover:[&>[data-sidebar]]:w-72",
+          "fine:hover:[&>[data-sidebar]]:border-r",
+          // "fine:hover:[&>[data-sidebar]]:bg-background",
+          "fine:hover:[&>[data-sidebar]]:px-3",
+        ],
+        sidebarState === SidebarState.Expanded && [
+          "w-0 md:-mr-4 md:w-[4.5rem] lg:w-72",
+          "[&>[data-sidebar]]:w-72",
+        ],
       )}
     >
       <a
@@ -87,21 +105,41 @@ export function Navigation() {
         data-sidebar
         className={cn(
           "absolute inset-0 h-screen",
+          "w-full motion-safe:transition-[width,padding]",
           "flex flex-col items-start justify-start gap-2",
           "overflow-y-auto overflow-x-hidden",
           "bg-background px-3 py-4",
-          sidebarState === SidebarState.Minimized && "bg-transparent",
           isMobileView && sidebarState === SidebarState.Minimized && "px-0",
         )}
       >
-        <SidebarItem to={AppRoutes.Root}>
-          <SidebarIconItem variant="default">
-            <TerminalIcon />
-          </SidebarIconItem>
+        <div className="flex w-full items-center p-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                size="icon"
+                className="mr-4 shrink-0"
+                onClick={() => setCommandPaletteOpenState(true)}
+              >
+                <TerminalIcon />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                Command Palette <br />
+                <CommandShortcutSnippet>
+                  {openCommandPaletteVSCodeShortcut}
+                </CommandShortcutSnippet>{" "}
+                or{" "}
+                <CommandShortcutSnippet>
+                  {openCommandPaletteBrowserShortcut}
+                </CommandShortcutSnippet>
+              </p>
+            </TooltipContent>
+          </Tooltip>
           <p className="whitespace-nowrap text-2xl font-bold text-foreground">
             DevNote
           </p>
-        </SidebarItem>
+        </div>
         <SidebarItem to={AppRoutes.Root}>
           <SidebarIconItem>
             <PlusIcon className="size-5" />
@@ -164,7 +202,12 @@ export function Navigation() {
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>Toggle sidebar</p>
+            <p>
+              Toggle sidebar{" "}
+              <CommandShortcutSnippet>
+                {toggleSidebarShortcut}
+              </CommandShortcutSnippet>
+            </p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -183,7 +226,7 @@ function SidebarItem(props: NavLinkProps) {
           "flex w-full items-center rounded-lg p-1",
           "focus:outline-none focus-visible:ring",
           "hover:bg-muted",
-          isActive && "",
+          isActive && "ring ring-secondary focus-visible:ring-primary",
           props.className,
         )
       }

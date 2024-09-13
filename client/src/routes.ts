@@ -1,13 +1,13 @@
 export enum AppRoutes {
   Root = "/",
-  GoPremium = "/get-premium",
-  Account = "/account",
+  // GoPremium = "/get-premium",
+  // Account = "/account",
   Notes = "/notes",
-  Search = "/search",
+  // Search = "/search",
   NoteById = "/notes/:id",
   Help = "/help",
   Changelog = "/changelog",
   Settings = "/settings",
-  Feedback = "/feedback",
-  NotFound = "/not-found",
+  // Feedback = "/feedback",
+  // NotFound = "/not-found",
 }

@@ -172,6 +172,19 @@ const CommandShortcut = ({
 };
 CommandShortcut.displayName = "CommandShortcut";
 
+const CommandShortcutSnippet = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLSpanElement>) => {
+  return (
+    <CommandShortcut
+      className={cn("rounded border px-1 text-base", className)}
+      {...props}
+    />
+  );
+};
+CommandShortcutSnippet.displayName = "CommandShortcutSnippet";
+
 export {
   Command,
   CommandDialog,
@@ -182,4 +195,5 @@ export {
   CommandList,
   CommandSeparator,
   CommandShortcut,
+  CommandShortcutSnippet,
 };

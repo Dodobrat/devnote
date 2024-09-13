@@ -1,3 +1,9 @@
+import {
+  getIsCollapseEditorPanelKeyCombo,
+  getIsCollapsePreviewPanelKeyCombo,
+  getIsResetEditorPanelSizesKeyCombo,
+  getIsToggleSplitViewModeKeyCombo,
+} from "~/constants/shortcuts";
 import { useActions, useKeyDownEvent } from "~/hooks";
 
 export function EditorKeyboardShortcuts() {
@@ -8,29 +14,29 @@ export function EditorKeyboardShortcuts() {
     resetPanelSizes,
   } = useActions();
 
-  useKeyDownEvent((e, isMac) => {
-    if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === ",") {
+  useKeyDownEvent((e) => {
+    if (getIsCollapseEditorPanelKeyCombo(e)) {
       e.preventDefault();
       collapseEditorPanel();
     }
   });
 
-  useKeyDownEvent((e, isMac) => {
-    if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === "m") {
+  useKeyDownEvent((e) => {
+    if (getIsToggleSplitViewModeKeyCombo(e)) {
       e.preventDefault();
       toggleSplitViewMode();
     }
   });
 
-  useKeyDownEvent((e, isMac) => {
-    if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === ";") {
+  useKeyDownEvent((e) => {
+    if (getIsResetEditorPanelSizesKeyCombo(e)) {
       e.preventDefault();
       resetPanelSizes();
     }
   });
 
-  useKeyDownEvent((e, isMac) => {
-    if ((isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.key === ".") {
+  useKeyDownEvent((e) => {
+    if (getIsCollapsePreviewPanelKeyCombo(e)) {
       e.preventDefault();
       collapsePreviewPanel();
     }
