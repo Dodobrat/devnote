@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { ImperativePanelHandle } from "react-resizable-panels";
 
 import { ResizablePanelGroupProps } from "~/components/ui";
+import { WELCOME_TEXT } from "~/constants";
 
 import { storeKeys, usePersisQueryStore, useQueryStore } from "./index";
 
@@ -57,13 +58,13 @@ export function useEditorNote() {
 }
 
 export function useEditorNotePrevState() {
-  const [prevNote, setPrevNote] = useQueryStore(
-    storeKeys.editorNotePrevState,
-    "",
-  );
-  return { prevNote, setPrevNote };
+  return useQueryStore(storeKeys.editorNotePrevState, "");
 }
 
 export function useEditorAutosave() {
   return usePersisQueryStore(storeKeys.editorAutosave, true);
+}
+
+export function useEditorWelcomeNote() {
+  return usePersisQueryStore(storeKeys.editorWelcomeNote, WELCOME_TEXT);
 }

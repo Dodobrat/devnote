@@ -14,6 +14,7 @@ export const storeKeys = {
   sidebarState: "devnote.sidebarState",
   editorNote: "devnote.editor.note",
   editorNotePrevState: "devnote.editor.note.prev",
+  editorWelcomeNote: "devnote.editor.note.welcome",
   editorAutosave: "devnote.editor.autosave",
   editorLayout: "devnote.editor.layout",
   editorLayoutEditorPanel: "devnote.editor.layout.editorPanel",

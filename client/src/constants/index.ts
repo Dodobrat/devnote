@@ -1,6 +1,62 @@
-export const NOTES_STORAGE_KEY = "devnote_notes";
-export const THEME_STORAGE_KEY = "devnote_theme";
+export const NOTES_STORAGE_KEY = "devnote.notes";
+export const THEME_STORAGE_KEY = "devnote.theme";
 
 export const DEFAULT_RESIZE_PANEL_SIZE = 50;
 export const COLLAPSED_RESIZE_PANEL_SIZE = 0;
 export const MIN_RESIZE_PANEL_SIZE = 20;
+
+export const WELCOME_TEXT = `# Welcome to DevNote
+
+The aim of this project is to provide a simple and intuitive interface with a focus on writing and productivity achieved with a variety of shortcuts and carefully thought out default settings.
+
+Hope you enjoy using it :)
+
+## Features
+
+- **Markdown Preview**: Real-time markdown preview with syntax highlighting
+
+\`\`\`javascript
+const example = "Hello, World!";
+\`\`\`
+
+\`\`\`json
+{
+  "firstName": "John",
+  "lastName": "Smith",
+  "age": 25
+}
+\`\`\`
+
+- **Keyboard Shortcuts**: Increase your productivity with a variety of shortcuts
+- **Split View**: Split the editor and preview vertically or horizontally
+
+> Press \`Cmd + Shift + M\` to toggle between horizontal and vertical split screen mode
+
+- **Customizable Theme**: Choose a theme that suits your preference
+- **Autosave**: Automatically save your work as you type
+
+> Press \`Cmd + Shift + P\` to open the command palette, Type in \`>theme\` or \`>auto\` and configure the settings by your preference.
+
+- **Responsive Design**: Works on all devices
+- **Offline Support**: Use the app without an internet connection
+
+...and more coming soon
+
+## Getting Started
+
+1. Create a new note by saving the current note. 
+2. ...that's it!
+
+## Shortcuts
+
+Refer to the [Help](/help) page for a list of available shortcuts.
+
+## Settings
+
+Customize your experience on the [Settings](/settings) page.
+
+## Futher reading
+
+For further reading on Markdown syntax, please refer to <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">basic syntax</a> and <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">extended syntax</a> [^(1)].
+
+[^1]: Not all featues are supported in markdown, so you can use html instead to achieve the same result.`;

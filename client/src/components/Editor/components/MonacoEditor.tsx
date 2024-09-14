@@ -200,7 +200,11 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   wordWrap: "on",
 };
 
-export function MonacoEditor() {
+export function MonacoEditor({
+  enableSaveNote = true,
+}: {
+  enableSaveNote?: boolean;
+}) {
   const { resolvedTheme } = useTheme();
 
   const location = useLocation();
@@ -217,7 +221,7 @@ export function MonacoEditor() {
   const saveNote = useSaveNote();
 
   useKeyDownEvent((e) => {
-    if (getIsSaveCurrentNoteKeyCombo(e)) {
+    if (enableSaveNote && getIsSaveCurrentNoteKeyCombo(e)) {
       e.preventDefault();
       saveNote(monacoInstance);
     }
@@ -270,7 +274,7 @@ export function MonacoEditor() {
       onChange={(value) => {
         setNote(value);
 
-        if (id && isAutosaving) {
+        if (enableSaveNote && id && isAutosaving) {
           clearTimeout(autoSaveRef.current);
           autoSaveRef.current = setTimeout(() => saveNote(monacoInstance), 500);
         }
@@ -311,7 +315,9 @@ export function MonacoEditor() {
 
         // Override CMD + S
         editor.addCommand(monacoSaveCurrentNoteShortcut, () => {
-          saveNote(editor);
+          if (enableSaveNote) {
+            saveNote(editor);
+          }
         });
       }}
     />

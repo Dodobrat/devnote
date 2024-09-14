@@ -130,7 +130,7 @@ export function useSaveNote() {
   const params = useParams<{ id: string }>();
   const id = parseInt(params.id!);
 
-  const { setPrevNote } = useEditorNotePrevState();
+  const [, setPrevNote] = useEditorNotePrevState();
 
   return useCallback(
     (editor: MonacoStandaloneEditor) => {

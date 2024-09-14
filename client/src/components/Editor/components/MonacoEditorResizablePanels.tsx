@@ -271,7 +271,7 @@ function SaveNoteButton() {
   const { note } = useEditorNote();
   const { data } = useNote(parseInt(id || ""));
 
-  const { prevNote, setPrevNote } = useEditorNotePrevState();
+  const [prevNote, setPrevNote] = useEditorNotePrevState();
 
   const saveNote = useSaveNote();
 
