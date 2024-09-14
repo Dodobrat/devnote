@@ -1,6 +1,6 @@
 import { http, HttpResponse } from "msw";
 
-import { NOTES_STORAGE_KEY } from "~/constants";
+import { storeKeys } from "~/hooks/store";
 import { webStorage } from "~/lib/utils";
 import {
   intSchema,
@@ -42,7 +42,7 @@ export const NotesMockApi = {
         },
       };
 
-      const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
+      const stored = webStorage.getItem<NoteSchemaType[]>(storeKeys.notes);
 
       if (!stored) return HttpResponse.json(response, { status: 200 });
 
@@ -83,7 +83,7 @@ export const NotesMockApi = {
         );
       }
 
-      const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
+      const stored = webStorage.getItem<NoteSchemaType[]>(storeKeys.notes);
 
       if (!stored) return HttpResponse.json(null, { status: 404 });
 
@@ -138,13 +138,10 @@ export const NotesMockApi = {
         order: 0,
       };
 
-      webStorage.setItem<NoteSchemaType[]>(
-        NOTES_STORAGE_KEY,
-        (oldNotes = []) => [
-          newNote,
-          ...oldNotes.map((x) => ({ ...x, order: x.order + 1 })),
-        ],
-      );
+      webStorage.setItem<NoteSchemaType[]>(storeKeys.notes, (oldNotes = []) => [
+        newNote,
+        ...oldNotes.map((x) => ({ ...x, order: x.order + 1 })),
+      ]);
 
       return HttpResponse.json(newNote, { status: 201 });
     });
@@ -163,7 +160,7 @@ export const NotesMockApi = {
         );
       }
 
-      const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
+      const stored = webStorage.getItem<NoteSchemaType[]>(storeKeys.notes);
 
       if (!stored) return HttpResponse.json(null, { status: 404 });
 
@@ -187,7 +184,7 @@ export const NotesMockApi = {
         tags: result.data.tags?.length ? result.data.tags : matchingNote.tags,
       };
 
-      webStorage.setItem<NoteSchemaType[]>(NOTES_STORAGE_KEY, (oldNotes = []) =>
+      webStorage.setItem<NoteSchemaType[]>(storeKeys.notes, (oldNotes = []) =>
         oldNotes.map((note) =>
           note.id === updatedNote.id ? updatedNote : note,
         ),
@@ -210,7 +207,7 @@ export const NotesMockApi = {
         );
       }
 
-      const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
+      const stored = webStorage.getItem<NoteSchemaType[]>(storeKeys.notes);
 
       if (!stored) return HttpResponse.json(null, { status: 404 });
 
@@ -231,36 +228,33 @@ export const NotesMockApi = {
         isPinned: result.data.isPinned,
       };
 
-      webStorage.setItem<NoteSchemaType[]>(
-        NOTES_STORAGE_KEY,
-        (oldNotes = []) => {
-          const pinnedNotes = oldNotes.filter(
-            (n) => n.isPinned && n.id !== updatedNote.id,
-          );
-          const unpinnedNotes = oldNotes.filter(
-            (n) => !n.isPinned && n.id !== updatedNote.id,
-          );
+      webStorage.setItem<NoteSchemaType[]>(storeKeys.notes, (oldNotes = []) => {
+        const pinnedNotes = oldNotes.filter(
+          (n) => n.isPinned && n.id !== updatedNote.id,
+        );
+        const unpinnedNotes = oldNotes.filter(
+          (n) => !n.isPinned && n.id !== updatedNote.id,
+        );
 
-          const unOrderedNotes = [
-            ...pinnedNotes.map((x, idx) => ({
-              ...x,
-              order: idx,
-            })),
-            {
-              ...updatedNote,
-              order: pinnedNotes.length,
-            },
-            ...unpinnedNotes.map((x, idx) => ({
-              ...x,
-              order: pinnedNotes.length + idx + 1,
-            })),
-          ];
+        const unOrderedNotes = [
+          ...pinnedNotes.map((x, idx) => ({
+            ...x,
+            order: idx,
+          })),
+          {
+            ...updatedNote,
+            order: pinnedNotes.length,
+          },
+          ...unpinnedNotes.map((x, idx) => ({
+            ...x,
+            order: pinnedNotes.length + idx + 1,
+          })),
+        ];
 
-          unOrderedNotes.sort((a, b) => a.order - b.order);
+        unOrderedNotes.sort((a, b) => a.order - b.order);
 
-          return unOrderedNotes;
-        },
-      );
+        return unOrderedNotes;
+      });
 
       return HttpResponse.json(true, { status: 200 });
     });
@@ -279,30 +273,27 @@ export const NotesMockApi = {
         );
       }
 
-      const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
+      const stored = webStorage.getItem<NoteSchemaType[]>(storeKeys.notes);
 
       if (!stored) return HttpResponse.json(null, { status: 404 });
 
-      webStorage.setItem<NoteSchemaType[]>(
-        NOTES_STORAGE_KEY,
-        (oldNotes = []) => {
-          const objList = oldNotes.reduce(
-            (acc, curr) => {
-              acc[curr.id] = curr;
-              return acc;
-            },
-            {} as Record<string, NoteSchemaType>,
-          );
+      webStorage.setItem<NoteSchemaType[]>(storeKeys.notes, (oldNotes = []) => {
+        const objList = oldNotes.reduce(
+          (acc, curr) => {
+            acc[curr.id] = curr;
+            return acc;
+          },
+          {} as Record<string, NoteSchemaType>,
+        );
 
-          const updated = result.data.order.flatMap((x, idx) => {
-            const match = objList[x];
-            if (!match) return [];
-            return { ...match, order: idx };
-          });
+        const updated = result.data.order.flatMap((x, idx) => {
+          const match = objList[x];
+          if (!match) return [];
+          return { ...match, order: idx };
+        });
 
-          return updated;
-        },
-      );
+        return updated;
+      });
 
       return HttpResponse.json(true, { status: 200 });
     });
@@ -320,7 +311,7 @@ export const NotesMockApi = {
         );
       }
 
-      const stored = webStorage.getItem<NoteSchemaType[]>(NOTES_STORAGE_KEY);
+      const stored = webStorage.getItem<NoteSchemaType[]>(storeKeys.notes);
 
       if (!stored) return HttpResponse.json(null, { status: 404 });
 
@@ -335,7 +326,7 @@ export const NotesMockApi = {
         );
       }
 
-      webStorage.setItem<NoteSchemaType[]>(NOTES_STORAGE_KEY, filteredNotes);
+      webStorage.setItem<NoteSchemaType[]>(storeKeys.notes, filteredNotes);
 
       return HttpResponse.json(true, { status: 200 });
     });

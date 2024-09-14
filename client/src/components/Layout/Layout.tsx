@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { CommandPalette } from "../CommandPalette";
 import { GlobalKeyboardShortcuts } from "../KeyboardShortcuts";
 import { Navigation } from "./Navigation";
+import { OnlineIndicator } from "./OnlineIndicator";
 
 function AnimatedOutlet() {
   const location = useLocation();
@@ -19,13 +20,14 @@ function AnimatedOutlet() {
 
 export function Layout() {
   return (
-    <div
-      className="flex h-screen overflow-hidden"
-      style={{ perspective: "500px" }}
-    >
+    <div className="flex h-screen overflow-hidden">
       <GlobalKeyboardShortcuts />
+      <OnlineIndicator />
+
       <CommandPalette />
+
       <Navigation />
+
       <AnimatedOutlet />
     </div>
   );

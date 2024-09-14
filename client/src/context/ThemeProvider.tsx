@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
-import { THEME_STORAGE_KEY } from "~/constants";
+import { storeKeys } from "~/hooks/store";
+import { webStorage } from "~/lib/utils";
 
 export enum ThemeMode {
   Light = "light",
@@ -21,8 +22,7 @@ const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<ThemeMode>(
     () =>
-      (localStorage.getItem(THEME_STORAGE_KEY) as ThemeMode) ||
-      ThemeMode.System,
+      (webStorage.getItem(storeKeys.theme) as ThemeMode) || ThemeMode.System,
   );
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     resolvedTheme,
     theme,
     setTheme: (theme: ThemeMode) => {
-      localStorage.setItem(THEME_STORAGE_KEY, theme);
+      webStorage.setItem(storeKeys.theme, theme);
       setTheme(theme);
     },
   };

@@ -1,4 +1,3 @@
-export const NOTES_STORAGE_KEY = "devnote.notes";
 export const THEME_STORAGE_KEY = "devnote.theme";
 
 export const DEFAULT_RESIZE_PANEL_SIZE = 50;
@@ -38,7 +37,6 @@ const example = "Hello, World!";
 > Press \`Cmd + Shift + P\` to open the command palette, Type in \`>theme\` or \`>auto\` and configure the settings by your preference.
 
 - **Responsive Design**: Works on all devices
-- **Offline Support**: Use the app without an internet connection
 
 ...and more coming soon
 

@@ -29,7 +29,7 @@ export function Settings() {
 
           <Page.Section
             title="Autosave"
-            description="Automatically save your work as you type ( 500ms debounce )"
+            description="Automatically save your work as you type ( Unavailable while creating a note )"
           >
             <AutosaveToggle />
           </Page.Section>

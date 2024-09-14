@@ -182,7 +182,7 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   matchBrackets: "near",
   minimap: { enabled: false },
   overviewRulerBorder: false,
-  padding: { top: 32, bottom: 32 },
+  padding: { top: 40, bottom: 40 },
   parameterHints: { enabled: false },
   quickSuggestions: false,
   renderLineHighlight: "all",

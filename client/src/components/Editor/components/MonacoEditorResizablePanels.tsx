@@ -142,14 +142,12 @@ export function EditorResizeHandle() {
         onPointerLeave={() => setState((v) => ({ ...v, isDisabled: false }))}
         onPointerCancel={() => setState((v) => ({ ...v, isDisabled: false }))}
         className={cn(
-          "z-50 flex items-center justify-center gap-1 rounded-2xl border-4 bg-background p-1",
-          isVertical &&
-            state.editorCollapsed &&
-            "translate-y-1/2 rounded-t-none",
-          isVertical && state.previewCollapsed && "-translate-y-1/2 rounded-b-none", // prettier-ignore
-          isHorizontal && state.editorCollapsed && "translate-x-1/2 rounded-l-none", // prettier-ignore
-          isHorizontal && state.previewCollapsed && "-translate-x-1/2 rounded-r-none", // prettier-ignore
-          isHorizontal ? "flex-col" : "h-14 flex-row",
+          "z-50 flex items-center justify-center gap-0.5 rounded-2xl border-4 bg-background p-0.5",
+          isVertical && state.editorCollapsed && "translate-y-5",
+          isVertical && state.previewCollapsed && "-translate-y-5",
+          isHorizontal && state.editorCollapsed && "translate-x-5",
+          isHorizontal && state.previewCollapsed && "-translate-x-5",
+          isHorizontal ? "flex-col" : "flex-row",
         )}
       >
         <Tooltip>

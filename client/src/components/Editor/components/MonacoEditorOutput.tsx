@@ -16,7 +16,7 @@ export function EditorOutput() {
   const { note } = useEditorNote();
 
   return (
-    <div className="h-full w-full overflow-auto scroll-smooth p-8">
+    <div className="h-full w-full overflow-auto scroll-smooth px-8 py-10">
       <div className="prose mx-auto hyphens-auto text-pretty break-words dark:prose-invert">
         <style>
           {resolvedTheme === ThemeMode.Dark
