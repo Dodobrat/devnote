@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
 
-import { PageCard } from "~/components/Layout";
+import { Page } from "~/components/Layout";
 import { Button } from "~/components/ui";
 import { AppRoutes } from "~/routes";
 
 export function NotFound() {
   return (
-    <PageCard>
-      <div className="h-full overflow-auto p-4 md:p-6 lg:p-8">
-        <h1 className="mb-8 text-2xl md:text-4xl lg:text-6xl">Not Found</h1>
+    <Page.Card>
+      <Page.Content>
+        <Page.Title>Not Found</Page.Title>
 
         <section className="flex flex-col items-start gap-2">
           <header>
@@ -23,7 +23,7 @@ export function NotFound() {
             <Link to={AppRoutes.Root}>Go to homepage</Link>
           </Button>
         </section>
-      </div>
-    </PageCard>
+      </Page.Content>
+    </Page.Card>
   );
 }

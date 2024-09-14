@@ -3,7 +3,7 @@ import { InView } from "react-intersection-observer";
 import { Reorder, useDragControls } from "framer-motion";
 import { toast } from "sonner";
 
-import { PageCard } from "~/components/Layout";
+import { Page } from "~/components/Layout";
 import { Separator } from "~/components/ui";
 import { useNotes, useUpdateNoteOrder } from "~/hooks/query";
 import { cn } from "~/lib/utils";
@@ -19,12 +19,12 @@ import {
 
 export function Notes() {
   return (
-    <PageCard>
-      <div className="h-full overflow-auto p-4 md:p-6 lg:p-8">
-        <h1 className="mb-8 text-2xl md:text-4xl lg:text-6xl">Notes</h1>
+    <Page.Card>
+      <Page.Content>
+        <Page.Title>Notes</Page.Title>
         <NotesList />
-      </div>
-    </PageCard>
+      </Page.Content>
+    </Page.Card>
   );
 }
 

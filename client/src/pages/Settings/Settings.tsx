@@ -1,53 +1,33 @@
 import { LaptopMinimalIcon, MoonIcon, SunIcon } from "lucide-react";
 
-import { PageCard } from "~/components/Layout";
+import { Page } from "~/components/Layout";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui";
 import { ThemeMode, useTheme } from "~/context";
 import { useEditorAutosave } from "~/hooks/store/editor";
 
 export function Settings() {
   return (
-    <PageCard>
-      <div className="h-full overflow-auto p-4 md:p-6 lg:p-8">
-        <h1 className="mb-8 text-2xl md:text-4xl lg:text-6xl">Settings</h1>
+    <Page.Card>
+      <Page.Content>
+        <Page.Title>Settings</Page.Title>
 
         <div className="grid gap-10">
-          <SettingsSection
+          <Page.Section
             title="Theme"
             description="Choose a theme that suits your preference"
           >
             <ThemeSwitch />
-          </SettingsSection>
+          </Page.Section>
 
-          <SettingsSection
+          <Page.Section
             title="Autosave"
             description="Automatically save your work as you type ( 500ms debounce )"
           >
             <AutosaveToggle />
-          </SettingsSection>
+          </Page.Section>
         </div>
-      </div>
-    </PageCard>
-  );
-}
-
-function SettingsSection({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="flex flex-col items-start gap-2">
-      <header>
-        <h2 className="text-lg font-semibold md:text-xl">{title}</h2>
-        {description && <p className="text-muted-foreground">{description}</p>}
-      </header>
-      {children}
-    </section>
+      </Page.Content>
+    </Page.Card>
   );
 }
 
@@ -93,10 +73,10 @@ function BooleanToggle({
       onValueChange={(v) => onValueChange(Boolean(v))}
     >
       <TabsList className="h-auto">
-        <TabsTrigger value={"1"} className="min-h-10 md:px-4">
+        <TabsTrigger value="1" className="min-h-10 md:px-4">
           Enabled
         </TabsTrigger>
-        <TabsTrigger value={""} className="min-h-10 md:px-4">
+        <TabsTrigger value="" className="min-h-10 md:px-4">
           Disabled
         </TabsTrigger>
       </TabsList>

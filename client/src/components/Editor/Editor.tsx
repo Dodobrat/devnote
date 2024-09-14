@@ -1,7 +1,7 @@
 import { MonacoInstanceProvider } from "~/context";
 
 import { EditorKeyboardShortcuts } from "../KeyboardShortcuts";
-import { PageCardBase } from "../Layout";
+import { Page } from "../Layout";
 import {
   EditorOutput,
   EditorOutputResizePanel,
@@ -13,7 +13,7 @@ import {
 
 export function Editor() {
   return (
-    <PageCardBase>
+    <Page>
       <EditorResizableGroup>
         <MonacoInstanceProvider>
           <EditorResizePanel>
@@ -29,6 +29,6 @@ export function Editor() {
       </EditorResizableGroup>
 
       <EditorKeyboardShortcuts />
-    </PageCardBase>
+    </Page>
   );
 }

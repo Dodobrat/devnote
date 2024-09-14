@@ -21,7 +21,7 @@ export function Layout() {
   return (
     <div
       className="flex h-screen overflow-hidden"
-      style={{ perspective: "1000px" }}
+      style={{ perspective: "500px" }}
     >
       <GlobalKeyboardShortcuts />
       <CommandPalette />
