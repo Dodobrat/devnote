@@ -16,8 +16,8 @@ export function EditorOutput() {
   const { note } = useEditorNote();
 
   return (
-    <div className="h-full w-full overflow-auto p-8">
-      <div className="prose mx-auto hyphens-auto break-all dark:prose-invert">
+    <div className="h-full w-full overflow-auto scroll-smooth p-8">
+      <div className="prose mx-auto hyphens-auto text-pretty break-words dark:prose-invert">
         <style>
           {resolvedTheme === ThemeMode.Dark
             ? githubDarkTheme
@@ -67,11 +67,7 @@ function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
           Copy
         </Button>
       </div>
-      <pre
-        {...props}
-        className={cn(props.className, "border bg-transparent p-0")}
-        ref={ref}
-      />
+      <pre {...props} className={cn(props.className, "border p-0")} ref={ref} />
     </>
   );
 }

@@ -38,7 +38,7 @@ function PageContent({ children }: React.PropsWithChildren) {
 }
 
 function PageTitle({ children }: React.PropsWithChildren) {
-  return <h1 className="mb-8 text-2xl md:text-4xl lg:text-6xl">{children}</h1>;
+  return <h1 className="mb-8 text-4xl lg:text-6xl">{children}</h1>;
 }
 
 function PageSection({
