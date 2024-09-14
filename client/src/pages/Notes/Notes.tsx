@@ -36,7 +36,7 @@ function NotesList() {
   const [notes, setNotes] = useState<NoteSchemaType[]>([]);
 
   useEffect(() => {
-    if (!notesQuery.data) return;
+    if (!notesQuery.data?.length) return;
 
     const pinned: NoteSchemaType[] = [];
     const regular: NoteSchemaType[] = [];
@@ -54,14 +54,6 @@ function NotesList() {
     setPinnedNotes(pinned);
     setNotes(regular);
   }, [notesQuery.data]);
-
-  if (notesQuery.isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!notesQuery.data?.length) {
-    return <div>No data</div>;
-  }
 
   const updateNoteOrder = () => {
     const dataToSend = [
@@ -109,6 +101,10 @@ function NotesList() {
 
   return (
     <>
+      {notesQuery.isLoading && <div>Loading...</div>}
+
+      {!notesQuery.data?.length && <div>No notes</div>}
+
       <Reorder.Group
         className="grid"
         axis="y"
@@ -117,14 +113,20 @@ function NotesList() {
         onReorder={setPinnedNotes}
         layoutScroll
       >
-        {pinnedNotes.map((pinnedNote) => (
-          <NoteItem
-            note={pinnedNote}
-            key={pinnedNote.id}
-            onReorderEnd={updateNoteOrder}
-            onKeyboardReorder={updateOrderOnKeyDown(pinnedNote, setPinnedNotes)}
-          />
-        ))}
+        {pinnedNotes.map((pinnedNote) => {
+          if (!pinnedNote) return null;
+          return (
+            <NoteItem
+              note={pinnedNote}
+              key={pinnedNote.id}
+              onReorderEnd={updateNoteOrder}
+              onKeyboardReorder={updateOrderOnKeyDown(
+                pinnedNote,
+                setPinnedNotes,
+              )}
+            />
+          );
+        })}
       </Reorder.Group>
 
       {showSeparator && <Separator />}
@@ -137,14 +139,17 @@ function NotesList() {
         onReorder={setNotes}
         layoutScroll
       >
-        {notes.map((note) => (
-          <NoteItem
-            note={note}
-            key={note.id}
-            onReorderEnd={updateNoteOrder}
-            onKeyboardReorder={updateOrderOnKeyDown(note, setNotes)}
-          />
-        ))}
+        {notes.map((note) => {
+          if (!note) return null;
+          return (
+            <NoteItem
+              note={note}
+              key={note.id}
+              onReorderEnd={updateNoteOrder}
+              onKeyboardReorder={updateOrderOnKeyDown(note, setNotes)}
+            />
+          );
+        })}
       </Reorder.Group>
 
       {notesQuery.hasNextPage && !notesQuery.isFetching && (

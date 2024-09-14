@@ -1,12 +1,9 @@
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
 import {
   ArrowDownFromLineIcon,
   ArrowLeftFromLineIcon,
   ArrowRightFromLineIcon,
   ArrowUpFromLineIcon,
   RotateCcwIcon,
-  SaveIcon,
   SquareSplitHorizontalIcon,
   SquareSplitVerticalIcon,
 } from "lucide-react";
@@ -31,21 +28,17 @@ import {
   collapseEditorPanelShortcut,
   collapsePreviewPanelShortcut,
   resetEditorPanelSizesShortcut,
-  saveCurrentNoteShortcut,
   toggleSplitViewModeShortcut,
 } from "~/constants/shortcuts";
-import { useMonacoInstance } from "~/context";
 import { useActions } from "~/hooks";
-import { useNote, useSaveNote } from "~/hooks/query";
 import {
-  useEditorAutosave,
   useEditorLayoutState,
-  useEditorNote,
-  useEditorNotePrevState,
   useEditorPanelHandle,
   usePreviewPanelHandle,
 } from "~/hooks/store/editor";
 import { cn, getIsInRange } from "~/lib/utils";
+
+import { SaveNoteButton } from "./SaveNoteButton";
 
 export function EditorResizableGroup({ children }: React.PropsWithChildren) {
   const [state, setState] = useEditorLayoutState();
@@ -252,68 +245,5 @@ export function EditorResizeHandle() {
         <SaveNoteButton />
       </div>
     </ResizableHandle>
-  );
-}
-
-function SaveNoteButton() {
-  // const location = useLocation();
-  const params = useParams<{ id: string }>();
-  const id = params.id;
-
-  const [autoSaveEnabled] = useEditorAutosave();
-  const [state] = useEditorLayoutState();
-  const isHorizontal = state.direction === "horizontal";
-
-  const { monacoInstance } = useMonacoInstance();
-
-  const { note } = useEditorNote();
-  const { data } = useNote(parseInt(id || ""));
-
-  const [prevNote, setPrevNote] = useEditorNotePrevState();
-
-  const saveNote = useSaveNote();
-
-  useEffect(() => {
-    if (!data?.note) return;
-    setPrevNote(data?.note);
-  }, [data?.note, setPrevNote]);
-
-  const isDiff = note !== prevNote;
-  const isDirty = id ? isDiff : true;
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="relative"
-          disabled={!monacoInstance}
-          onClick={() => saveNote(monacoInstance)}
-        >
-          <SaveIcon />
-          <span
-            className={cn(
-              "pointer-events-none absolute left-6 top-1 inline-block size-3 rounded-full bg-primary transition-transform",
-              isDirty ? "scale-100" : "scale-0",
-            )}
-          />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side={isHorizontal ? "right" : "top"}>
-        <p>
-          Save note{" "}
-          <CommandShortcutSnippet>
-            {saveCurrentNoteShortcut}
-          </CommandShortcutSnippet>
-        </p>
-        <hr className="my-1" />
-        {id ? (
-          <p>Autosave {autoSaveEnabled ? <b>Enabled</b> : <b>Disabled</b>}</p>
-        ) : (
-          <p>Autosave is unavailable while creating a note</p>
-        )}
-      </TooltipContent>
-    </Tooltip>
   );
 }
