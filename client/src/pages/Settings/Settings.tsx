@@ -129,7 +129,7 @@ function WelcomeMessage() {
       <div className="grid h-96 min-h-20 w-full resize-y overflow-hidden rounded border">
         <div className={cn("overflow-hidden", !isViewingEditor && "hidden")}>
           <MonacoInstanceProvider>
-            <MonacoEditor enableSaveNote={false} />
+            <MonacoEditor enableSaveNote={false} autoFocus={false} />
           </MonacoInstanceProvider>
           {!isViewingEditor && <EditorOutput />}
         </div>

@@ -202,8 +202,10 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
 
 export function MonacoEditor({
   enableSaveNote = true,
+  autoFocus = true,
 }: {
   enableSaveNote?: boolean;
+  autoFocus?: boolean;
 }) {
   const { resolvedTheme } = useTheme();
 
@@ -303,8 +305,10 @@ export function MonacoEditor({
             location.state = null;
           }
         } else {
-          editor.setPosition({ lineNumber: 1, column: 1 });
-          editor.focus();
+          if (autoFocus) {
+            editor.setPosition({ lineNumber: 1, column: 1 });
+            editor.focus();
+          }
         }
 
         // Disable manual toggle for suggestions

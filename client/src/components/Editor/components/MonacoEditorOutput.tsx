@@ -26,7 +26,7 @@ export function EditorOutput() {
         <Markdown
           options={{
             enforceAtxHeadings: true,
-            wrapper: "article",
+            wrapper: "output",
             overrides: {
               code: Code,
               pre: Pre,
