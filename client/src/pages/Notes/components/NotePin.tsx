@@ -7,11 +7,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui";
-import { useUpdateNotePinState } from "~/hooks/query";
+import { usePinNote, useUnpinNote } from "~/hooks/query";
 import { NoteSchemaType } from "~/types";
 
 export function NotePin({ note }: { note: NoteSchemaType }) {
-  const updatePinStateMutation = useUpdateNotePinState();
+  const pinNoteMutation = usePinNote();
+  const unpinNoteMutation = useUnpinNote();
 
   return (
     <Tooltip>
@@ -20,15 +21,14 @@ export function NotePin({ note }: { note: NoteSchemaType }) {
           size="icon"
           variant="ghost"
           onClick={() => {
-            updatePinStateMutation.mutate(
-              { id: note.id, isPinned: !note.isPinned },
-              {
-                onSuccess: () =>
-                  toast.success(
-                    `Note ${note.isPinned ? "unpinned" : "pinned"}`,
-                  ),
-              },
-            );
+            const updatePinStateMutation = note.isPinned
+              ? unpinNoteMutation
+              : pinNoteMutation;
+
+            updatePinStateMutation.mutate(note.id, {
+              onSuccess: () =>
+                toast.success(`Note ${note.isPinned ? "unpinned" : "pinned"}`),
+            });
           }}
         >
           {note.isPinned ? (

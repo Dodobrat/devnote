@@ -1,11 +1,20 @@
 import { useEffect, useState } from "react";
 import { InView } from "react-intersection-observer";
+import {
+  UseInfiniteQueryResult,
+  UseMutationResult,
+} from "@tanstack/react-query";
 import { Reorder, useDragControls } from "framer-motion";
 import { toast } from "sonner";
 
 import { Page } from "~/components/Layout";
 import { Separator } from "~/components/ui";
-import { useNotes, useUpdateNoteOrder } from "~/hooks/query";
+import {
+  usePinnedNotes,
+  useReorderPinnedNotes,
+  useReorderUnpinnedNotes,
+  useUnPinnedNotes,
+} from "~/hooks/query";
 import { cn } from "~/lib/utils";
 import { NoteSchemaType } from "~/types";
 
@@ -29,41 +38,49 @@ export function Notes() {
 }
 
 function NotesList() {
-  const notesQuery = useNotes();
-  const updateNoteOrderMutation = useUpdateNoteOrder();
+  return (
+    <>
+      <NoteGroup
+        useNotesInfiniteQuery={usePinnedNotes}
+        useReorderMutation={useReorderPinnedNotes}
+        noDataMessage="No pinned notes"
+      />
 
-  const [pinnedNotes, setPinnedNotes] = useState<NoteSchemaType[]>([]);
-  const [notes, setNotes] = useState<NoteSchemaType[]>([]);
+      <Separator />
+
+      <NoteGroup
+        useNotesInfiniteQuery={useUnPinnedNotes}
+        useReorderMutation={useReorderUnpinnedNotes}
+        noDataMessage="No notes"
+      />
+    </>
+  );
+}
+
+function NoteGroup({
+  useNotesInfiniteQuery,
+  useReorderMutation,
+  noDataMessage,
+}: {
+  useNotesInfiniteQuery: () => UseInfiniteQueryResult<NoteSchemaType[], Error>;
+  useReorderMutation: () => UseMutationResult<void, Error, string[], unknown>;
+  noDataMessage: string;
+}) {
+  const query = useNotesInfiniteQuery();
+  const updateOrderMutation = useReorderMutation();
+
+  const [clonedData, setClonedData] = useState<NoteSchemaType[]>([]);
 
   useEffect(() => {
-    if (!notesQuery.data?.length) return;
-
-    const pinned: NoteSchemaType[] = [];
-    const regular: NoteSchemaType[] = [];
-
-    for (const note of notesQuery.data) {
-      if (note?.isPinned) {
-        pinned.push(note);
-      }
-
-      if (!note?.isPinned) {
-        regular.push(note);
-      }
-    }
-
-    setPinnedNotes(pinned);
-    setNotes(regular);
-  }, [notesQuery.data]);
+    if (!query.data?.length) return;
+    setClonedData([...query.data]);
+  }, [query.data]);
 
   const updateNoteOrder = () => {
-    const dataToSend = [
-      ...pinnedNotes.map((x) => x.id),
-      ...notes.map((x) => x.id),
-    ];
-    updateNoteOrderMutation.mutate(
-      { order: dataToSend },
-      { onError: () => toast.error("Failed to reorder notes") },
-    );
+    const dataToSend = [...clonedData.map((x) => x.id)];
+    updateOrderMutation.mutate(dataToSend, {
+      onError: () => toast.error("Failed to reorder notes"),
+    });
   };
 
   const updateOrderOnKeyDown =
@@ -97,63 +114,35 @@ function NotesList() {
       updateNoteOrder();
     };
 
-  const showSeparator = Boolean(pinnedNotes.length) && Boolean(notes.length);
-
   return (
     <>
-      {notesQuery.isLoading && <div>Loading...</div>}
-
-      {!notesQuery.data?.length && <div>No notes</div>}
-
-      <Reorder.Group
-        className="grid"
-        axis="y"
-        as="div"
-        values={pinnedNotes}
-        onReorder={setPinnedNotes}
-        layoutScroll
-      >
-        {pinnedNotes.map((pinnedNote) => {
-          if (!pinnedNote) return null;
-          return (
-            <NoteItem
-              note={pinnedNote}
-              key={pinnedNote.id}
-              onReorderEnd={updateNoteOrder}
-              onKeyboardReorder={updateOrderOnKeyDown(
-                pinnedNote,
-                setPinnedNotes,
-              )}
-            />
-          );
-        })}
-      </Reorder.Group>
-
-      {showSeparator && <Separator />}
+      {!query.isLoading && !query.data?.length && (
+        <div className="py-8">{noDataMessage}</div>
+      )}
 
       <Reorder.Group
         className="grid"
         axis="y"
         as="div"
-        values={notes}
-        onReorder={setNotes}
+        values={clonedData}
+        onReorder={setClonedData}
         layoutScroll
       >
-        {notes.map((note) => {
+        {clonedData.map((note) => {
           if (!note) return null;
           return (
             <NoteItem
               note={note}
               key={note.id}
               onReorderEnd={updateNoteOrder}
-              onKeyboardReorder={updateOrderOnKeyDown(note, setNotes)}
+              onKeyboardReorder={updateOrderOnKeyDown(note, setClonedData)}
             />
           );
         })}
       </Reorder.Group>
 
-      {notesQuery.hasNextPage && !notesQuery.isFetching && (
-        <InView onChange={(isInView) => isInView && notesQuery.fetchNextPage()}>
+      {query.hasNextPage && !query.isFetching && (
+        <InView onChange={(isInView) => isInView && query.fetchNextPage()}>
           Loading more...
         </InView>
       )}

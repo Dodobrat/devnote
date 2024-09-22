@@ -7,7 +7,8 @@ import { useEditorNote } from "~/hooks/store/editor";
 
 export function Note() {
   const params = useParams<{ id: string }>();
-  const id = parseInt(params.id!);
+  const id = params.id!;
+
   const { data } = useNote(id);
 
   const { setNote } = useEditorNote();

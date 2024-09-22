@@ -1,7 +1,6 @@
 import { useCallback } from "react";
 import { generatePath, useNavigate, useParams } from "react-router-dom";
 import {
-  InfiniteData,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -9,56 +8,68 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { NotesApi } from "~/api";
+import { LocalNotesAPI } from "~/api";
 import { AppRoutes } from "~/routes";
-import {
-  MonacoStandaloneEditor,
-  NoteSchemaType,
-  PaginatedNotesSchemaType,
-  PaginatedSearchQuerySchemaType,
-} from "~/types";
+import { MonacoStandaloneEditor, NoteSchemaType } from "~/types";
 
 import { useEditorNotePrevState } from "../store/editor";
 
 export const notesQueryKeys = {
   all: () => ["notes"],
   list: () => [...notesQueryKeys.all(), "list"],
-  listQuery: (query: PaginatedSearchQuerySchemaType["query"]) => [
-    ...notesQueryKeys.list(),
-    query,
-  ],
+  pinnedList: () => [...notesQueryKeys.list(), "pinned"],
+  unpinnedList: () => [...notesQueryKeys.list(), "unpinned"],
+  byQuery: (query: string) => [...notesQueryKeys.list(), "search", query],
   byIdRoot: () => [...notesQueryKeys.all(), "byId"],
   byId: (id: NoteSchemaType["id"]) => [...notesQueryKeys.byIdRoot(), id],
 };
 
-export function useNotes(query?: PaginatedSearchQuerySchemaType["query"]) {
+export function usePinnedNotes() {
   return useInfiniteQuery({
-    queryKey: notesQueryKeys.listQuery(query),
-    queryFn: ({ pageParam }) =>
-      NotesApi.getPaginated({ cursor: pageParam, query }),
-    enabled: typeof query === "string" ? Boolean(query.length >= 2) : true,
+    queryKey: notesQueryKeys.pinnedList(),
+    queryFn: ({ pageParam }) => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.getPaginatedPinned(undefined, pageParam);
+    },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => {
       if (!lastPage.meta?.hasMore) return undefined;
       return lastPage.meta.cursor;
     },
-    select: (data) => {
-      return data.pages.flatMap((page) => page.data);
+    select: (data) => data.pages.flatMap((page) => page.data),
+  });
+}
+
+export function useUnPinnedNotes() {
+  return useInfiniteQuery({
+    queryKey: notesQueryKeys.unpinnedList(),
+    queryFn: ({ pageParam }) => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.getPaginated(undefined, pageParam);
     },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.meta?.hasMore) return undefined;
+      return lastPage.meta.cursor;
+    },
+    select: (data) => data.pages.flatMap((page) => page.data),
   });
 }
 
 export function useNote(id: NoteSchemaType["id"]) {
   return useQuery({
     queryKey: notesQueryKeys.byId(id),
-    queryFn: () => NotesApi.getById(id),
+    queryFn: () => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.getById(id);
+    },
     enabled: Boolean(id),
   });
 }
 
 export function useCreateNote() {
   return useMutation({
-    mutationFn: NotesApi.create,
+    mutationFn: LocalNotesAPI.create,
   });
 }
 
@@ -66,44 +77,56 @@ export function useUpdateNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: NotesApi.update,
+    mutationFn: LocalNotesAPI.update,
     onSuccess: (_, variables) => {
-      queryClient.setQueryData<InfiniteData<PaginatedNotesSchemaType>>(
-        notesQueryKeys.list(),
-        (prev) => {
-          if (!prev) return prev;
+      // determine which cache to update
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.list(),
+      });
 
-          const updated = prev.pages.map((p) => ({
-            ...p,
-            data: p.data.map((n) => {
-              if (n.id !== variables.id) return n;
-              return { ...n, ...variables };
-            }),
-          }));
+      // queryClient.setQueryData<InfiniteData<PaginatedNotesSchemaType>>(
+      //   notesQueryKeys.list(),
+      //   (prev) => {
+      //     if (!prev) return prev;
 
-          return { ...prev, pages: updated };
-        },
-      );
+      //     const updated = prev.pages.map((p) => ({
+      //       ...p,
+      //       data: p.data.map((n) => {
+      //         if (n.id !== variables.id) return n;
+      //         return { ...n, ...variables };
+      //       }),
+      //     }));
+
+      //     return { ...prev, pages: updated };
+      //   },
+      // );
     },
   });
 }
 
-export function useUpdateNotePinState() {
+export function usePinNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: NotesApi.updatePinState,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
+    mutationFn: LocalNotesAPI.pin,
+    onSuccess: (_, variables) => {
+      queryClient.refetchQueries({
         queryKey: notesQueryKeys.list(),
       });
     },
   });
 }
 
-export function useUpdateNoteOrder() {
+export function useUnpinNote() {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: NotesApi.updateOrder,
+    mutationFn: LocalNotesAPI.unpin,
+    onSuccess: (_, variables) => {
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.list(),
+      });
+    },
   });
 }
 
@@ -111,13 +134,50 @@ export function useDeleteNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: NotesApi.delete,
+    mutationFn: LocalNotesAPI.delete,
     onSuccess: () => {
       // TODO: see if order is updated
       queryClient.refetchQueries({
         queryKey: notesQueryKeys.list(),
       });
     },
+  });
+}
+
+export function useReorderPinnedNotes() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: LocalNotesAPI.reorderPinned,
+    onSuccess: () => {
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.pinnedList(),
+      });
+    },
+  });
+}
+
+export function useReorderUnpinnedNotes() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: LocalNotesAPI.reorder,
+    onSuccess: () => {
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.unpinnedList(),
+      });
+    },
+  });
+}
+
+export function useSearchNotes(query: string) {
+  return useQuery({
+    queryKey: notesQueryKeys.byQuery(query),
+    queryFn: () => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.search(query);
+    },
+    enabled: Boolean(query),
   });
 }
 
@@ -128,7 +188,7 @@ export function useSaveNote() {
   const createMutation = useCreateNote();
 
   const params = useParams<{ id: string }>();
-  const id = parseInt(params.id!);
+  const id = params.id!;
 
   const [, setPrevNote] = useEditorNotePrevState();
 

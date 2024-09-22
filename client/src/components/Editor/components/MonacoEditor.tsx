@@ -213,7 +213,7 @@ export function MonacoEditor({
   const navigate = useNavigate();
 
   const params = useParams<{ id: string }>();
-  const id = parseInt(params.id!);
+  const id = params.id!;
 
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>();
   const { note, setNote } = useEditorNote();

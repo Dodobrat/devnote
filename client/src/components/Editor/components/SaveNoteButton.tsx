@@ -29,18 +29,18 @@ import {
 } from "~/hooks/store/editor";
 import { cn } from "~/lib/utils";
 
-(function () {
-  const handleOnBeforeUnload = (e: BeforeUnloadEvent) => {
-    const getIsDirty = () => Boolean(sessionStorage.getItem("isDirty"));
-    if (!getIsDirty()) return;
-    e.stopImmediatePropagation();
-    e.preventDefault();
-  };
+// (function () {
+//   const handleOnBeforeUnload = (e: BeforeUnloadEvent) => {
+//     const getIsDirty = () => Boolean(sessionStorage.getItem("isDirty"));
+//     if (!getIsDirty()) return;
+//     e.stopImmediatePropagation();
+//     e.preventDefault();
+//   };
 
-  window.addEventListener("beforeunload", handleOnBeforeUnload, {
-    capture: true,
-  });
-})();
+//   window.addEventListener("beforeunload", handleOnBeforeUnload, {
+//     capture: true,
+//   });
+// })();
 
 export function SaveNoteButton() {
   const params = useParams<{ id: string }>();
@@ -53,7 +53,7 @@ export function SaveNoteButton() {
   const { monacoInstance } = useMonacoInstance();
 
   const { note } = useEditorNote();
-  const { data } = useNote(parseInt(id || ""));
+  const { data } = useNote(id || "");
 
   const [prevNote, setPrevNote] = useEditorNotePrevState();
   const [welcomeNote] = useEditorWelcomeNote();

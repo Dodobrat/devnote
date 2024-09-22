@@ -25,12 +25,6 @@ import { AppRoutes } from "./routes";
 
 import "./index.css";
 
-async function enableMocking() {
-  // when or if using real BE, return before import
-  const { worker } = await import("./mocks/browser");
-  return worker.start({ onUnhandledRequest: "bypass" });
-}
-
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 0 } },
 });
@@ -51,18 +45,16 @@ const router = createBrowserRouter(
   ),
 );
 
-enableMocking().then(() => {
-  createRoot(document.getElementById("root")!).render(
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <TooltipProvider>
-            <RouterProvider router={router} />
-          </TooltipProvider>
-          <Toaster />
-        </ThemeProvider>
-        <ReactQueryDevtools />
-      </QueryClientProvider>
-    </StrictMode>,
-  );
-});
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <TooltipProvider>
+          <RouterProvider router={router} />
+        </TooltipProvider>
+        <Toaster />
+      </ThemeProvider>
+      <ReactQueryDevtools />
+    </QueryClientProvider>
+  </StrictMode>,
+);

@@ -13,7 +13,7 @@ import {
   toggleSplitViewModeShortcut,
 } from "~/constants/shortcuts";
 import { useActions, useKeyDownEvent } from "~/hooks";
-import { useNotes } from "~/hooks/query";
+import { useSearchNotes } from "~/hooks/query";
 import { useCommandPaletteOpenStore } from "~/hooks/store/layout";
 import { AppRoutes } from "~/routes";
 
@@ -167,7 +167,7 @@ function PageCommandGroup({ prompt, closeAndReset }: CommandGroupProps) {
 function NotesCommandGroup({ prompt, closeAndReset }: CommandGroupProps) {
   const navigate = useNavigate();
 
-  const { data } = useNotes(prompt || undefined);
+  const { data } = useSearchNotes(prompt);
 
   const isPathCommand = prompt.startsWith("/");
   const isActionCommand = prompt.startsWith(">");
