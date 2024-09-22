@@ -9,9 +9,7 @@ import {
 import { webStorage } from "~/lib/utils";
 
 export const storeKeys = {
-  all: "devnote",
   theme: "devnote.theme",
-  notes: "devnote.notes",
   commandPaletteOpenState: "devnote.commandPaletteOpenState",
   sidebarState: "devnote.sidebarState",
   editorNote: "devnote.editor.note",

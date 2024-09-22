@@ -9,6 +9,7 @@ import {
   monacoCollapseEditorPanelShortcut,
   monacoCollapsePreviewPanelShortcut,
   monacoCreateNewNoteShortcut,
+  monacoOpenCommandPaletteBrowserShortcut,
   monacoResetEditorPanelSizesShortcut,
   monacoSaveCurrentNoteShortcut,
 } from "~/constants/shortcuts";
@@ -16,6 +17,7 @@ import { ThemeMode, useMonacoInstance, useTheme } from "~/context";
 import { useActions, useKeyDownEvent } from "~/hooks";
 import { useSaveNote } from "~/hooks/query";
 import { useEditorAutosave, useEditorNote } from "~/hooks/store/editor";
+import { useCommandPaletteOpenStore } from "~/hooks/store/layout";
 import { remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
@@ -264,6 +266,7 @@ export function MonacoEditor({
   }, [monacoInstance, navigate]);
 
   const [isAutosaving] = useEditorAutosave();
+  const [, setOpenCommandPalette] = useCommandPaletteOpenStore();
 
   return (
     <MonacoEditorBase
@@ -322,6 +325,11 @@ export function MonacoEditor({
           if (enableSaveNote) {
             saveNote(editor);
           }
+        });
+
+        // Override CMD + K
+        editor.addCommand(monacoOpenCommandPaletteBrowserShortcut, () => {
+          setOpenCommandPalette(true);
         });
       }}
     />

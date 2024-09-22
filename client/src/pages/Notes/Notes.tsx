@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { InView } from "react-intersection-observer";
+import { generatePath, NavLink } from "react-router-dom";
 import {
   UseInfiniteQueryResult,
   UseMutationResult,
@@ -16,13 +17,13 @@ import {
   useUnPinnedNotes,
 } from "~/hooks/query";
 import { cn } from "~/lib/utils";
+import { AppRoutes } from "~/routes";
 import { NoteSchemaType } from "~/types";
 
 import {
   NoteDelete,
   NoteDragHandle,
   NoteEditTitle,
-  NoteLink,
   NotePin,
 } from "./components";
 
@@ -31,93 +32,95 @@ export function Notes() {
     <Page.Card>
       <Page.Content>
         <Page.Title>Notes</Page.Title>
-        <NotesList />
+
+        <NoteGroup
+          useNotesInfiniteQuery={usePinnedNotes}
+          useReorderMutation={useReorderPinnedNotes}
+          noDataMessage="No pinned notes"
+        />
+
+        <Separator />
+
+        <NoteGroup
+          useNotesInfiniteQuery={useUnPinnedNotes}
+          useReorderMutation={useReorderUnpinnedNotes}
+          noDataMessage="No notes"
+        />
       </Page.Content>
     </Page.Card>
   );
 }
 
-function NotesList() {
-  return (
-    <>
-      <NoteGroup
-        useNotesInfiniteQuery={usePinnedNotes}
-        useReorderMutation={useReorderPinnedNotes}
-        noDataMessage="No pinned notes"
-      />
+type NoteReorderDirection = "up" | "down";
 
-      <Separator />
-
-      <NoteGroup
-        useNotesInfiniteQuery={useUnPinnedNotes}
-        useReorderMutation={useReorderUnpinnedNotes}
-        noDataMessage="No notes"
-      />
-    </>
-  );
-}
+type NoteGroupProps = {
+  useNotesInfiniteQuery: () => UseInfiniteQueryResult<NoteSchemaType[], Error>;
+  useReorderMutation: () => UseMutationResult<void, Error, string[], unknown>;
+  noDataMessage: string;
+};
 
 function NoteGroup({
   useNotesInfiniteQuery,
   useReorderMutation,
   noDataMessage,
-}: {
-  useNotesInfiniteQuery: () => UseInfiniteQueryResult<NoteSchemaType[], Error>;
-  useReorderMutation: () => UseMutationResult<void, Error, string[], unknown>;
-  noDataMessage: string;
-}) {
+}: NoteGroupProps) {
   const query = useNotesInfiniteQuery();
   const updateOrderMutation = useReorderMutation();
 
   const [clonedData, setClonedData] = useState<NoteSchemaType[]>([]);
 
   useEffect(() => {
-    if (!query.data?.length) return;
+    if (!query.data) return;
     setClonedData([...query.data]);
   }, [query.data]);
 
-  const updateNoteOrder = () => {
-    const dataToSend = [...clonedData.map((x) => x.id)];
-    updateOrderMutation.mutate(dataToSend, {
-      onError: () => toast.error("Failed to reorder notes"),
-    });
-  };
+  const updateNoteOrder = useCallback(
+    (updatedOrderNotes: NoteSchemaType[]) => {
+      updateOrderMutation.mutate([...updatedOrderNotes.map((x) => x.id)], {
+        onError: () => toast.error("Failed to reorder notes"),
+      });
+    },
+    [updateOrderMutation],
+  );
 
-  const updateOrderOnKeyDown =
+  const updateOrderOnKeyDown = useCallback(
     (
       note: NoteSchemaType,
       setState: React.Dispatch<React.SetStateAction<NoteSchemaType[]>>,
     ) =>
-    (dir: NoteReorderDirection) => {
-      setState((prev) => {
-        const index = prev.findIndex((x) => x.id === note.id);
-        const newIndex = dir === "up" ? index - 1 : index + 1;
+      (dir: NoteReorderDirection) => {
+        setState((prev) => {
+          const index = prev.findIndex((x) => x.id === note.id);
+          const newIndex = dir === "up" ? index - 1 : index + 1;
 
-        if (newIndex < 0) {
-          toast.info("Can't move note up");
-          return prev;
-        }
+          if (newIndex < 0) {
+            toast.info("Can't move note up");
+            return prev;
+          }
 
-        if (newIndex >= prev.length) {
-          toast.info("Can't move note down");
-          return prev;
-        }
+          if (newIndex >= prev.length) {
+            toast.info("Can't move note down");
+            return prev;
+          }
 
-        const newNotes = [...prev];
+          const newNotes = [...prev];
 
-        newNotes.splice(index, 1);
-        newNotes.splice(newIndex, 0, note);
+          newNotes.splice(index, 1);
+          newNotes.splice(newIndex, 0, note);
 
-        return newNotes;
-      });
+          // Send request to update note order
+          updateNoteOrder(newNotes);
 
-      updateNoteOrder();
-    };
+          return newNotes;
+        });
+      },
+    [updateNoteOrder],
+  );
 
   return (
     <>
       {!query.isLoading && !query.data?.length && (
-        <div className="py-8">{noDataMessage}</div>
+        <div className="py-6">{noDataMessage}</div>
       )}
 
       <Reorder.Group
@@ -134,7 +137,7 @@ function NoteGroup({
             <NoteItem
               note={note}
               key={note.id}
-              onReorderEnd={updateNoteOrder}
+              onReorderEnd={() => updateNoteOrder(clonedData)}
               onKeyboardReorder={updateOrderOnKeyDown(note, setClonedData)}
             />
           );
@@ -150,17 +153,13 @@ function NoteGroup({
   );
 }
 
-type NoteReorderDirection = "up" | "down";
-
-function NoteItem({
-  note,
-  onReorderEnd,
-  onKeyboardReorder,
-}: {
+type NoteItemProps = {
   note: NoteSchemaType;
   onReorderEnd?: () => void;
   onKeyboardReorder: (dir: NoteReorderDirection) => void;
-}) {
+};
+
+function NoteItem({ note, onReorderEnd, onKeyboardReorder }: NoteItemProps) {
   const controls = useDragControls();
   const [isDragging, setIsDragging] = useState(false);
 
@@ -186,7 +185,18 @@ function NoteItem({
           isDragging && "pointer-events-none",
         )}
       >
-        <NoteLink note={note} />
+        <NavLink
+          to={generatePath(AppRoutes.NoteById, { id: note.id })}
+          className={cn([
+            "col-span-full md:order-2 md:col-span-1",
+            "truncate text-lg font-semibold leading-tight",
+            "grow rounded-lg px-4 py-2 md:h-full",
+            "focus:outline-none focus-visible:ring",
+            "hover:bg-muted",
+          ])}
+        >
+          {note.previewTitle}
+        </NavLink>
 
         <div className="flex shrink-0 gap-2 md:order-1">
           <NotePin note={note} />

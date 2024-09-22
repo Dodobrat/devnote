@@ -45,6 +45,8 @@ export function getIsOpenCommandPaletteVSCodeKeyCombo(e: KeyboardEvent) {
 }
 
 export const openCommandPaletteBrowserShortcut = `${getMetaKey()} + K`;
+export const monacoOpenCommandPaletteBrowserShortcut =
+  monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK;
 export function getIsOpenCommandPaletteBrowserKeyCombo(e: KeyboardEvent) {
   const isMac = getIsMac();
   return (isMac ? e.metaKey : e.ctrlKey) && e.key === "k";

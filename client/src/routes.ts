@@ -9,5 +9,5 @@ export enum AppRoutes {
   Changelog = "/changelog",
   Settings = "/settings",
   // Feedback = "/feedback",
-  // NotFound = "/not-found",
+  NotFound = "/not-found",
 }

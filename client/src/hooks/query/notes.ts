@@ -10,7 +10,11 @@ import { toast } from "sonner";
 
 import { LocalNotesAPI } from "~/api";
 import { AppRoutes } from "~/routes";
-import { MonacoStandaloneEditor, NoteSchemaType } from "~/types";
+import {
+  MonacoStandaloneEditor,
+  NoteSchemaType,
+  UpdateNoteSchemaType,
+} from "~/types";
 
 import { useEditorNotePrevState } from "../store/editor";
 
@@ -69,7 +73,10 @@ export function useNote(id: NoteSchemaType["id"]) {
 
 export function useCreateNote() {
   return useMutation({
-    mutationFn: LocalNotesAPI.create,
+    mutationFn: (body: Pick<NoteSchemaType, "note">) => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.create(body);
+    },
   });
 }
 
@@ -77,29 +84,14 @@ export function useUpdateNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: LocalNotesAPI.update,
-    onSuccess: (_, variables) => {
-      // determine which cache to update
+    mutationFn: (body: UpdateNoteSchemaType) => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.update(body);
+    },
+    onSuccess: () => {
       queryClient.refetchQueries({
         queryKey: notesQueryKeys.list(),
       });
-
-      // queryClient.setQueryData<InfiniteData<PaginatedNotesSchemaType>>(
-      //   notesQueryKeys.list(),
-      //   (prev) => {
-      //     if (!prev) return prev;
-
-      //     const updated = prev.pages.map((p) => ({
-      //       ...p,
-      //       data: p.data.map((n) => {
-      //         if (n.id !== variables.id) return n;
-      //         return { ...n, ...variables };
-      //       }),
-      //     }));
-
-      //     return { ...prev, pages: updated };
-      //   },
-      // );
     },
   });
 }
@@ -108,8 +100,11 @@ export function usePinNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: LocalNotesAPI.pin,
-    onSuccess: (_, variables) => {
+    mutationFn: (id: NoteSchemaType["id"]) => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.pin(id);
+    },
+    onSuccess: () => {
       queryClient.refetchQueries({
         queryKey: notesQueryKeys.list(),
       });
@@ -121,8 +116,11 @@ export function useUnpinNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: LocalNotesAPI.unpin,
-    onSuccess: (_, variables) => {
+    mutationFn: (id: NoteSchemaType["id"]) => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.unpin(id);
+    },
+    onSuccess: () => {
       queryClient.refetchQueries({
         queryKey: notesQueryKeys.list(),
       });
@@ -134,9 +132,11 @@ export function useDeleteNote() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: LocalNotesAPI.delete,
+    mutationFn: (id: NoteSchemaType["id"]) => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.delete(id);
+    },
     onSuccess: () => {
-      // TODO: see if order is updated
       queryClient.refetchQueries({
         queryKey: notesQueryKeys.list(),
       });
@@ -148,7 +148,10 @@ export function useReorderPinnedNotes() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: LocalNotesAPI.reorderPinned,
+    mutationFn: (ids: NoteSchemaType["id"][]) => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.reorderPinned(ids);
+    },
     onSuccess: () => {
       queryClient.refetchQueries({
         queryKey: notesQueryKeys.pinnedList(),
@@ -161,7 +164,10 @@ export function useReorderUnpinnedNotes() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: LocalNotesAPI.reorder,
+    mutationFn: (ids: NoteSchemaType["id"][]) => {
+      // logic when to switch to actual api
+      return LocalNotesAPI.reorder(ids);
+    },
     onSuccess: () => {
       queryClient.refetchQueries({
         queryKey: notesQueryKeys.unpinnedList(),
@@ -196,7 +202,7 @@ export function useSaveNote() {
     (editor: MonacoStandaloneEditor) => {
       const cursorPosition = editor?.getPosition();
 
-      if (id)
+      if (id) {
         return updateMutation.mutate(
           { id, note: editor?.getValue() },
           {
@@ -205,6 +211,7 @@ export function useSaveNote() {
             },
           },
         );
+      }
 
       return createMutation.mutate(
         { note: editor?.getValue() || "" },
@@ -212,7 +219,7 @@ export function useSaveNote() {
           onSuccess: (res) => {
             toast.success(`${res.previewTitle} was created`);
 
-            navigate(generatePath(AppRoutes.NoteById, { id: String(res.id) }), {
+            navigate(generatePath(AppRoutes.NoteById, { id: res.id }), {
               state: cursorPosition,
             });
           },

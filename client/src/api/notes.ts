@@ -10,18 +10,9 @@ import {
   UpdateNoteSchemaType,
 } from "~/types";
 
+const DEFAULT_PAGINATION_SLICE = 50;
+
 export const NotesApi = {
-  // async getPaginated(
-  //   params: PaginatedSearchQuerySchemaType = {
-  //     cursor: 0,
-  //     // slice: 50,
-  //     // query: "",
-  //   },
-  // ) {
-  //   return instance
-  //     .get<PaginatedNotesSchemaType>("/notes/list", { params })
-  //     .then(({ data }) => data);
-  // },
   // async getById(id: NoteSchemaType["id"]) {
   //   // if locked, require password
   //   return instance
@@ -39,20 +30,14 @@ export const NotesApi = {
   //     .put<boolean>(`/notes/${body.id}`, body)
   //     .then(({ data }) => data);
   // },
-  // async updatePinState(body: UpdateNotePinStateSchemaType) {
-  //   return instance
-  //     .put<boolean>(`/notes/${body.id}/pin-state`, body)
-  //     .then(({ data }) => data);
-  // },
-  // async updateOrder(body: UpdateNoteOrderSchemaType) {
-  //   return instance.put<boolean>(`/notes/order`, body).then(({ data }) => data);
-  // },
   // async delete(id: NoteSchemaType["id"]) {
   //   return instance.delete<boolean>(`/notes/${id}`).then(({ data }) => data);
   // },
 };
 
-// Define the database schema
+/**
+ * LocalNotesAPI is a mock API that uses IndexedDB as the data store.
+ */
 interface NotesDB extends DBSchema {
   notes: {
     key: string;
@@ -66,12 +51,13 @@ interface NotesDB extends DBSchema {
   };
 }
 
+const NOTES_DB_NAME = "notes-db";
+const NOTES_DB_VERSION = 1;
+
 // Initialize the IndexedDB database
-const dbPromise = openDB<NotesDB>("notes-db", 1, {
+const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
   upgrade(db) {
-    const store = db.createObjectStore("notes", {
-      keyPath: "id",
-    });
+    const store = db.createObjectStore("notes", { keyPath: "id" });
     store.createIndex("order", "order");
     store.createIndex("isPinned", "isPinned");
     store.createIndex("previewTitle", "previewTitle");
@@ -104,7 +90,7 @@ export const LocalNotesAPI = {
         id: crypto.randomUUID(),
         createdAt: now,
         updatedAt: null,
-        previewTitle: `New note - ${now.toDateString()}`,
+        previewTitle: `New note - ${now.toUTCString()}`,
         order: 0,
         isPinned: 0,
         isProtected: 0,
@@ -130,7 +116,7 @@ export const LocalNotesAPI = {
   },
 
   // Get note by ID
-  async getById(id: string): Promise<NoteSchemaType | undefined> {
+  async getById(id: NoteSchemaType["id"]): Promise<NoteSchemaType | undefined> {
     try {
       const db = await dbPromise;
       const note = await db.get("notes", id);
@@ -150,10 +136,10 @@ export const LocalNotesAPI = {
   },
 
   // Update a note
-  async update(noteUpdate: UpdateNoteSchemaType): Promise<void> {
+  async update(body: UpdateNoteSchemaType): Promise<void> {
     try {
       // Validate input data
-      const validatedNoteUpdate = updateNoteSchema.parse(noteUpdate);
+      const validatedNoteUpdate = updateNoteSchema.parse(body);
 
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
@@ -195,7 +181,7 @@ export const LocalNotesAPI = {
   },
 
   // Pin a note
-  async pin(id: string): Promise<void> {
+  async pin(id: NoteSchemaType["id"]): Promise<void> {
     try {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
@@ -206,7 +192,7 @@ export const LocalNotesAPI = {
         throw new Error("Note not found");
       }
 
-      if (note.isPinned === 1) {
+      if (note.isPinned) {
         // Note is already pinned
         return;
       }
@@ -250,7 +236,7 @@ export const LocalNotesAPI = {
   },
 
   // Unpin a note
-  async unpin(id: string): Promise<void> {
+  async unpin(id: NoteSchemaType["id"]): Promise<void> {
     try {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
@@ -261,7 +247,7 @@ export const LocalNotesAPI = {
         throw new Error("Note not found");
       }
 
-      if (note.isPinned === 0) {
+      if (!note.isPinned) {
         // Note is already unpinned
         return;
       }
@@ -304,7 +290,7 @@ export const LocalNotesAPI = {
   },
 
   // Delete a note
-  async delete(id: string): Promise<void> {
+  async delete(id: NoteSchemaType["id"]): Promise<void> {
     try {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
@@ -344,7 +330,7 @@ export const LocalNotesAPI = {
 
   // Get paginated pinned notes
   async getPaginatedPinned(
-    slice: number = 50,
+    slice: number = DEFAULT_PAGINATION_SLICE,
     cursor: number = 0,
   ): Promise<PaginatedNotesSchemaType> {
     try {
@@ -396,7 +382,7 @@ export const LocalNotesAPI = {
 
   // Get paginated unpinned notes
   async getPaginated(
-    slice: number = 50,
+    slice: number = DEFAULT_PAGINATION_SLICE,
     cursor: number = 0,
   ): Promise<PaginatedNotesSchemaType> {
     try {
@@ -445,7 +431,7 @@ export const LocalNotesAPI = {
   },
 
   // Reorder pinned notes
-  async reorderPinned(ids: string[]): Promise<void> {
+  async reorderPinned(ids: NoteSchemaType["id"][]): Promise<void> {
     try {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
@@ -474,7 +460,7 @@ export const LocalNotesAPI = {
   },
 
   // Reorder unpinned notes
-  async reorder(ids: string[]): Promise<void> {
+  async reorder(ids: NoteSchemaType["id"][]): Promise<void> {
     try {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");

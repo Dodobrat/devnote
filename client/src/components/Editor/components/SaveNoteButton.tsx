@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useBlocker, useParams } from "react-router-dom";
+import { useCallback, useEffect } from "react";
+import { useBeforeUnload, useBlocker, useParams } from "react-router-dom";
 import { SaveIcon } from "lucide-react";
 
 import {
@@ -29,19 +29,6 @@ import {
 } from "~/hooks/store/editor";
 import { cn } from "~/lib/utils";
 
-// (function () {
-//   const handleOnBeforeUnload = (e: BeforeUnloadEvent) => {
-//     const getIsDirty = () => Boolean(sessionStorage.getItem("isDirty"));
-//     if (!getIsDirty()) return;
-//     e.stopImmediatePropagation();
-//     e.preventDefault();
-//   };
-
-//   window.addEventListener("beforeunload", handleOnBeforeUnload, {
-//     capture: true,
-//   });
-// })();
-
 export function SaveNoteButton() {
   const params = useParams<{ id: string }>();
   const id = params.id;
@@ -68,15 +55,24 @@ export function SaveNoteButton() {
   const isDiff = note !== prevNote;
   const isDirty = id ? isDiff : note !== welcomeNote;
 
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      isDirty && currentLocation.pathname !== nextLocation.pathname,
-  );
+  const blocker = useBlocker(({ currentLocation, nextLocation }) => {
+    return (
+      !nextLocation.state &&
+      isDirty &&
+      currentLocation.pathname !== nextLocation.pathname
+    );
+  });
 
-  useEffect(() => {
-    sessionStorage.setItem("isDirty", isDirty ? "1" : "");
-    return () => sessionStorage.removeItem("isDirty");
-  }, [isDirty]);
+  useBeforeUnload(
+    useCallback(
+      (e) => {
+        if (!isDirty) return;
+        // if dirty, show browser confirm dialog
+        e.preventDefault();
+      },
+      [isDirty],
+    ),
+  );
 
   return (
     <>
