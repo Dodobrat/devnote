@@ -3,20 +3,8 @@ import { LaptopMinimalIcon, MoonIcon, SunIcon } from "lucide-react";
 
 import { EditorOutput, MonacoEditorFallback } from "~/components/Editor";
 import { Page } from "~/components/Layout";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  Button,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "~/components/ui";
+import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
+import { Button, Tabs, TabsList, TabsTrigger } from "~/components/ui";
 import { WELCOME_TEXT } from "~/constants";
 import { MonacoInstanceProvider, ThemeMode, useTheme } from "~/context";
 import { useDocumentTitle } from "~/hooks";
@@ -180,30 +168,21 @@ function WelcomeMessage() {
         </Button>
       </div>
 
-      <AlertDialog open={showConfirmReset} onOpenChange={setShowConfirmReset}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You will lose your changes.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowConfirmReset(false)}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                setWelcomeNote(WELCOME_TEXT);
-                setNote(WELCOME_TEXT);
-                setShowConfirmReset(false);
-              }}
-            >
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ResponsiveConfirmation
+        open={showConfirmReset}
+        onOpenChange={setShowConfirmReset}
+        onContinue={() => {
+          setWelcomeNote(WELCOME_TEXT);
+          setNote(WELCOME_TEXT);
+          setShowConfirmReset(false);
+        }}
+        labels={{
+          title: "Are you absolutely sure?",
+          desc: "This action cannot be undone. You will lose your changes.",
+          cancel: "Cancel",
+          continue: "Continue",
+        }}
+      />
     </>
   );
 }

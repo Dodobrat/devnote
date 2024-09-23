@@ -2,15 +2,8 @@ import { useCallback, useEffect } from "react";
 import { useBeforeUnload, useBlocker, useParams } from "react-router-dom";
 import { SaveIcon } from "lucide-react";
 
+import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
   Button,
   CommandShortcutSnippet,
   Tooltip,
@@ -110,24 +103,17 @@ export function SaveNoteButton() {
         </TooltipContent>
       </Tooltip>
 
-      <AlertDialog open={blocker.state === "blocked"}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You will lose your changes if you don't save them.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => blocker.reset?.()}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={() => blocker.proceed?.()}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ResponsiveConfirmation
+        open={blocker.state === "blocked"}
+        onContinue={() => blocker.proceed?.()}
+        onCancel={() => blocker.reset?.()}
+        labels={{
+          title: "Are you absolutely sure?",
+          desc: "You will lose your changes if you don't save them.",
+          cancel: "Cancel",
+          continue: "Continue",
+        }}
+      />
     </>
   );
 }

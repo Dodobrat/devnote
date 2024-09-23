@@ -587,7 +587,11 @@ function Navigation() {
             <Button
               size="icon"
               variant="outline"
-              className="fixed bottom-4 left-4"
+              className={cn(
+                "fixed bottom-4 left-4",
+                "bottom-[calc(constant(safe-area-inset-bottom)_+_1rem)]",
+                "bottom-[calc(env(safe-area-inset-bottom)_+_1rem)]",
+              )}
               onClick={() => {
                 setSidebarState((v) =>
                   v === SidebarState.Minimized

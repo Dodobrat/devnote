@@ -1,5 +1,7 @@
 import { motion, Variants } from "framer-motion";
 
+import { cn } from "~/lib/utils";
+
 const variants: Variants = {
   hidden: { opacity: 0, scale: 1, x: 100 },
   enter: { opacity: 1, scale: 1, x: 0 },
@@ -33,7 +35,19 @@ function PageCard({ children }: React.PropsWithChildren) {
 
 function PageContent({ children }: React.PropsWithChildren) {
   return (
-    <div className="h-full overflow-auto p-4 md:p-6 lg:p-8">{children}</div>
+    <div
+      className={cn(
+        "h-full overflow-auto p-4 md:p-6 lg:p-8",
+        "pb-[calc(constant(safe-area-inset-bottom)_+_4rem)]",
+        "pb-[calc(env(safe-area-inset-bottom)_+_4rem)]",
+        "md:pb-[calc(constant(safe-area-inset-bottom)_+_4rem)]",
+        "md:pb-[calc(env(safe-area-inset-bottom)_+_4rem)]",
+        "lg:pb-[calc(constant(safe-area-inset-bottom)_+_4rem)]",
+        "lg:pb-[calc(env(safe-area-inset-bottom)_+_4rem)]",
+      )}
+    >
+      {children}
+    </div>
   );
 }
 
