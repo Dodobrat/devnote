@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect } from "react";
 
 import { useMediaQuery } from "~/hooks";
 import { storeKeys, usePersisQueryStore } from "~/hooks/store";
+import { getCssVar, hslToHex, hslToNumberValues } from "~/lib/utils";
 
 export enum ThemeMode {
   Light = "light",
@@ -26,25 +27,29 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     ThemeMode.System,
   );
 
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove(ThemeMode.Light, ThemeMode.Dark);
-
-    if (theme === ThemeMode.System) {
-      const systemTheme = isPreferredDark ? ThemeMode.Dark : ThemeMode.Light;
-      root.classList.add(systemTheme);
-      return;
-    }
-
-    root.classList.add(theme);
-  }, [isPreferredDark, theme]);
-
   const resolvedTheme =
     theme === ThemeMode.System
       ? isPreferredDark
         ? ThemeMode.Dark
         : ThemeMode.Light
       : theme;
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove(ThemeMode.Light, ThemeMode.Dark);
+    root.classList.add(resolvedTheme);
+  }, [resolvedTheme]);
+
+  useEffect(() => {
+    const getBgCssVar = () => getCssVar("--background").trim();
+    const hsl = hslToNumberValues(getBgCssVar());
+    const hex = hsl.length ? hslToHex(hsl[0], hsl[1], hsl[2]) : "#000000";
+
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute("content", hex);
+    }
+  }, [resolvedTheme]);
 
   const value: ThemeProviderState = {
     resolvedTheme,

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import MonacoEditorBase, { loader } from "@monaco-editor/react";
-import * as monaco from "monaco-editor";
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import editorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 
 import {
@@ -20,6 +20,8 @@ import { useEditorAutosave, useEditorNote } from "~/hooks/store/editor";
 import { useCommandPaletteOpenStore } from "~/hooks/store/layout";
 import { remToPx } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
+
+import "monaco-editor/esm/vs/basic-languages/markdown/markdown.contribution";
 
 self.MonacoEnvironment = {
   getWorker() {

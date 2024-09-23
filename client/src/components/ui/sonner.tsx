@@ -12,36 +12,42 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      closeButton
+      expand={false}
       toastOptions={{
+        unstyled: true,
         classNames: {
           toast: cn(
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:border group-[.toaster]:shadow-lg",
-            "group-[&_[data-close-button]]:right-0 group-[&_[data-close-button]]:left-auto group-[&_[data-close-button]]:top-3.5 group-[&_[data-close-button]]:rounded",
-            "group-[&_[data-close-button]]:border",
-            "group-[&_[data-icon]]:w-6",
+            "toast isolate",
+            "grid grid-cols-[auto,1fr,auto] gap-2 items-start",
+            "w-full p-4 leading-tight",
+            "rounded-lg shadow-lg",
           ),
-          success: cn(
-            "group-[.toaster]:bg-green-600 group-[.toaster]:text-white group-[.toaster]:border-green-700",
-            "group-[&_[data-close-button]]:bg-green-600 group-[&_[data-close-button]]:border-white",
-          ),
-          info: cn(
-            "group-[.toaster]:bg-sky-600 group-[.toaster]:text-white group-[.toaster]:border-sky-700",
-            "group-[&_[data-close-button]]:bg-sky-600 group-[&_[data-close-button]]:border-white",
-          ),
+
+          icon: "m-0 mt-0.5 grid place-content-center [&>svg]:m-0",
+          title: "leading-tight",
+
           warning: cn(
-            "group-[.toaster]:!bg-amber-500 group-[.toaster]:text-black group-[.toaster]:border-amber-700",
-            "group-[&_[data-close-button]]:bg-amber-500 group-[&_[data-close-button]]:border-black group-[&_[data-close-button]]:text-black",
-            "group-[&_[data-icon]]:text-black group-[&_[data-content]]:text-black",
+            "bg-yellow-500 text-black border-yellow-800 [&>[data-action]]:text-white [&>[data-action]]:bg-black",
           ),
           error: cn(
-            "group-[.toaster]:bg-red-600 group-[.toaster]:text-white group-[.toaster]:border-red-700",
-            "group-[&_[data-close-button]]:bg-red-600 group-[&_[data-close-button]]:border-white",
+            "bg-red-600 text-white border-red-800 [&>[data-action]]:text-black [&>[data-action]]:bg-white",
           ),
-          description: "group-[.toast]:text-muted-foreground",
-          actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+          success: cn(
+            "bg-green-600 text-white border-green-800 [&>[data-action]]:text-black [&>[data-action]]:bg-white",
+          ),
+          info: cn(
+            "bg-blue-500 text-white border-blue-800 [&>[data-action]]:text-black [&>[data-action]]:bg-white",
+          ),
+
+          closeButton: cn(
+            "relative size-6 top-0 left-0 rounded-sm transform-none",
+            "col-start-3 col-span-1 row-start-1 row-span-1",
+            "bg-inherit hover:bg-black/10",
+            "border border-[currentColor] hover:border-[currentColor]",
+          ),
+          actionButton: cn("w-full rounded-sm p-2 col-span-full"),
+          cancelButton: cn("w-full rounded-sm p-2 col-span-full order-1"),
         },
       }}
       {...props}

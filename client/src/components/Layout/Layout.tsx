@@ -22,7 +22,8 @@ import {
   WifiIcon,
   WifiOffIcon,
 } from "lucide-react";
-import { ExternalToast, toast } from "sonner";
+import { toast } from "sonner";
+import { useRegisterSW } from "virtual:pwa-register/react";
 
 import {
   collapseEditorPanelShortcut,
@@ -70,6 +71,7 @@ import {
 export function Layout() {
   return (
     <div className="flex h-screen overflow-hidden">
+      <ServiceWorkerPrompt />
       <GlobalKeyboardShortcuts />
       <OnlineIndicator />
 
@@ -80,6 +82,44 @@ export function Layout() {
       <AnimatedOutlet />
     </div>
   );
+}
+
+/**
+ * Service Worker Prompts
+ */
+
+function ServiceWorkerPrompt() {
+  const {
+    needRefresh: [needRefresh, setNeedRefresh],
+    offlineReady: [offlineReady, setOfflineReady],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onNeedRefresh: () => setNeedRefresh(true),
+    onOfflineReady: () => setOfflineReady(true),
+    onRegisterError() {
+      toast.error("Failed to register service worker", { duration: Infinity });
+    },
+  });
+
+  useEffect(() => {
+    if (offlineReady) {
+      toast.info("App is offline ready", { duration: Infinity });
+    }
+  }, [offlineReady]);
+
+  useEffect(() => {
+    if (needRefresh) {
+      toast.info("New version available", {
+        duration: Infinity,
+        action: {
+          label: "Refresh",
+          onClick: () => updateServiceWorker(true),
+        },
+      });
+    }
+  }, [needRefresh, updateServiceWorker]);
+
+  return null;
 }
 
 /**
@@ -127,25 +167,19 @@ function GlobalKeyboardShortcuts() {
  * Online Indicator
  */
 
-const commonOnlineIndicatorOptions: ExternalToast = {
-  id: "online-indicator",
-  duration: 1000 * 30,
-  closeButton: true,
-};
-
 function OnlineIndicator() {
   useEffect(() => {
     const handleOnline = () => {
-      toast.info("You are online", {
-        icon: <WifiIcon />,
-        ...commonOnlineIndicatorOptions,
+      toast.success("You are online", {
+        id: "online-indicator",
+        icon: <WifiIcon className="size-4" />,
       });
     };
 
     const handleOffline = () => {
-      toast.info("You are offline", {
-        icon: <WifiOffIcon />,
-        ...commonOnlineIndicatorOptions,
+      toast.warning("You are offline", {
+        id: "online-indicator",
+        icon: <WifiOffIcon className="size-4" />,
       });
     };
 

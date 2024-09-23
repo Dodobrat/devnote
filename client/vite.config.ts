@@ -1,9 +1,56 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    VitePWA({
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5000000, // ~5mb
+      },
+      includeAssets: [
+        "/favicon.ico",
+        "/robots.txt",
+        "/safari-pinned-tab.svg",
+        "/apple-touch-icon.png",
+        "/favicon-16x16.png",
+        "/favicon-32x32.png",
+        "/android-chrome-192x192.png",
+        "/android-chrome-512x512.png",
+        "/favicon.svg",
+      ],
+      manifest: {
+        name: "DevNote",
+        short_name: "DevNote",
+        theme_color: "#000000",
+        background_color: "#000000",
+        icons: [
+          {
+            src: "/android-chrome-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "/android-chrome-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+          {
+            src: "/android-chrome-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+        ],
+      },
+    }),
+    visualizer({
+      template: "flamegraph",
+    }),
+  ],
   resolve: {
     alias: {
       "~": path.resolve(__dirname, "./src"),
@@ -21,8 +68,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          "monaco-editor": ["monaco-editor"],
+        manualChunks(id) {
+          if (id.includes("node_modules/monaco-editor")) {
+            return "monaco-editor";
+          }
+          if (id.includes("node_modules/highlight.js")) {
+            return "highlight-js";
+          }
         },
       },
     },
