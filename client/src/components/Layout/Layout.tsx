@@ -578,6 +578,19 @@ function Navigation() {
           <p className="whitespace-nowrap">Settings</p>
         </SidebarItem>
 
+        <a
+          href="https://github.com/Dodobrat"
+          target="_blank"
+          className={cn(
+            "my-4 w-full text-muted-foreground",
+            "whitespace-nowrap leading-tight",
+            "ml-1 rounded pl-14 text-[0.75rem]",
+            "grayscale hover:grayscale-0 focus-visible:grayscale-0",
+          )}
+        >
+          with ❤ from Dodobrat
+        </a>
+
         <Separator />
 
         {/* Toggle placeholder */}
