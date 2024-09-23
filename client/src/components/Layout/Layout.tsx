@@ -70,7 +70,7 @@ import {
 
 export function Layout() {
   return (
-    <div className="p-safe flex h-screen overflow-hidden">
+    <div className="px-safe pt-safe flex h-screen overflow-hidden">
       <ServiceWorkerPrompt />
       <GlobalKeyboardShortcuts />
       <OnlineIndicator />
@@ -510,7 +510,7 @@ function Navigation() {
           "w-full motion-safe:transition-[width,padding]",
           "flex flex-col items-start justify-start gap-2",
           "overflow-y-auto overflow-x-hidden",
-          "py-safe-offset-4 bg-background px-3",
+          "pb-safe-offset-4 bg-background px-3 pt-4",
           isMobileView && sidebarState === SidebarState.Minimized && "px-0",
         )}
       >
@@ -587,7 +587,7 @@ function Navigation() {
             <Button
               size="icon"
               variant="outline"
-              className={cn("fixed bottom-4 left-4", "bottom-safe-offset-4")}
+              className="bottom-safe-offset-4 left-safe-offset-4 fixed"
               onClick={() => {
                 setSidebarState((v) =>
                   v === SidebarState.Minimized
