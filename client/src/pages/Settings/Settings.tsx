@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { LaptopMinimalIcon, MoonIcon, SunIcon } from "lucide-react";
 
-import { EditorOutput, MonacoEditor } from "~/components/Editor";
+import { EditorOutput, MonacoEditorFallback } from "~/components/Editor";
 import { Page } from "~/components/Layout";
 import { Button, Tabs, TabsList, TabsTrigger } from "~/components/ui";
 import { WELCOME_TEXT } from "~/constants";
@@ -12,6 +12,11 @@ import {
   useEditorWelcomeNote,
 } from "~/hooks/store/editor";
 import { cn } from "~/lib/utils";
+
+const MonacoEditor = lazy(async () => {
+  const res = await import("~/components/Editor/components/MonacoEditor");
+  return { default: res.MonacoEditor };
+});
 
 export function Settings() {
   return (
@@ -129,7 +134,9 @@ function WelcomeMessage() {
       <div className="grid h-96 min-h-20 w-full resize-y overflow-hidden rounded border">
         <div className={cn("overflow-hidden", !isViewingEditor && "hidden")}>
           <MonacoInstanceProvider>
-            <MonacoEditor enableSaveNote={false} autoFocus={false} />
+            <Suspense fallback={<MonacoEditorFallback />}>
+              <MonacoEditor enableSaveNote={false} autoFocus={false} />
+            </Suspense>
           </MonacoInstanceProvider>
           {!isViewingEditor && <EditorOutput />}
         </div>

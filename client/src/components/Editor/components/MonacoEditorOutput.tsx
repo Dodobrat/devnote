@@ -1,5 +1,4 @@
-import { useEffect, useRef } from "react";
-import hljs from "highlight.js";
+import { useEffect, useRef, useState } from "react";
 import githubLightTheme from "highlight.js/styles/github.min.css?inline";
 import githubDarkTheme from "highlight.js/styles/github-dark.min.css?inline";
 import Markdown from "markdown-to-jsx";
@@ -72,18 +71,36 @@ function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
   );
 }
 
+type HLJS = Awaited<typeof import("highlight.js")>["default"];
+
 function Code(props: React.ComponentPropsWithoutRef<"code">) {
   const ref = useRef<HTMLElement>(null);
+  const hljsRef = useRef<HLJS | null>(null);
+  const [isHljsLoaded, setIsHljsLoaded] = useState(false);
 
   useEffect(() => {
     if (!ref.current) return;
     if (!props.className?.includes("lang-")) return;
-    if (!hljs) return;
 
-    hljs.highlightElement(ref.current);
-    // hljs won't reprocess the element unless this attribute is removed
-    ref.current.removeAttribute("data-highlighted");
-  }, [props.className, props.children]);
+    const highlightCode = () => {
+      if (hljsRef.current && ref.current) {
+        hljsRef.current.highlightElement(ref.current);
+        // hljs won't reprocess the element unless this attribute is removed
+        ref.current.removeAttribute("data-highlighted");
+      }
+    };
+
+    if (hljsRef.current) {
+      highlightCode();
+    } else {
+      // Dynamically import highlight.js
+      import("highlight.js").then((module) => {
+        hljsRef.current = module.default;
+        highlightCode();
+        setIsHljsLoaded(true); // Update state to trigger re-render if necessary
+      });
+    }
+  }, [props.className, props.children, isHljsLoaded]);
 
   const isParentPre = ref.current?.parentElement?.tagName === "PRE";
 

@@ -1,3 +1,5 @@
+import { lazy, Suspense } from "react";
+
 import {
   getIsCollapseEditorPanelKeyCombo,
   getIsCollapsePreviewPanelKeyCombo,
@@ -14,8 +16,13 @@ import {
   EditorResizableGroup,
   EditorResizeHandle,
   EditorResizePanel,
-  MonacoEditor,
+  MonacoEditorFallback,
 } from "./components";
+
+const MonacoEditor = lazy(async () => {
+  const res = await import("./components/MonacoEditor");
+  return { default: res.MonacoEditor };
+});
 
 export function Editor() {
   return (
@@ -23,7 +30,9 @@ export function Editor() {
       <EditorResizableGroup>
         <MonacoInstanceProvider>
           <EditorResizePanel>
-            <MonacoEditor />
+            <Suspense fallback={<MonacoEditorFallback />}>
+              <MonacoEditor />
+            </Suspense>
           </EditorResizePanel>
 
           <EditorResizeHandle />
