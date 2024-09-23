@@ -243,21 +243,21 @@ function CommandPalette() {
         {!prompt && (
           <CommandGroup heading="Suggestions">
             <CommandItem onSelect={() => setPrompt("/")}>
-              <MilestoneIcon className="mr-2 size-4" />
+              <MilestoneIcon className="mr-2 size-4 shrink-0" />
               <span>
                 Start with a <code className="rounded border px-1">/</code> to
                 navigate to a page
               </span>
             </CommandItem>
             <CommandItem onSelect={() => setPrompt(">")}>
-              <TerminalIcon className="mr-2 size-4" />
+              <TerminalIcon className="mr-2 size-4 shrink-0" />
               <span>
                 Start with a <code className="rounded border px-1">&gt;</code>{" "}
                 to execute an action
               </span>
             </CommandItem>
             <CommandItem>
-              <StickyNoteIcon className="mr-2 size-4" />
+              <StickyNoteIcon className="mr-2 size-4 shrink-0" />
               <span>Start with a word to search for notes by title</span>
             </CommandItem>
           </CommandGroup>
@@ -324,7 +324,7 @@ function PageCommandGroup({ show, prompt, closeAndReset }: CommandGroupProps) {
             }}
             keywords={[to, label]}
           >
-            <MilestoneIcon className="mr-2 size-4" />
+            <MilestoneIcon className="mr-2 size-4 shrink-0" />
             <span>{label}</span>
             {Boolean(shortcut) && <CommandShortcut>{shortcut}</CommandShortcut>}
           </CommandItem>
@@ -337,7 +337,7 @@ function PageCommandGroup({ show, prompt, closeAndReset }: CommandGroupProps) {
             closeAndReset();
           }}
         >
-          <MilestoneIcon className="mr-2 size-4" />
+          <MilestoneIcon className="mr-2 size-4 shrink-0" />
           <span>Go to {prompt}</span>
         </CommandItem>
       </CommandGroup>
@@ -363,7 +363,7 @@ function NotesCommandGroup({ show, prompt, closeAndReset }: CommandGroupProps) {
             closeAndReset();
           }}
         >
-          <StickyNoteIcon className="mr-2 size-4" />
+          <StickyNoteIcon className="mr-2 size-4 shrink-0" />
           <span>{note.title}</span>
         </CommandItem>
       ))}
@@ -425,7 +425,7 @@ function ActionsCommandGroup({ show, closeAndReset }: CommandGroupProps) {
           }}
           keywords={[">", label]}
         >
-          <TerminalIcon className="mr-2 size-4" />
+          <TerminalIcon className="mr-2 size-4 shrink-0" />
           <span>{label}</span>
           {Boolean(shortcut) && <CommandShortcut>{shortcut}</CommandShortcut>}
         </CommandItem>
