@@ -1,6 +1,7 @@
 import tailwindTypographyPlugin from "@tailwindcss/typography";
 import type { Config } from "tailwindcss";
 import tailwindCssAnimatePlugin from "tailwindcss-animate";
+import tailwindCssSafeAreaPlugin from "tailwindcss-safe-area";
 
 export default {
   darkMode: ["class"],
@@ -74,5 +75,9 @@ export default {
       },
     },
   },
-  plugins: [tailwindCssAnimatePlugin, tailwindTypographyPlugin],
+  plugins: [
+    tailwindCssAnimatePlugin,
+    tailwindTypographyPlugin,
+    tailwindCssSafeAreaPlugin,
+  ],
 } satisfies Config;

@@ -38,12 +38,7 @@ function PageContent({ children }: React.PropsWithChildren) {
     <div
       className={cn(
         "h-full overflow-auto p-4 md:p-6 lg:p-8",
-        "pb-[calc(constant(safe-area-inset-bottom)_+_4rem)]",
-        "pb-[calc(env(safe-area-inset-bottom)_+_4rem)]",
-        "md:pb-[calc(constant(safe-area-inset-bottom)_+_4rem)]",
-        "md:pb-[calc(env(safe-area-inset-bottom)_+_4rem)]",
-        "lg:pb-[calc(constant(safe-area-inset-bottom)_+_4rem)]",
-        "lg:pb-[calc(env(safe-area-inset-bottom)_+_4rem)]",
+        "pb-safe-offset-16",
       )}
     >
       {children}
