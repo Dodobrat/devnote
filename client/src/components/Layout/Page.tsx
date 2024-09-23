@@ -11,7 +11,7 @@ const variants: Variants = {
 function PageCardBase({ children }: React.PropsWithChildren) {
   return (
     <motion.main
-      className="isolate grow overflow-hidden p-4"
+      className="isolate grow overflow-hidden p-2 md:p-4"
       initial="hidden"
       animate="enter"
       exit="exit"
@@ -37,8 +37,8 @@ function PageContent({ children }: React.PropsWithChildren) {
   return (
     <div
       className={cn(
-        "h-full overflow-auto p-4 md:p-6 lg:p-8",
-        "pb-safe-offset-16 overscroll-contain",
+        "h-full overflow-auto p-4 pb-16 md:p-6 lg:p-8",
+        "overscroll-contain",
       )}
     >
       {children}

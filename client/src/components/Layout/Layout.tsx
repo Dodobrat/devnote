@@ -510,7 +510,7 @@ function Navigation() {
           "w-full motion-safe:transition-[width,padding]",
           "flex flex-col items-start justify-start gap-2",
           "overflow-y-auto overflow-x-hidden",
-          "pb-safe-offset-4 bg-background px-3 pt-4",
+          "bg-background px-3 py-4",
           isMobileView && sidebarState === SidebarState.Minimized && "px-0",
         )}
       >
