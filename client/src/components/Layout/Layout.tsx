@@ -70,7 +70,7 @@ import {
 
 export function Layout() {
   return (
-    <div className="flex h-[calc(100vh_-_env(safe-area-inset-bottom))] overflow-hidden">
+    <div className="p-safe flex h-screen overflow-hidden">
       <ServiceWorkerPrompt />
       <GlobalKeyboardShortcuts />
       <OnlineIndicator />
@@ -506,11 +506,11 @@ function Navigation() {
       <div
         data-sidebar
         className={cn(
-          "absolute inset-0 h-screen",
+          "absolute inset-0 h-full",
           "w-full motion-safe:transition-[width,padding]",
           "flex flex-col items-start justify-start gap-2",
           "overflow-y-auto overflow-x-hidden",
-          "bg-background px-3 py-4",
+          "py-safe-offset-4 bg-background px-3",
           isMobileView && sidebarState === SidebarState.Minimized && "px-0",
         )}
       >
