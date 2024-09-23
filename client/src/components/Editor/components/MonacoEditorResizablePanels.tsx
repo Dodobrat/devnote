@@ -46,7 +46,7 @@ export function EditorResizableGroup({ children }: React.PropsWithChildren) {
   return (
     <ResizablePanelGroup
       direction={state.direction}
-      className="max-w-full bg-card md:rounded-lg md:border"
+      className="max-w-full rounded-lg border bg-card"
       onLayout={([editorSize, previewSize]) => {
         setState((v) => ({ ...v, editorSize, previewSize }));
       }}

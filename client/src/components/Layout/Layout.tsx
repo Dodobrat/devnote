@@ -70,7 +70,7 @@ import {
 
 export function Layout() {
   return (
-    <div className="px-safe pt-safe flex h-screen overflow-hidden">
+    <div className="p-safe flex h-screen overflow-hidden">
       <ServiceWorkerPrompt />
       <GlobalKeyboardShortcuts />
       <OnlineIndicator />
