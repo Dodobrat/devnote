@@ -627,7 +627,7 @@ function SidebarItem(props: NavLinkProps) {
         cn(
           "flex w-full items-center rounded-lg p-1",
           "focus:outline-none focus-visible:ring",
-          "hover:bg-muted",
+          "select-none hover:bg-muted",
           isActive && "ring ring-secondary focus-visible:ring-primary",
           props.className,
         )
