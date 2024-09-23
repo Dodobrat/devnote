@@ -16,7 +16,7 @@ export function EditorOutput() {
 
   return (
     <div className="h-full w-full overflow-auto overscroll-contain scroll-smooth px-8 py-10">
-      <div className="prose mx-auto hyphens-auto text-pretty break-words dark:prose-invert">
+      <div className="prose max-w-none hyphens-auto text-pretty break-words dark:prose-invert">
         <style>
           {resolvedTheme === ThemeMode.Dark
             ? githubDarkTheme
