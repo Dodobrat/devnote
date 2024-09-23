@@ -217,7 +217,7 @@ export function useSaveNote() {
         { note: editor?.getValue() || "" },
         {
           onSuccess: (res) => {
-            toast.success(`${res.previewTitle} was created`);
+            toast.success(`${res.title} was created`);
 
             navigate(generatePath(AppRoutes.NoteById, { id: res.id }), {
               state: cursorPosition,

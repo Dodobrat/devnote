@@ -330,7 +330,7 @@ function NotesCommandGroup({ show, prompt, closeAndReset }: CommandGroupProps) {
           }}
         >
           <StickyNoteIcon className="mr-2 size-4" />
-          <span>{note.previewTitle}</span>
+          <span>{note.title}</span>
         </CommandItem>
       ))}
     </CommandGroup>

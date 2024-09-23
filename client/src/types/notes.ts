@@ -9,7 +9,7 @@ export const noteSchema = z.object({
   id: z.string().uuid(),
   createdAt: z.date({ coerce: true }),
   updatedAt: z.date({ coerce: true }).nullable(),
-  previewTitle: titleSchema,
+  title: titleSchema,
   order: intSchema,
   isPinned: intBoolSchema,
   isProtected: intBoolSchema,
@@ -21,7 +21,7 @@ export const updateNoteSchema = noteSchema
   .pick({
     isProtected: true,
     note: true,
-    previewTitle: true,
+    title: true,
     tags: true,
   })
   .partial()

@@ -195,7 +195,7 @@ function NoteItem({ note, onReorderEnd, onKeyboardReorder }: NoteItemProps) {
             "hover:bg-muted",
           ])}
         >
-          {note.previewTitle}
+          {note.title}
         </NavLink>
 
         <div className="flex shrink-0 gap-2 md:order-1">

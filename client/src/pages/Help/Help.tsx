@@ -65,6 +65,10 @@ export function Help() {
               >
                 Open the command palette
               </ShortcutSnippet>
+              <ShortcutSnippet shortcut="F1">
+                Show Editor shortcuts ( available only when focused on the
+                editor )
+              </ShortcutSnippet>
             </div>
           </Page.Section>
 

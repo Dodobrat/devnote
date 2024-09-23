@@ -113,7 +113,7 @@ function NoteEditTitleForm({
 }) {
   const updateNoteMutation = useUpdateNote();
 
-  const [title, setTitle] = useState(note.previewTitle);
+  const [title, setTitle] = useState(note.title);
   const [error, setError] = useState<ZodError<string> | null>(null);
 
   const validate = useCallback(() => {
@@ -135,7 +135,7 @@ function NoteEditTitleForm({
         if (error) return;
 
         updateNoteMutation.mutate(
-          { id: note.id, previewTitle: title },
+          { id: note.id, title: title },
           {
             onSuccess: () => {
               toast.success("Note title updated");

@@ -45,7 +45,7 @@ interface NotesDB extends DBSchema {
     indexes: {
       order: number;
       isPinned: number;
-      previewTitle: string;
+      title: string;
       tags: string;
     };
   };
@@ -60,7 +60,7 @@ const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
     const store = db.createObjectStore("notes", { keyPath: "id" });
     store.createIndex("order", "order");
     store.createIndex("isPinned", "isPinned");
-    store.createIndex("previewTitle", "previewTitle");
+    store.createIndex("title", "title");
     store.createIndex("tags", "tags", { multiEntry: true });
   },
 });
@@ -90,7 +90,7 @@ export const LocalNotesAPI = {
         id: crypto.randomUUID(),
         createdAt: now,
         updatedAt: null,
-        previewTitle: `New note - ${now.toUTCString()}`,
+        title: `New note - ${now.toUTCString()}`,
         order: 0,
         isPinned: 0,
         isProtected: 0,
@@ -151,8 +151,8 @@ export const LocalNotesAPI = {
       }
 
       // Update fields
-      if (validatedNoteUpdate.previewTitle !== undefined) {
-        note.previewTitle = validatedNoteUpdate.previewTitle;
+      if (validatedNoteUpdate.title !== undefined) {
+        note.title = validatedNoteUpdate.title;
       }
       if (validatedNoteUpdate.isProtected !== undefined) {
         note.isProtected = validatedNoteUpdate.isProtected;
@@ -488,7 +488,7 @@ export const LocalNotesAPI = {
     }
   },
 
-  // Search notes by previewTitle or tags
+  // Search notes by title or tags
   async search(query: string): Promise<NoteSchemaType[]> {
     try {
       const db = await dbPromise;
@@ -500,7 +500,7 @@ export const LocalNotesAPI = {
       // Filter notes
       const lowerQuery = query.toLowerCase();
       const filteredNotes = notes.filter((note) => {
-        const titleMatch = note.previewTitle.toLowerCase().includes(lowerQuery);
+        const titleMatch = note.title.toLowerCase().includes(lowerQuery);
         const tagsMatch = note.tags.some((tag) =>
           tag.toLowerCase().includes(lowerQuery),
         );
