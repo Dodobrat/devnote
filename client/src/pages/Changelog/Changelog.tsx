@@ -1,6 +1,9 @@
 import { Page } from "~/components/Layout";
+import { useDocumentTitle } from "~/hooks";
 
 export function Changelog() {
+  useDocumentTitle("DevNote | Changelog");
+
   return (
     <Page.Card>
       <Page.Content>

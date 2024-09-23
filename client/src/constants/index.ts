@@ -35,6 +35,8 @@ const example = "Hello, World!";
 > Press \`Cmd + Shift + P\` to open the command palette, Type in \`>theme\` or \`>auto\` and configure the settings by your preference.
 
 - **Responsive Design**: Works on all devices
+- **Installable**: You can install the app and have an icon to easily get back
+- **Offline support**: After first load you can use the app without internet connection
 
 ...and more coming soon
 

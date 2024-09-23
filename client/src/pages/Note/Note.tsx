@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Navigate, useParams } from "react-router-dom";
 
 import { Editor } from "~/components/Editor";
+import { useDocumentTitle } from "~/hooks";
 import { useNote } from "~/hooks/query";
 import { useEditorNote } from "~/hooks/store/editor";
 import { AppRoutes } from "~/routes";
@@ -11,6 +12,8 @@ export function Note() {
   const id = params.id!;
 
   const { data, isFetching } = useNote(id);
+
+  useDocumentTitle(`DevNote | ${data?.title || "My Note"}`);
 
   const { setNote } = useEditorNote();
 

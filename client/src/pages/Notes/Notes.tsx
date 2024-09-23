@@ -10,6 +10,7 @@ import { toast } from "sonner";
 
 import { Page } from "~/components/Layout";
 import { Separator } from "~/components/ui";
+import { useDocumentTitle } from "~/hooks";
 import {
   usePinnedNotes,
   useReorderPinnedNotes,
@@ -28,6 +29,8 @@ import {
 } from "./components";
 
 export function Notes() {
+  useDocumentTitle("DevNote | Notes");
+
   return (
     <Page.Card>
       <Page.Content>

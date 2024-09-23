@@ -3,9 +3,23 @@ import { LaptopMinimalIcon, MoonIcon, SunIcon } from "lucide-react";
 
 import { EditorOutput, MonacoEditorFallback } from "~/components/Editor";
 import { Page } from "~/components/Layout";
-import { Button, Tabs, TabsList, TabsTrigger } from "~/components/ui";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+} from "~/components/ui";
 import { WELCOME_TEXT } from "~/constants";
 import { MonacoInstanceProvider, ThemeMode, useTheme } from "~/context";
+import { useDocumentTitle } from "~/hooks";
 import {
   useEditorAutosave,
   useEditorNote,
@@ -19,6 +33,8 @@ const MonacoEditor = lazy(async () => {
 });
 
 export function Settings() {
+  useDocumentTitle("DevNote | Settings");
+
   return (
     <Page.Card>
       <Page.Content>
@@ -113,6 +129,7 @@ function WelcomeMessage() {
   const { note, setNote } = useEditorNote();
 
   const [isViewingEditor, setIsViewingEditor] = useState(true);
+  const [showConfirmReset, setShowConfirmReset] = useState(false);
 
   useEffect(() => {
     if (!welcomeNote) return;
@@ -155,16 +172,38 @@ function WelcomeMessage() {
           Save
         </Button>
         <Button
-          variant="destructive"
+          variant="secondary"
           disabled={!canReset}
-          onClick={() => {
-            setWelcomeNote(WELCOME_TEXT);
-            setNote(WELCOME_TEXT);
-          }}
+          onClick={() => setShowConfirmReset(true)}
         >
           Reset to default
         </Button>
       </div>
+
+      <AlertDialog open={showConfirmReset} onOpenChange={setShowConfirmReset}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You will lose your changes.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowConfirmReset(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setWelcomeNote(WELCOME_TEXT);
+                setNote(WELCOME_TEXT);
+                setShowConfirmReset(false);
+              }}
+            >
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

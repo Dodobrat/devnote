@@ -11,8 +11,11 @@ import {
   toggleSidebarShortcut,
   toggleSplitViewModeShortcut,
 } from "~/constants/shortcuts";
+import { useDocumentTitle } from "~/hooks";
 
 export function Help() {
+  useDocumentTitle("DevNote | Help");
+
   return (
     <Page.Card>
       <Page.Content>
@@ -74,8 +77,8 @@ export function Help() {
 
           <Page.Section title="FAQ" description="Frequently asked questions">
             <FAQItem question="Where did my notes go?">
-              DevNote uses local storage to save your notes. If you clear your
-              browser's local storage, your notes will be lost.
+              DevNote uses IndexedDB to save your notes. If you delete the local
+              database, your notes will be lost.
             </FAQItem>
             <FAQItem question="Can I restore a note?">
               No, once a note is deleted it cannot be restored. Please be
@@ -83,6 +86,13 @@ export function Help() {
             </FAQItem>
             <FAQItem question="Can I customize shortcuts?">
               Not yet, but it is planned for a future update.
+            </FAQItem>
+            <FAQItem question="Can I use it without internet?">
+              Yes. Once you open the app for the first time, it is cached and
+              can be installed on your device.
+              <br />
+              NOTE: For new versions, you will see a pop-up, which will refresh
+              the page and update the app.
             </FAQItem>
             {/* <FAQItem question="Can I request a new feature?">
               Yes, please create an issue on the project's GitHub repository.

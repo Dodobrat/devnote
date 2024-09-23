@@ -2,9 +2,12 @@ import { Link } from "react-router-dom";
 
 import { Page } from "~/components/Layout";
 import { Button } from "~/components/ui";
+import { useDocumentTitle } from "~/hooks";
 import { AppRoutes } from "~/routes";
 
 export function NotFound() {
+  useDocumentTitle("DevNote | Not Found");
+
   return (
     <Page.Card>
       <Page.Content>

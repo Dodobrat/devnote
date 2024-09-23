@@ -51,7 +51,7 @@ interface NotesDB extends DBSchema {
   };
 }
 
-const NOTES_DB_NAME = "notes-db";
+const NOTES_DB_NAME = "devnotes-db";
 const NOTES_DB_VERSION = 1;
 
 // Initialize the IndexedDB database

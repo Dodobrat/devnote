@@ -42,7 +42,37 @@ export default defineConfig({
             src: "/android-chrome-512x512.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "any maskable",
+            purpose: "any",
+          },
+          {
+            src: "/android-chrome-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            purpose: "maskable",
+          },
+        ],
+        screenshots: [
+          {
+            src: "/desktop-welcome.png",
+            sizes: "1280x720",
+            type: "image/png",
+            form_factor: "wide",
+          },
+          {
+            src: "/desktop-notes.png",
+            sizes: "1280x720",
+            type: "image/png",
+            form_factor: "wide",
+          },
+          {
+            src: "/mobile-welcome.png",
+            sizes: "640x1136",
+            type: "image/png",
+          },
+          {
+            src: "/mobile-notes.png",
+            sizes: "640x1136",
+            type: "image/png",
           },
         ],
       },
