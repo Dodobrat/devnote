@@ -38,7 +38,7 @@ function PageContent({ children }: React.PropsWithChildren) {
     <div
       className={cn(
         "h-full overflow-auto p-4 md:p-6 lg:p-8",
-        "pb-safe-offset-16",
+        "pb-safe-offset-16 overscroll-contain",
       )}
     >
       {children}

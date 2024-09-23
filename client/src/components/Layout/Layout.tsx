@@ -70,7 +70,7 @@ import {
 
 export function Layout() {
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-[calc(100vh_-_env(safe-area-inset-bottom))] overflow-hidden">
       <ServiceWorkerPrompt />
       <GlobalKeyboardShortcuts />
       <OnlineIndicator />
