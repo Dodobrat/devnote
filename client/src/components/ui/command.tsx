@@ -32,7 +32,7 @@ const CommandDialog = ({
     <Dialog {...props}>
       <DialogContent
         className={cn(
-          "top-0 max-w-full translate-y-0 md:top-4 md:max-w-screen-sm",
+          "top-safe max-w-full translate-y-0 md:top-4 md:max-w-screen-sm",
           "overflow-hidden p-0 shadow-lg",
           "border-transparent md:border-border",
           "rounded-none md:rounded-lg",
