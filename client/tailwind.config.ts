@@ -18,6 +18,8 @@ export default {
       screens: {
         coarse: { raw: "(pointer: coarse)" },
         fine: { raw: "(pointer: fine)" },
+        "display-browser": { raw: "(display-mode: browser)" },
+        "display-standalone": { raw: "(display-mode: standalone)" },
       },
       colors: {
         border: "hsl(var(--border))",
@@ -68,10 +70,22 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "gravity-bounce": {
+          "0%": { transform: "scale(1, 1) translateY(0)" },
+          "2.5%": { transform: "scale(1.01, 0.99) translateY(0)" }, // 0.1s
+          "7.5%": { transform: "scale(0.99, 1.01) translateY(-0.375rem)" }, // 0.3s
+          "12.5%": { transform: "scale(1.005, 0.995) translateY(0)" }, // 0.5s
+          "14.25%": { transform: "scale(1, 1) translateY(-0.0125rem)" }, // 0.57s
+          "16%": { transform: "scale(1, 1) translateY(0)" }, // 0.64s
+          "25%": { transform: "scale(1, 1) translateY(0)" }, // 1s
+          "100%": { transform: "scale(1, 1) translateY(0)" }, // 4s
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "gravity-bounce":
+          "gravity-bounce 4s cubic-bezier(0.280, 0.840, 0.420, 1) infinite",
       },
     },
   },
