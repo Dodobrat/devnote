@@ -106,10 +106,42 @@ export function getIsInRange({
   return value >= lowerBound && value <= upperBound;
 }
 
-export function getIsMac() {
-  return Boolean(window.navigator.platform.match("Mac"));
+export function getIsAppleDevice() {
+  const platform = navigator.platform.toLowerCase();
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  // Check for iOS devices (iPhone, iPod, iPad)
+  const isIOS = /iphone|ipod|ipad/.test(userAgent);
+
+  // Check for macOS devices
+  const isMac = platform.includes("mac");
+
+  // Check for iPadOS devices (iPads that identify as macOS)
+  const isTouchDevice = "ontouchend" in document;
+  const isIPadOS = isMac && isTouchDevice;
+
+  return isIOS || isIPadOS || isMac;
+}
+
+export function isMobileOrTabletDevice() {
+  const isTouchDevice =
+    navigator.maxTouchPoints > 0 ||
+    "ontouchstart" in window ||
+    window.TouchEvent !== undefined;
+
+  const userAgent =
+    navigator.userAgent ||
+    navigator.vendor ||
+    ("opera" in window ? (window.opera as string) : "");
+
+  const mobileOrTabletRegex =
+    /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
+
+  const isMobileOrTablet = mobileOrTabletRegex.test(userAgent);
+
+  return isMobileOrTablet && isTouchDevice;
 }
 
 export function getMetaKey() {
-  return getIsMac() ? "⌘" : "Ctrl";
+  return getIsAppleDevice() ? "⌘" : "Ctrl";
 }

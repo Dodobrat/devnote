@@ -192,7 +192,7 @@ function NoteItem({ note, onReorderEnd, onKeyboardReorder }: NoteItemProps) {
           to={generatePath(AppRoutes.NoteById, { id: note.id })}
           className={cn([
             "col-span-full md:order-2 md:col-span-1",
-            "truncate text-lg font-semibold leading-tight",
+            "select-none truncate text-lg font-semibold leading-tight",
             "grow rounded-lg px-4 py-2 md:h-full",
             "focus:outline-none focus-visible:ring",
             "hover:bg-muted",

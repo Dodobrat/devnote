@@ -22,7 +22,20 @@ export function Changelog() {
 }
 
 const CHANGELOG = `
-## 0.0.1 ( 23 Sep 2024 )
+## v0.0.2 ( 24 Sep 2024 )
+
+### Fixed
+
+- Incorrect Meta key shortcut for Apple platform on mobile devices
+
+### Added
+
+- **PWA**: Progressive Web App promotion install button added to the main navigation sidebar.
+- **Mobile**: Show a lack of mobile optimization info toast in order to manage expectations :)
+- **Selection**: Style the text selection for more unique feel and look.
+
+
+## v0.0.1 ( 23 Sep 2024 )
 
 ### Added
 

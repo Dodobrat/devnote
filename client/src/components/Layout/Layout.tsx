@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import {
+  AppWindowMacIcon,
   CircleHelpIcon,
   LogsIcon,
   MilestoneIcon,
@@ -46,7 +47,7 @@ import {
   useCommandPaletteOpenStore,
   useSidebarStateStore,
 } from "~/hooks/store/layout";
-import { cn, getCssVar } from "~/lib/utils";
+import { cn, getCssVar, isMobileOrTabletDevice } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
 import {
@@ -70,8 +71,9 @@ import {
 
 export function Layout() {
   return (
-    <div className="p-safe flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden p-safe">
       <ServiceWorkerPrompt />
+      <MobileDeviceUsabilityWarning />
       <GlobalKeyboardShortcuts />
       <OnlineIndicator />
 
@@ -118,6 +120,34 @@ function ServiceWorkerPrompt() {
       });
     }
   }, [needRefresh, updateServiceWorker]);
+
+  return null;
+}
+
+/**
+ * Mobile device info
+ */
+
+function MobileDeviceUsabilityWarning() {
+  useEffect(() => {
+    const isNotDesktop = isMobileOrTabletDevice();
+
+    if (isNotDesktop) {
+      setTimeout(() => {
+        toast.info(
+          <>
+            This application is designed for desktop and is not optimized for
+            mobile devices.
+            <br />
+            <br />
+            Please keep that in mind if you decide to use it without an external
+            keyboard.
+          </>,
+          { id: "mobile-instructions", duration: 8000 },
+        );
+      });
+    }
+  }, []);
 
   return null;
 }
@@ -538,10 +568,13 @@ function Navigation() {
               </p>
             </TooltipContent>
           </Tooltip>
-          <p className="whitespace-nowrap text-2xl font-bold text-foreground">
+          <p className="select-none whitespace-nowrap text-2xl font-bold text-foreground">
             DevNote
           </p>
         </div>
+
+        <InstallButton />
+
         <SidebarItem to={AppRoutes.Root}>
           <SidebarIconItem>
             <PlusIcon className="size-5" />
@@ -578,18 +611,19 @@ function Navigation() {
           <p className="whitespace-nowrap">Settings</p>
         </SidebarItem>
 
-        <a
-          href="https://github.com/Dodobrat"
-          target="_blank"
-          className={cn(
-            "my-4 w-full text-muted-foreground",
-            "whitespace-nowrap leading-tight",
-            "ml-1 rounded pl-14 text-[0.75rem]",
-            "grayscale hover:grayscale-0 focus-visible:grayscale-0",
-          )}
-        >
-          with ❤ from Dodobrat
-        </a>
+        <div className="w-full py-2 pl-14">
+          <a
+            href="https://github.com/Dodobrat"
+            target="_blank"
+            className={cn(
+              "ml-1 inline-block rounded",
+              "select-none whitespace-nowrap text-[0.75rem] leading-tight text-muted-foreground",
+              "grayscale hover:grayscale-0 focus-visible:grayscale-0",
+            )}
+          >
+            with ❤ from Dodobrat
+          </a>
+        </div>
 
         <Separator />
 
@@ -600,7 +634,7 @@ function Navigation() {
             <Button
               size="icon"
               variant="outline"
-              className="bottom-safe-offset-4 left-safe-offset-4 fixed"
+              className="fixed bottom-safe-offset-4 left-safe-offset-4"
               onClick={() => {
                 setSidebarState((v) =>
                   v === SidebarState.Minimized
@@ -658,5 +692,79 @@ function SidebarIconItem(props: ButtonProps) {
       {...props}
       className={cn("mr-4 shrink-0", props.className)}
     />
+  );
+}
+
+/**
+ * Install PWA Promotion
+ */
+
+function InstallButton() {
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  const isDisplayStandalone = useMediaQuery("(display-mode: standalone)");
+
+  useEffect(() => {
+    // Check if the app is already installed
+    const isNavigatorStandalone =
+      "standalone" in window.navigator &&
+      Boolean(window.navigator["standalone"]);
+    const isStandalone = isDisplayStandalone || isNavigatorStandalone;
+    setIsInstalled(isStandalone);
+
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    const handleAppInstalled = () => setIsInstalled(true);
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, [isDisplayStandalone]);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+
+    // const { outcome } = await deferredPrompt.userChoice;
+
+    // if (outcome === "accepted") {
+    //   console.log("User accepted the install prompt");
+    // }
+
+    // if (outcome === "dismissed") {
+    //   console.log("User dismissed the install prompt");
+    // }
+
+    setDeferredPrompt(null);
+  };
+
+  if (!deferredPrompt || isInstalled) return null;
+
+  return (
+    <Button
+      variant="secondary"
+      className={cn(
+        "w-full",
+        "display-browser:flex display-standalone:hidden",
+        "h-12 items-center justify-start px-3.5",
+        "motion-safe:animate-gravity-bounce hover:animate-none focus:animate-none",
+      )}
+      onClick={handleInstallClick}
+    >
+      <AppWindowMacIcon className="mr-0.5 size-5 shrink-0" />
+      <span className="pl-6">Install the App</span>
+    </Button>
   );
 }
