@@ -5,6 +5,7 @@ import { ThemeMode, useTheme } from "~/context";
 
 import {
   useEditorAutosave,
+  useEditorContainedWidth,
   useEditorLayoutState,
   useEditorPanelHandle,
   usePreviewPanelHandle,
@@ -27,6 +28,12 @@ export function useActions() {
   const toggleEditorAutosave = useCallback(
     () => setEditorAutosave((v) => !v),
     [setEditorAutosave],
+  );
+
+  const [, setEditorContainedWidth] = useEditorContainedWidth();
+  const toggleEditorContainedWidth = useCallback(
+    () => setEditorContainedWidth((v) => !v),
+    [setEditorContainedWidth],
   );
 
   const [, setState] = useEditorLayoutState();
@@ -76,6 +83,7 @@ export function useActions() {
       toggleSplitViewMode,
       toggleSidebar,
       toggleEditorAutosave,
+      toggleEditorContainedWidth,
     }),
     [
       collapseEditorPanel,
@@ -85,6 +93,7 @@ export function useActions() {
       setLightTheme,
       setSystemTheme,
       toggleEditorAutosave,
+      toggleEditorContainedWidth,
       toggleSidebar,
       toggleSplitViewMode,
     ],

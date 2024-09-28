@@ -22,11 +22,26 @@ export function Changelog() {
 }
 
 const CHANGELOG = `
+## v0.0.3 ( 28 Sep 2024 )
+
+### Fixed
+
+- Saving dismissed mobile optimization notice for mobile devices.
+- Disabled page transitions for mobile touch devices due to animation replay when swiping between pages.
+
+### Added
+
+- **Settings**: New setting to toggle between contained width for the editor preview for easier readability ( disabled by default ).
+- **Editor**: Changing color of the resize handle while resizing.
+- **Editor**: Animating the resize handle toolbar on collapsing panels.
+- **Editor**: Bold headings in the editor.
+
+
 ## v0.0.2 ( 24 Sep 2024 )
 
 ### Fixed
 
-- Incorrect Meta key shortcut for Apple platform on mobile devices
+- Incorrect Meta key shortcut for Apple platform on mobile devices.
 
 ### Added
 

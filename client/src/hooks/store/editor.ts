@@ -65,6 +65,10 @@ export function useEditorAutosave() {
   return usePersisQueryStore(storeKeys.editorAutosave, true);
 }
 
+export function useEditorContainedWidth() {
+  return usePersisQueryStore(storeKeys.editorContainedWidth, false);
+}
+
 export function useEditorWelcomeNote() {
   return usePersisQueryStore(storeKeys.editorWelcomeNote, WELCOME_TEXT);
 }
