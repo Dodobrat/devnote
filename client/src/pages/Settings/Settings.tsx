@@ -10,6 +10,7 @@ import { MonacoInstanceProvider, ThemeMode, useTheme } from "~/context";
 import { useDocumentTitle } from "~/hooks";
 import {
   useEditorAutosave,
+  useEditorContainedWidth,
   useEditorNote,
   useEditorWelcomeNote,
 } from "~/hooks/store/editor";
@@ -41,6 +42,13 @@ export function Settings() {
             description="Automatically save your work as you type ( Unavailable while creating a note )"
           >
             <AutosaveToggle />
+          </Page.Section>
+
+          <Page.Section
+            title="Contained width"
+            description="Contain the width of the preview for big screen devices ( ~ 65 characters )"
+          >
+            <ContainedWidthToggle />
           </Page.Section>
 
           <Page.Section
@@ -82,6 +90,12 @@ function AutosaveToggle() {
   const [isAutosaving, setIsAutosaving] = useEditorAutosave();
 
   return <BooleanToggle value={isAutosaving} onValueChange={setIsAutosaving} />;
+}
+
+function ContainedWidthToggle() {
+  const [isContained, setIsContained] = useEditorContainedWidth();
+
+  return <BooleanToggle value={isContained} onValueChange={setIsContained} />;
 }
 
 function BooleanToggle({

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "~/components/ui";
 import { ThemeMode, useTheme } from "~/context";
-import { useEditorNote } from "~/hooks/store/editor";
+import { useEditorContainedWidth, useEditorNote } from "~/hooks/store/editor";
 import { cn } from "~/lib/utils";
 
 export function EditorOutput() {
@@ -14,9 +14,16 @@ export function EditorOutput() {
 
   const { note } = useEditorNote();
 
+  const [isContainedWidth] = useEditorContainedWidth();
+
   return (
     <div className="h-full w-full overflow-auto overscroll-contain scroll-smooth px-8 py-10">
-      <div className="prose max-w-none hyphens-auto text-pretty break-words dark:prose-invert">
+      <div
+        className={cn(
+          "prose hyphens-auto text-pretty break-words dark:prose-invert",
+          isContainedWidth ? "mx-auto" : "max-w-none",
+        )}
+      >
         <style>
           {resolvedTheme === ThemeMode.Dark
             ? githubDarkTheme

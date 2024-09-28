@@ -1,5 +1,6 @@
 import { motion, Variants } from "framer-motion";
 
+import { useMediaQuery } from "~/hooks";
 import { cn } from "~/lib/utils";
 
 const variants: Variants = {
@@ -9,6 +10,16 @@ const variants: Variants = {
 };
 
 function PageCardBase({ children }: React.PropsWithChildren) {
+  const isTouchDevice = useMediaQuery("(pointer: coarse)");
+
+  if (isTouchDevice) {
+    return (
+      <main className="isolate grow overflow-hidden p-2 md:p-4">
+        {children}
+      </main>
+    );
+  }
+
   return (
     <motion.main
       className="isolate grow overflow-hidden p-2 md:p-4"

@@ -32,7 +32,7 @@ loader.config({ monaco });
 monaco.editor.defineTheme("devnote-light", {
   base: "vs",
   inherit: true,
-  rules: [],
+  rules: [{ token: "keyword.md", fontStyle: "bold" }],
   colors: {
     "editor.background": "#ffffff",
     "editor.foreground": "#090909",
@@ -42,7 +42,7 @@ monaco.editor.defineTheme("devnote-light", {
 monaco.editor.defineTheme("devnote-dark", {
   base: "vs-dark",
   inherit: true,
-  rules: [],
+  rules: [{ token: "keyword.md", fontStyle: "bold" }],
   colors: {
     "editor.background": "#18181b",
     "editor.foreground": "#fafafa",
@@ -73,7 +73,7 @@ const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   padding: { top: 40, bottom: 40 },
   parameterHints: { enabled: false },
   quickSuggestions: false,
-  renderLineHighlight: "all",
+  renderLineHighlight: "none",
   renderLineHighlightOnlyWhenFocus: true,
   renderWhitespace: "all",
   scrollbar: { vertical: "visible" },

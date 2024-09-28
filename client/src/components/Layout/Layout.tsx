@@ -45,6 +45,7 @@ import { useSearchNotes } from "~/hooks/query";
 import {
   SidebarState,
   useCommandPaletteOpenStore,
+  useMobileOptimizationMessageSeenStore,
   useSidebarStateStore,
 } from "~/hooks/store/layout";
 import { cn, getCssVar, isMobileOrTabletDevice } from "~/lib/utils";
@@ -129,7 +130,11 @@ function ServiceWorkerPrompt() {
  */
 
 function MobileDeviceUsabilityWarning() {
+  const [isSeen, setIsSeen] = useMobileOptimizationMessageSeenStore();
+
   useEffect(() => {
+    if (isSeen) return;
+
     const isNotDesktop = isMobileOrTabletDevice();
 
     if (isNotDesktop) {
@@ -143,11 +148,16 @@ function MobileDeviceUsabilityWarning() {
             Please keep that in mind if you decide to use it without an external
             keyboard.
           </>,
-          { id: "mobile-instructions", duration: 8000 },
+          {
+            id: "mobile-instructions",
+            duration: 8000,
+            onDismiss: () => setIsSeen(true),
+            onAutoClose: () => setIsSeen(true),
+          },
         );
       });
     }
-  }, []);
+  }, [isSeen, setIsSeen]);
 
   return null;
 }
@@ -158,11 +168,17 @@ function MobileDeviceUsabilityWarning() {
 
 function AnimatedOutlet() {
   const location = useLocation();
-  const element = useOutlet();
+  const outletEl = useOutlet();
+
+  const isTouchDevice = useMediaQuery("(pointer: coarse)");
+
+  if (isTouchDevice) {
+    return outletEl;
+  }
 
   return (
     <AnimatePresence mode="wait" initial={true}>
-      {element && cloneElement(element, { key: location.pathname })}
+      {outletEl && cloneElement(outletEl, { key: location.pathname })}
     </AnimatePresence>
   );
 }
@@ -413,6 +429,10 @@ function ActionsCommandGroup({ show, closeAndReset }: CommandGroupProps) {
         { label: "Change to the dark theme", action: actions.setDarkTheme },
         { label: "Change to the system theme", action: actions.setSystemTheme },
         { label: "Toggle note autosave", action: actions.toggleEditorAutosave },
+        {
+          label: "Toggle contained width",
+          action: actions.toggleEditorContainedWidth,
+        },
         {
           label: "Collapse editor panel",
           shortcut: collapseEditorPanelShortcut,

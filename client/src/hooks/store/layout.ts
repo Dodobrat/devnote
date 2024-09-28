@@ -20,3 +20,7 @@ export function useSidebarStateStore() {
 export function useCommandPaletteOpenStore() {
   return useQueryStore(storeKeys.commandPaletteOpenState, false);
 }
+
+export function useMobileOptimizationMessageSeenStore() {
+  return useQueryStore(storeKeys.mobileOptimizationMessageSeen, false);
+}

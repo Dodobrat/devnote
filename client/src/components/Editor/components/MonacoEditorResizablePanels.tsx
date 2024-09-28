@@ -135,7 +135,7 @@ export function EditorResizeHandle() {
         onPointerLeave={() => setState((v) => ({ ...v, isDisabled: false }))}
         onPointerCancel={() => setState((v) => ({ ...v, isDisabled: false }))}
         className={cn(
-          "z-50 flex items-center justify-center gap-0.5 rounded-2xl border-4 bg-background p-0.5",
+          "z-50 flex items-center justify-center gap-0.5 rounded-2xl border-4 bg-background p-0.5 transition-all",
           isVertical && state.editorCollapsed && "translate-y-5",
           isVertical && state.previewCollapsed && "-translate-y-5",
           isHorizontal && state.editorCollapsed && "translate-x-5",
