@@ -22,6 +22,14 @@ export function Changelog() {
 }
 
 const CHANGELOG = `
+## v0.0.4 ( 29 Sep 2024 )
+
+### Fixed
+
+- Fixed server 404 page when hard refreshing with cleared cache
+- Fixed black editor but populated preview when loading a note by id
+
+
 ## v0.0.3 ( 28 Sep 2024 )
 
 ### Fixed
