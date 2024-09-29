@@ -11,7 +11,7 @@ export function Note() {
   const params = useParams<{ id: string }>();
   const id = params.id!;
 
-  const { data, isFetching } = useNote(id);
+  const { data } = useNote(id);
 
   useDocumentTitle(`DevNote | ${data?.title || "My Note"}`);
 
@@ -19,10 +19,10 @@ export function Note() {
 
   useEffect(() => {
     if (!data) return;
-    setNote(data.note);
+    setTimeout(setNote, 0, data.note);
   }, [data, setNote]);
 
-  if (!isFetching && !data) {
+  if (data === null) {
     return <Navigate to={AppRoutes.NotFound} />;
   }
 

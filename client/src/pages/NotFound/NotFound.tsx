@@ -13,7 +13,7 @@ export function NotFound() {
       <Page.Content>
         <Page.Title>Not Found</Page.Title>
 
-        <section className="flex flex-col items-start gap-2">
+        <section className="flex flex-col items-start gap-4">
           <header>
             <h2 className="text-lg font-semibold md:text-xl">
               The page you are looking for does not exist
