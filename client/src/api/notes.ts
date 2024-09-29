@@ -116,7 +116,7 @@ export const LocalNotesAPI = {
   },
 
   // Get note by ID
-  async getById(id: NoteSchemaType["id"]): Promise<NoteSchemaType | undefined> {
+  async getById(id: NoteSchemaType["id"]): Promise<NoteSchemaType | null> {
     try {
       const db = await dbPromise;
       const note = await db.get("notes", id);
@@ -125,7 +125,7 @@ export const LocalNotesAPI = {
         const validatedNote = noteSchema.parse(note);
         return validatedNote;
       }
-      return undefined;
+      return null;
     } catch (error) {
       if (error instanceof ZodError) {
         throw new Error(`Validation error in getById: ${error.message}`);
