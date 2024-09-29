@@ -19,8 +19,8 @@ export function Note() {
 
   useEffect(() => {
     if (!data) return;
-    setTimeout(setNote, 0, data.note);
-  }, [data, setNote]);
+    setNote(data.note);
+  }, [data, data?.note, setNote]);
 
   if (data === null) {
     return <Navigate to={AppRoutes.NotFound} />;

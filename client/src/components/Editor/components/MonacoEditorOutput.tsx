@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ErrorBoundary, FallbackProps } from "react-error-boundary";
 import githubLightTheme from "highlight.js/styles/github.min.css?inline";
 import githubDarkTheme from "highlight.js/styles/github-dark.min.css?inline";
 import Markdown from "markdown-to-jsx";
@@ -9,7 +10,38 @@ import { ThemeMode, useTheme } from "~/context";
 import { useEditorContainedWidth, useEditorNote } from "~/hooks/store/editor";
 import { cn } from "~/lib/utils";
 
+const knownErrors: Record<string, string> = {
+  "Cannot read properties of undefined (reading 'type')":
+    "We cannot render an empty <script> or <style> tag. Please provide some content inside",
+};
+
+function fallbackRender({ error }: FallbackProps) {
+  console.log("FALLBACK ERROR", error);
+  // TODO: log error
+
+  const errorMessage = knownErrors[error?.message] || "Something went boom";
+
+  return (
+    <div role="alert" className="grid gap-4">
+      <p className="text-lg font-bold">Something went wrong!</p>
+      <p className="text-destructive">{errorMessage}</p>
+    </div>
+  );
+}
+
 export function EditorOutput() {
+  const { note } = useEditorNote();
+
+  return (
+    <div className="h-full w-full overflow-auto overscroll-contain scroll-smooth px-8 py-10">
+      <ErrorBoundary fallbackRender={fallbackRender} resetKeys={[note]}>
+        <MarkdownContent />
+      </ErrorBoundary>
+    </div>
+  );
+}
+
+function MarkdownContent() {
   const { resolvedTheme } = useTheme();
 
   const { note } = useEditorNote();
@@ -17,38 +49,46 @@ export function EditorOutput() {
   const [isContainedWidth] = useEditorContainedWidth();
 
   return (
-    <div className="h-full w-full overflow-auto overscroll-contain scroll-smooth px-8 py-10">
-      <div
-        className={cn(
-          "prose hyphens-auto text-pretty break-words dark:prose-invert",
-          isContainedWidth ? "mx-auto" : "max-w-none",
-        )}
+    <div
+      className={cn(
+        "devnote-markdown-output",
+        "prose hyphens-auto text-pretty break-words dark:prose-invert",
+        isContainedWidth ? "mx-auto" : "max-w-none",
+      )}
+    >
+      <style>
+        {resolvedTheme === ThemeMode.Dark ? githubDarkTheme : githubLightTheme}
+      </style>
+      <Markdown
+        options={{
+          enforceAtxHeadings: true,
+          wrapper: "output",
+          overrides: {
+            code: Code,
+            pre: Pre,
+            style: ScopedStyle,
+            // script: Blank,
+          },
+        }}
       >
-        <style>
-          {resolvedTheme === ThemeMode.Dark
-            ? githubDarkTheme
-            : githubLightTheme}
-        </style>
-        <Markdown
-          options={{
-            enforceAtxHeadings: true,
-            wrapper: "output",
-            overrides: {
-              code: Code,
-              pre: Pre,
-            },
-          }}
-        >
-          {note}
-        </Markdown>
-      </div>
+        {note}
+      </Markdown>
     </div>
   );
 }
 
-function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
-  const ref = useRef<HTMLPreElement>(null);
+// function Blank() {
+//   return null;
+// }
 
+function ScopedStyle({
+  children,
+  ...rest
+}: React.ComponentPropsWithoutRef<"style">) {
+  return <style {...rest}>{`.devnote-markdown-output { ${children} }`}</style>;
+}
+
+function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
   return (
     <>
       <div className="relative bottom-3 -mb-5 flex h-0 justify-end px-4">
@@ -73,7 +113,7 @@ function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
           Copy
         </Button>
       </div>
-      <pre {...props} className={cn(props.className, "border p-0")} ref={ref} />
+      <pre {...props} className={cn(props.className, "border p-0")} />
     </>
   );
 }

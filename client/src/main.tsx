@@ -9,6 +9,7 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
+import { ErrorBoundary, PageErrorBoundary } from "./components/ErrorBoundary";
 import { Layout } from "./components/Layout";
 import { Toaster, TooltipProvider } from "./components/ui";
 import { ThemeProvider } from "./context";
@@ -31,14 +32,38 @@ const queryClient = new QueryClient({
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path={AppRoutes.Root} element={<Layout />}>
-      <Route index element={<Welcome />} />
-      <Route path={AppRoutes.Notes} element={<Notes />} />
-      <Route path={AppRoutes.NoteById} element={<Note />} />
+    <Route
+      path={AppRoutes.Root}
+      element={<Layout />}
+      errorElement={<ErrorBoundary />}
+    >
+      <Route index element={<Welcome />} errorElement={<PageErrorBoundary />} />
+      <Route
+        path={AppRoutes.Notes}
+        element={<Notes />}
+        errorElement={<PageErrorBoundary />}
+      />
+      <Route
+        path={AppRoutes.NoteById}
+        element={<Note />}
+        errorElement={<PageErrorBoundary />}
+      />
 
-      <Route path={AppRoutes.Help} element={<Help />} />
-      <Route path={AppRoutes.Changelog} element={<Changelog />} />
-      <Route path={AppRoutes.Settings} element={<Settings />} />
+      <Route
+        path={AppRoutes.Help}
+        element={<Help />}
+        errorElement={<PageErrorBoundary />}
+      />
+      <Route
+        path={AppRoutes.Changelog}
+        element={<Changelog />}
+        errorElement={<PageErrorBoundary />}
+      />
+      <Route
+        path={AppRoutes.Settings}
+        element={<Settings />}
+        errorElement={<PageErrorBoundary />}
+      />
 
       <Route path="*" element={<NotFound />} />
     </Route>,
