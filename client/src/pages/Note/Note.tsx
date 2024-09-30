@@ -19,7 +19,7 @@ export function Note() {
 
   useEffect(() => {
     if (!data) return;
-    setTimeout(setNote, 0, data.note);
+    setNote(data.note);
   }, [data, setNote]);
 
   if (data === null) {

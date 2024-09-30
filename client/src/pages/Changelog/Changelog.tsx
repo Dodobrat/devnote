@@ -22,12 +22,24 @@ export function Changelog() {
 }
 
 const CHANGELOG = `
+## v0.0.5 ( 29 Sep 2024 )
+
+### Fixed
+
+- Fixed incorrect editor content when loading a note by id.
+
+### Added
+
+- **Error Handling**: Added Error boundaries on multiple levels in order to catch errors and still have a usable UI.
+- **Customization**: When adding html to a note, \`<style>\` elements are now scoped to the markdown preview panel only.
+
+
 ## v0.0.4 ( 29 Sep 2024 )
 
 ### Fixed
 
-- Fixed server 404 page when hard refreshing with cleared cache
-- Fixed black editor but populated preview when loading a note by id
+- Fixed server 404 page when hard refreshing with cleared cache.
+- Fixed blank editor but populated preview when loading a note by id.
 
 
 ## v0.0.3 ( 28 Sep 2024 )
