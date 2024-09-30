@@ -106,6 +106,14 @@ export function MonacoEditor({
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>();
   const { note, setNote } = useEditorNote();
 
+  // after monaco instance is set, the value sometimes stays an empty string.
+  // To prevent it, keep the note value and when mounting the monaco editor,
+  // set the most up-to date value only on context re-render
+  const noteValueRef = useRef(note);
+  useEffect(() => {
+    noteValueRef.current = note;
+  }, [note]);
+
   const { monacoInstance, setMonacoInstance } = useMonacoInstance();
 
   const saveNote = useSaveNote();
@@ -150,6 +158,11 @@ export function MonacoEditor({
       navigate(AppRoutes.Root),
     );
   }, [monacoInstance, navigate]);
+
+  useEffect(() => {
+    if (!monacoInstance) return;
+    monacoInstance.setValue(noteValueRef.current);
+  }, [monacoInstance]);
 
   const [isAutosaving] = useEditorAutosave();
   const [, setOpenCommandPalette] = useCommandPaletteOpenStore();
