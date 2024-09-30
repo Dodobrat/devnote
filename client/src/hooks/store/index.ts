@@ -50,7 +50,7 @@ export function useQueryStore<T>(storeKey: string, initialData: T) {
   return useMemo(() => [data!, set] as const, [data, set]);
 }
 
-export function usePersisQueryStore<T>(storeKey: string, initialData: T) {
+export function usePersistQueryStore<T>(storeKey: string, initialData: T) {
   const queryClient = useQueryClient();
 
   const initial = webStorage.getItem<T>(storeKey) ?? initialData;

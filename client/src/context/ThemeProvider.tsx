@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect } from "react";
 
 import { useMediaQuery } from "~/hooks";
-import { storeKeys, usePersisQueryStore } from "~/hooks/store";
+import { storeKeys, usePersistQueryStore } from "~/hooks/store";
 import { getCssVar, hslToHex, hslToNumberValues } from "~/lib/utils";
 
 export enum ThemeMode {
@@ -22,7 +22,7 @@ const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const isPreferredDark = useMediaQuery("(prefers-color-scheme: dark)");
-  const [theme, setTheme] = usePersisQueryStore<ThemeMode>(
+  const [theme, setTheme] = usePersistQueryStore<ThemeMode>(
     storeKeys.theme,
     ThemeMode.System,
   );

@@ -4,7 +4,7 @@ import { ImperativePanelHandle } from "react-resizable-panels";
 import { ResizablePanelGroupProps } from "~/components/ui";
 import { WELCOME_TEXT } from "~/constants";
 
-import { storeKeys, usePersisQueryStore, useQueryStore } from "./index";
+import { storeKeys, usePersistQueryStore, useQueryStore } from "./index";
 
 export type EditorResizablePanelsLayout = {
   direction: ResizablePanelGroupProps["direction"];
@@ -29,7 +29,7 @@ export const defaultResizeState: EditorResizablePanelsLayout = {
 };
 
 export function useEditorLayoutState() {
-  return usePersisQueryStore(storeKeys.editorLayout, defaultResizeState);
+  return usePersistQueryStore(storeKeys.editorLayout, defaultResizeState);
 }
 
 export function useEditorPanelHandle() {
@@ -62,13 +62,13 @@ export function useEditorNotePrevState() {
 }
 
 export function useEditorAutosave() {
-  return usePersisQueryStore(storeKeys.editorAutosave, true);
+  return usePersistQueryStore(storeKeys.editorAutosave, true);
 }
 
 export function useEditorContainedWidth() {
-  return usePersisQueryStore(storeKeys.editorContainedWidth, false);
+  return usePersistQueryStore(storeKeys.editorContainedWidth, false);
 }
 
 export function useEditorWelcomeNote() {
-  return usePersisQueryStore(storeKeys.editorWelcomeNote, WELCOME_TEXT);
+  return usePersistQueryStore(storeKeys.editorWelcomeNote, WELCOME_TEXT);
 }
