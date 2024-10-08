@@ -1,7 +1,7 @@
 import { DBSchema, openDB } from "idb";
 import { ZodError } from "zod";
 
-import { generateTitle } from "~/lib/utils";
+import { deriveTitle } from "~/lib/utils";
 import {
   noteSchema,
   NoteSchemaType,
@@ -87,8 +87,7 @@ export const LocalNotesAPI = {
 
       // Create new note
       const now = new Date();
-      const title =
-        generateTitle(body.note) || `New note - ${now.toUTCString()}`;
+      const title = deriveTitle(body.note) || `New note - ${now.toUTCString()}`;
 
       const newNote = {
         id: crypto.randomUUID(),

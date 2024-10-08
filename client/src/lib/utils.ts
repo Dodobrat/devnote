@@ -146,7 +146,7 @@ export function getMetaKey() {
   return getIsAppleDevice() ? "⌘" : "Ctrl";
 }
 
-export function generateTitle(markdownContent: string) {
+export function deriveTitle(markdownContent: string) {
   const lines = markdownContent.split("\n");
   const firstLineWithWords = lines.find((line) => /\w+/.test(line)) || "";
   const withoutHtmlTags = firstLineWithWords.replace(/<\/?[^>]+(>|$)/g, "");
