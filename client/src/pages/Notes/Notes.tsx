@@ -19,7 +19,7 @@ import {
 } from "~/hooks/query";
 import { cn } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
-import { NoteSchemaType } from "~/types";
+import { NoteSchemaType } from "~/types/notes";
 
 import {
   NoteDelete,

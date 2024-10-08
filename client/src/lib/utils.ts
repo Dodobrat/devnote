@@ -145,3 +145,11 @@ export function isMobileOrTabletDevice() {
 export function getMetaKey() {
   return getIsAppleDevice() ? "⌘" : "Ctrl";
 }
+
+export function deriveTitle(markdownContent: string) {
+  const lines = markdownContent.split("\n");
+  const firstLineWithWords = lines.find((line) => /\w+/.test(line)) || "";
+  const withoutHtmlTags = firstLineWithWords.replace(/<\/?[^>]+(>|$)/g, "");
+  const cleanTitle = withoutHtmlTags.replace(/[^\w\s]/g, "");
+  return cleanTitle.trim();
+}
