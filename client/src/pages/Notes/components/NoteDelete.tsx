@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui";
 import { useDeleteNote } from "~/hooks/query";
-import { NoteSchemaType } from "~/types";
+import { NoteSchemaType } from "~/types/notes";
 
 export function NoteDelete({ note }: { note: NoteSchemaType }) {
   const deleteNoteMutation = useDeleteNote();

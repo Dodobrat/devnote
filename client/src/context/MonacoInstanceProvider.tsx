@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 
-import { MonacoStandaloneEditor } from "~/types";
+import { MonacoStandaloneEditor } from "~/types/notes";
 
 type MonacoInstanceContextState = {
   monacoInstance: MonacoStandaloneEditor;

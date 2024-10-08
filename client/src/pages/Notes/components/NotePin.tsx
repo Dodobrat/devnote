@@ -8,7 +8,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui";
 import { usePinNote, useUnpinNote } from "~/hooks/query";
-import { NoteSchemaType } from "~/types";
+import { NoteSchemaType } from "~/types/notes";
 
 export function NotePin({ note }: { note: NoteSchemaType }) {
   const pinNoteMutation = usePinNote();

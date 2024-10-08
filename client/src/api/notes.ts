@@ -1,6 +1,7 @@
 import { DBSchema, openDB } from "idb";
 import { ZodError } from "zod";
 
+import { generateTitle } from "~/lib/utils";
 import {
   noteSchema,
   NoteSchemaType,
@@ -8,7 +9,7 @@ import {
   PaginatedNotesSchemaType,
   updateNoteSchema,
   UpdateNoteSchemaType,
-} from "~/types";
+} from "~/types/notes";
 
 const DEFAULT_PAGINATION_SLICE = 50;
 
@@ -86,11 +87,14 @@ export const LocalNotesAPI = {
 
       // Create new note
       const now = new Date();
+      const title =
+        generateTitle(body.note) || `New note - ${now.toUTCString()}`;
+
       const newNote = {
         id: crypto.randomUUID(),
         createdAt: now,
         updatedAt: null,
-        title: `New note - ${now.toUTCString()}`,
+        title,
         order: 0,
         isPinned: 0,
         isProtected: 0,

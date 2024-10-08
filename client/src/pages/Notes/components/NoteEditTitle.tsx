@@ -13,7 +13,7 @@ import {
 } from "~/components/ui";
 import { useUpdateNote } from "~/hooks/query";
 import { cn } from "~/lib/utils";
-import { NoteSchemaType, titleSchema } from "~/types";
+import { NoteSchemaType, titleSchema } from "~/types/notes";
 
 export function NoteEditTitle({ note }: { note: NoteSchemaType }) {
   const [open, setOpen] = useState(false);

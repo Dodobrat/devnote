@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui";
-import { NoteSchemaType } from "~/types";
+import { NoteSchemaType } from "~/types/notes";
 
 export function NoteProtect({ note }: { note: NoteSchemaType }) {
   return (

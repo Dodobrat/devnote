@@ -14,7 +14,7 @@ import {
   MonacoStandaloneEditor,
   NoteSchemaType,
   UpdateNoteSchemaType,
-} from "~/types";
+} from "~/types/notes";
 
 import { useEditorNotePrevState } from "../store/editor";
 
