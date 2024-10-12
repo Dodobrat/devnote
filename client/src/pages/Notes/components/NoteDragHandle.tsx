@@ -33,7 +33,8 @@ export function NoteDragHandle(props: ButtonProps) {
             props.onKeyDown?.(e);
           }}
         >
-          <GripVerticalIcon className="size-5" />
+          <GripVerticalIcon className="size-5" aria-hidden />
+          <span className="sr-only">Drag to reorder</span>
         </Button>
       </TooltipTrigger>
       <TooltipContent align="start">

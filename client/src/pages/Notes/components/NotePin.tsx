@@ -32,10 +32,13 @@ export function NotePin({ note }: { note: NoteSchemaType }) {
           }}
         >
           {note.isPinned ? (
-            <PinIcon className="size-5" />
+            <PinIcon className="size-5" aria-hidden />
           ) : (
-            <PinOffIcon className="size-5" />
+            <PinOffIcon className="size-5" aria-hidden />
           )}
+          <span className="sr-only">
+            {note.isPinned ? "Unpin" : "Pin"} note
+          </span>
         </Button>
       </TooltipTrigger>
       <TooltipContent>

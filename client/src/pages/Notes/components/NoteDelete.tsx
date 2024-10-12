@@ -26,7 +26,8 @@ export function NoteDelete({ note }: { note: NoteSchemaType }) {
             className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={() => setOpen(true)}
           >
-            <TrashIcon className="size-5" />
+            <TrashIcon className="size-5" aria-hidden />
+            <span className="sr-only">Delete note</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>

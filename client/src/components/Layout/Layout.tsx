@@ -572,7 +572,8 @@ function Navigation() {
                 className="mr-4 shrink-0"
                 onClick={() => setCommandPaletteOpenState(true)}
               >
-                <TerminalIcon />
+                <TerminalIcon aria-hidden />
+                <span className="sr-only">Open Command Palette</span>
               </Button>
             </TooltipTrigger>
             <TooltipContent>
@@ -597,13 +598,15 @@ function Navigation() {
 
         <SidebarItem to={AppRoutes.Root}>
           <SidebarIconItem>
-            <PlusIcon className="size-5" />
+            <PlusIcon className="size-5" aria-hidden />
+            <span className="sr-only">Create new note</span>
           </SidebarIconItem>
           <p className="whitespace-nowrap">Create new note</p>
         </SidebarItem>
         <SidebarItem to={AppRoutes.Notes}>
           <SidebarIconItem>
-            <NotebookTabsIcon className="size-5" />
+            <NotebookTabsIcon className="size-5" aria-hidden />
+            <span className="sr-only">Notes</span>
           </SidebarIconItem>
           <p className="whitespace-nowrap">Notes</p>
         </SidebarItem>
@@ -614,19 +617,22 @@ function Navigation() {
 
         <SidebarItem to={AppRoutes.Help}>
           <SidebarIconItem>
-            <CircleHelpIcon className="size-5" />
+            <CircleHelpIcon className="size-5" aria-hidden />
+            <span className="sr-only">Help</span>
           </SidebarIconItem>
           <p className="whitespace-nowrap">Help</p>
         </SidebarItem>
         <SidebarItem to={AppRoutes.Changelog}>
           <SidebarIconItem>
-            <LogsIcon className="size-5" />
+            <LogsIcon className="size-5" aria-hidden />
+            <span className="sr-only">Changelog</span>
           </SidebarIconItem>
           <p className="whitespace-nowrap">Changelog</p>
         </SidebarItem>
         <SidebarItem to={AppRoutes.Settings}>
           <SidebarIconItem>
-            <Settings2Icon className="size-5" />
+            <Settings2Icon className="size-5" aria-hidden />
+            <span className="sr-only">Settings</span>
           </SidebarIconItem>
           <p className="whitespace-nowrap">Settings</p>
         </SidebarItem>
@@ -664,10 +670,11 @@ function Navigation() {
               }}
             >
               {sidebarState === SidebarState.Minimized ? (
-                <PanelLeftOpenIcon />
+                <PanelLeftOpenIcon aria-hidden />
               ) : (
-                <PanelLeftCloseIcon />
+                <PanelLeftCloseIcon aria-hidden />
               )}
+              <span className="sr-only">Toggle sidebar</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="right">
@@ -783,7 +790,7 @@ function InstallButton() {
       )}
       onClick={handleInstallClick}
     >
-      <AppWindowMacIcon className="mr-0.5 size-5 shrink-0" />
+      <AppWindowMacIcon className="mr-0.5 size-5 shrink-0" aria-hidden />
       <span className="pl-6">Install the App</span>
     </Button>
   );

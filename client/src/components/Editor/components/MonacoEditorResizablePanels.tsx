@@ -152,10 +152,11 @@ export function EditorResizeHandle() {
               onClick={collapseEditorPanel}
             >
               {isHorizontal ? (
-                <ArrowLeftFromLineIcon />
+                <ArrowLeftFromLineIcon aria-hidden />
               ) : (
-                <ArrowUpFromLineIcon />
+                <ArrowUpFromLineIcon aria-hidden />
               )}
+              <span className="sr-only">Collapse editor</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side={isHorizontal ? "right" : "top"}>
@@ -179,10 +180,11 @@ export function EditorResizeHandle() {
               onClick={collapsePreviewPanel}
             >
               {isHorizontal ? (
-                <ArrowRightFromLineIcon />
+                <ArrowRightFromLineIcon aria-hidden />
               ) : (
-                <ArrowDownFromLineIcon />
+                <ArrowDownFromLineIcon aria-hidden />
               )}
+              <span className="sr-only">Collapse preview</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side={isHorizontal ? "right" : "top"}>
@@ -201,10 +203,11 @@ export function EditorResizeHandle() {
           <TooltipTrigger asChild>
             <Button size="icon" variant="ghost" onClick={toggleSplitViewMode}>
               {isHorizontal ? (
-                <SquareSplitVerticalIcon />
+                <SquareSplitVerticalIcon aria-hidden />
               ) : (
-                <SquareSplitHorizontalIcon />
+                <SquareSplitHorizontalIcon aria-hidden />
               )}
+              <span className="sr-only">Toggle split view direction</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side={isHorizontal ? "right" : "top"}>
@@ -227,7 +230,8 @@ export function EditorResizeHandle() {
               disabled={state.isReset}
               onClick={resetPanelSizes}
             >
-              <RotateCcwIcon />
+              <RotateCcwIcon aria-hidden />
+              <span className="sr-only">Reset panel sizes</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side={isHorizontal ? "right" : "top"}>

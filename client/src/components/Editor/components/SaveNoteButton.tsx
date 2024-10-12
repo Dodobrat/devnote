@@ -78,13 +78,14 @@ export function SaveNoteButton() {
             disabled={!monacoInstance}
             onClick={() => saveNote(monacoInstance)}
           >
-            <SaveIcon />
+            <SaveIcon aria-hidden />
             <span
               className={cn(
                 "pointer-events-none absolute left-6 top-1 inline-block size-3 rounded-full bg-primary transition-transform",
                 isDirty ? "scale-100" : "scale-0",
               )}
             />
+            <span className="sr-only">Save note</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent side={isHorizontal ? "right" : "top"}>

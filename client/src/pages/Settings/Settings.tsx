@@ -70,15 +70,15 @@ function ThemeSwitch() {
     <Tabs value={theme} onValueChange={(v) => setTheme(v as ThemeMode)}>
       <TabsList className="h-auto">
         <TabsTrigger value={ThemeMode.Light} className="min-h-10 md:px-4">
-          <SunIcon className="md:mr-2 md:size-5" />
+          <SunIcon className="md:mr-2 md:size-5" aria-hidden />
           <span className="hidden md:block">Light</span>
         </TabsTrigger>
         <TabsTrigger value={ThemeMode.Dark} className="min-h-10 md:px-4">
-          <MoonIcon className="md:mr-2 md:size-5" />
+          <MoonIcon className="md:mr-2 md:size-5" aria-hidden />
           <span className="hidden md:block">Dark</span>
         </TabsTrigger>
         <TabsTrigger value={ThemeMode.System} className="min-h-10 md:px-4">
-          <LaptopMinimalIcon className="md:mr-2 md:size-5" />
+          <LaptopMinimalIcon className="md:mr-2 md:size-5" aria-hidden />
           <span className="hidden md:block">System</span>
         </TabsTrigger>
       </TabsList>

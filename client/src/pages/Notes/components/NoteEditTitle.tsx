@@ -28,7 +28,8 @@ export function NoteEditTitle({ note }: { note: NoteSchemaType }) {
             className="shrink-0"
             onClick={() => setOpen(true)}
           >
-            <PencilIcon className="size-5" />
+            <PencilIcon className="size-5" aria-hidden />
+            <span className="sr-only">Update note title</span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>
