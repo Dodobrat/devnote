@@ -22,6 +22,17 @@ export function Changelog() {
 }
 
 const CHANGELOG = `
+## v0.0.6 ( 12 Oct 2024 )
+
+### Added
+
+- **Notes**: Automatically create Note title from the first line of the note content.
+
+### Miscellaneous
+
+- Improved accessibility with more screen reader labels.
+
+
 ## v0.0.5 ( 29 Sep 2024 )
 
 ### Fixed
