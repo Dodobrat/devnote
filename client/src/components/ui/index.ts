@@ -8,6 +8,7 @@ export * from "./drawer";
 export * from "./dropdown-menu";
 export * from "./input";
 export * from "./resizable";
+export * from "./select";
 export * from "./separator";
 export * from "./skeleton";
 export * from "./sonner";

@@ -779,7 +779,7 @@ function InstallButton() {
         "w-full",
         "display-browser:flex display-standalone:hidden",
         "h-12 items-center justify-start px-3.5",
-        "motion-safe:animate-gravity-bounce hover:animate-none focus:animate-none",
+        "hover:animate-none focus:animate-none motion-safe:animate-gravity-bounce",
       )}
       onClick={handleInstallClick}
     >
