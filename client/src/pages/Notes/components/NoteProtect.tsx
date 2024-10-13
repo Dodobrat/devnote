@@ -9,6 +9,8 @@ import {
 import { NoteSchemaType } from "~/types/notes";
 
 export function NoteProtect({ note }: { note: NoteSchemaType }) {
+  console.log(note);
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
