@@ -15,7 +15,6 @@ import { useCodeMirrorInstance } from "~/context";
 import { useNote, useSaveNote } from "~/hooks/query";
 import {
   useEditorAutosave,
-  useEditorLayoutState,
   useEditorNote,
   useEditorNotePrevState,
   useEditorWelcomeNote,
@@ -27,8 +26,6 @@ export function SaveNoteButton() {
   const id = params.id;
 
   const [autoSaveEnabled] = useEditorAutosave();
-  const [state] = useEditorLayoutState();
-  const isHorizontal = state.direction === "horizontal";
 
   const { codeMirrorInstance } = useCodeMirrorInstance();
 
@@ -68,13 +65,22 @@ export function SaveNoteButton() {
   );
 
   return (
-    <>
+    <div className="flex items-center justify-end gap-2">
+      {id ? (
+        <p className="hidden text-right leading-tight md:block">
+          Autosave {autoSaveEnabled ? <b>Enabled</b> : <b>Disabled</b>}
+        </p>
+      ) : (
+        <p className="hidden text-right leading-tight md:block">
+          Autosave is disabled while creating a note
+        </p>
+      )}
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             size="icon"
             variant="ghost"
-            className="relative"
+            className="relative shrink-0"
             disabled={!codeMirrorInstance}
             onClick={() => saveNote(codeMirrorInstance)}
           >
@@ -88,18 +94,22 @@ export function SaveNoteButton() {
             <span className="sr-only">Save note</span>
           </Button>
         </TooltipTrigger>
-        <TooltipContent side={isHorizontal ? "right" : "top"}>
+        <TooltipContent side="bottom">
           <p>
             Save note{" "}
             <CommandShortcutSnippet>
               {saveCurrentNoteShortcut}
             </CommandShortcutSnippet>
           </p>
-          <hr className="my-1" />
+          <hr className="my-1 block md:hidden" />
           {id ? (
-            <p>Autosave {autoSaveEnabled ? <b>Enabled</b> : <b>Disabled</b>}</p>
+            <p className="block md:hidden">
+              Autosave {autoSaveEnabled ? <b>Enabled</b> : <b>Disabled</b>}
+            </p>
           ) : (
-            <p>Autosave is unavailable while creating a note</p>
+            <p className="block md:hidden">
+              Autosave is unavailable while creating a note
+            </p>
           )}
         </TooltipContent>
       </Tooltip>
@@ -115,6 +125,6 @@ export function SaveNoteButton() {
           continue: "Continue",
         }}
       />
-    </>
+    </div>
   );
 }

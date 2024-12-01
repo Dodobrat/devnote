@@ -5,6 +5,8 @@ import { cn } from "~/lib/utils";
 
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
+// TODO: fix styling ( wrong close button colors )
+
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
 

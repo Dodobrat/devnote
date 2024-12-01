@@ -33,7 +33,7 @@ export function EditorOutput() {
   const { note } = useEditorNote();
 
   return (
-    <div className="h-full w-full overflow-auto overscroll-contain scroll-smooth px-8 py-10">
+    <div className="h-full w-full overflow-auto overscroll-contain scroll-smooth p-4">
       <ErrorBoundary fallbackRender={fallbackRender} resetKeys={[note]}>
         <MarkdownContent />
       </ErrorBoundary>

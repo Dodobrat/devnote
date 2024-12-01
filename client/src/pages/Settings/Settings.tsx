@@ -9,6 +9,8 @@ import {
   useEditorContainedWidth,
 } from "~/hooks/store/editor";
 
+// TODO: bring back the welcome message setting
+
 export function Settings() {
   useDocumentTitle("DevNote | Settings");
 

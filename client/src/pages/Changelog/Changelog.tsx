@@ -3,6 +3,8 @@ import Markdown from "markdown-to-jsx";
 import { Page } from "~/components/Layout";
 import { useDocumentTitle } from "~/hooks";
 
+// TODO: add new minor version update for the migration to codemirror
+
 export function Changelog() {
   useDocumentTitle("DevNote | Changelog");
 

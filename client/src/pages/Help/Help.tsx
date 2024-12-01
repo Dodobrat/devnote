@@ -35,6 +35,7 @@ export function Help() {
             description="Increase your speed and productivity with keyboard shortcuts"
           >
             <div className="grid w-full divide-y">
+              {/* TODO: add more shortcuts */}
               <ShortcutSnippet shortcut={createNewNoteShortcut}>
                 Create a new note
               </ShortcutSnippet>
@@ -51,10 +52,6 @@ export function Help() {
                 ]}
               >
                 Open the command palette
-              </ShortcutSnippet>
-              <ShortcutSnippet shortcut="F1">
-                Show Editor shortcuts ( available only when focused on the
-                editor )
               </ShortcutSnippet>
             </div>
           </Page.Section>
