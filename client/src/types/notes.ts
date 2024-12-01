@@ -1,4 +1,3 @@
-import type * as monaco from "monaco-editor/esm/vs/editor/editor.api";
 import { z } from "zod";
 
 export const intSchema = z.coerce.number().int();
@@ -43,5 +42,3 @@ export const paginatedNotesSchema = z.object({
 });
 
 export type PaginatedNotesSchemaType = z.infer<typeof paginatedNotesSchema>;
-
-export type MonacoStandaloneEditor = monaco.editor.IStandaloneCodeEditor | null;

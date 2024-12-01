@@ -1,15 +1,11 @@
 import { Page } from "~/components/Layout";
 import { CommandShortcutSnippet } from "~/components/ui";
 import {
-  collapseEditorPanelShortcut,
-  collapsePreviewPanelShortcut,
   createNewNoteShortcut,
   openCommandPaletteBrowserShortcut,
   openCommandPaletteVSCodeShortcut,
-  resetEditorPanelSizesShortcut,
   saveCurrentNoteShortcut,
   toggleSidebarShortcut,
-  toggleSplitViewModeShortcut,
 } from "~/constants/shortcuts";
 import { useDocumentTitle } from "~/hooks";
 
@@ -44,18 +40,6 @@ export function Help() {
               </ShortcutSnippet>
               <ShortcutSnippet shortcut={saveCurrentNoteShortcut}>
                 Save your current note
-              </ShortcutSnippet>
-              <ShortcutSnippet shortcut={collapseEditorPanelShortcut}>
-                Collapse the editor panel
-              </ShortcutSnippet>
-              <ShortcutSnippet shortcut={collapsePreviewPanelShortcut}>
-                Collapse the preview panel
-              </ShortcutSnippet>
-              <ShortcutSnippet shortcut={toggleSplitViewModeShortcut}>
-                Toggle split view direction ( vertical / horizontal )
-              </ShortcutSnippet>
-              <ShortcutSnippet shortcut={resetEditorPanelSizesShortcut}>
-                Reset editor panel sizes to default
               </ShortcutSnippet>
               <ShortcutSnippet shortcut={toggleSidebarShortcut}>
                 Toggle the sidebar state

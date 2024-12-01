@@ -6,15 +6,13 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { EditorView } from "codemirror";
 import { toast } from "sonner";
 
 import { LocalNotesAPI } from "~/api";
+import { getCurrentCursorPosition } from "~/components/Editor/components/CodeMirrorEditor";
 import { AppRoutes } from "~/routes";
-import {
-  MonacoStandaloneEditor,
-  NoteSchemaType,
-  UpdateNoteSchemaType,
-} from "~/types/notes";
+import { NoteSchemaType, UpdateNoteSchemaType } from "~/types/notes";
 
 import { useEditorNotePrevState } from "../store/editor";
 
@@ -199,12 +197,13 @@ export function useSaveNote() {
   const [, setPrevNote] = useEditorNotePrevState();
 
   return useCallback(
-    (editor: MonacoStandaloneEditor) => {
-      const cursorPosition = editor?.getPosition();
+    (editor: EditorView | undefined) => {
+      if (!editor) return;
+      const cursorPosition = getCurrentCursorPosition(editor);
 
       if (id) {
         return updateMutation.mutate(
-          { id, note: editor?.getValue() },
+          { id, note: editor.state.doc.toString() },
           {
             onSuccess: (_, variables) => {
               setPrevNote(variables.note || "");
@@ -214,13 +213,13 @@ export function useSaveNote() {
       }
 
       return createMutation.mutate(
-        { note: editor?.getValue() || "" },
+        { note: editor.state.doc.toString() },
         {
           onSuccess: (res) => {
             toast.success(`${res.title} was created`);
 
             navigate(generatePath(AppRoutes.NoteById, { id: res.id }), {
-              state: cursorPosition,
+              state: { cursorPosition },
             });
           },
         },

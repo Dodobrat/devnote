@@ -11,7 +11,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui";
 import { saveCurrentNoteShortcut } from "~/constants/shortcuts";
-import { useMonacoInstance } from "~/context";
+import { useCodeMirrorInstance } from "~/context";
 import { useNote, useSaveNote } from "~/hooks/query";
 import {
   useEditorAutosave,
@@ -30,7 +30,7 @@ export function SaveNoteButton() {
   const [state] = useEditorLayoutState();
   const isHorizontal = state.direction === "horizontal";
 
-  const { monacoInstance } = useMonacoInstance();
+  const { codeMirrorInstance } = useCodeMirrorInstance();
 
   const { note } = useEditorNote();
   const { data } = useNote(id || "");
@@ -75,8 +75,8 @@ export function SaveNoteButton() {
             size="icon"
             variant="ghost"
             className="relative"
-            disabled={!monacoInstance}
-            onClick={() => saveNote(monacoInstance)}
+            disabled={!codeMirrorInstance}
+            onClick={() => saveNote(codeMirrorInstance)}
           >
             <SaveIcon aria-hidden />
             <span

@@ -99,12 +99,6 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (
-            id.includes("node_modules/monaco-editor") ||
-            id.includes("MonacoEditor")
-          ) {
-            return "monaco-editor";
-          }
           if (id.includes("node_modules/highlight.js")) {
             return "highlight-js";
           }

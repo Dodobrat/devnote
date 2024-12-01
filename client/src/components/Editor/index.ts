@@ -1,2 +1,2 @@
-export { EditorOutput, MonacoEditorFallback } from "./components";
+export { EditorOutput } from "./components";
 export * from "./Editor";
