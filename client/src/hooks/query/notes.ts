@@ -135,6 +135,7 @@ export function useDeleteNote() {
       return LocalNotesAPI.delete(id);
     },
     onSuccess: () => {
+      toast.success("Note deleted");
       queryClient.refetchQueries({
         queryKey: notesQueryKeys.list(),
       });

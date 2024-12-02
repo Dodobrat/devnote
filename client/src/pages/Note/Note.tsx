@@ -3,7 +3,7 @@ import { Navigate, useParams } from "react-router-dom";
 
 import { Editor } from "~/components/Editor";
 import { useDocumentTitle } from "~/hooks";
-import { useNote } from "~/hooks/query";
+import { useNote, useSaveNote } from "~/hooks/query";
 import { useEditorNote } from "~/hooks/store/editor";
 import { AppRoutes } from "~/routes";
 
@@ -17,6 +17,8 @@ export function Note() {
 
   const { setNote } = useEditorNote();
 
+  const saveNote = useSaveNote();
+
   useEffect(() => {
     if (!data) return;
     setNote(data.note);
@@ -26,5 +28,5 @@ export function Note() {
     return <Navigate to={AppRoutes.NotFound} />;
   }
 
-  return <Editor />;
+  return <Editor saveNote={saveNote} />;
 }

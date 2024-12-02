@@ -17,6 +17,7 @@ export const storeKeys = {
   editorWelcomeNote: "devnote.editor.note.welcome",
   editorAutosave: "devnote.editor.autosave",
   editorContainedWidth: "devnote.editor.containedWidth",
+  editorPreviewMode: "devnote.editor.preview.mode",
 } as const;
 
 function generateQueryKey(key: string): QueryKey {

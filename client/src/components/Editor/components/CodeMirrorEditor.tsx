@@ -18,7 +18,6 @@ import { EditorView } from "codemirror";
 import { getIsSaveCurrentNoteKeyCombo } from "~/constants/shortcuts";
 import { ThemeMode, useCodeMirrorInstance, useTheme } from "~/context";
 import { useKeyDownEvent } from "~/hooks";
-import { useSaveNote } from "~/hooks/query";
 import {
   useEditorAutosave,
   useEditorContainedWidth,
@@ -93,11 +92,9 @@ function createCustomHyperLinkExtension(): Extension {
 }
 
 export function CodeMirrorEditor({
-  enableSaveNote = true,
-  autoFocus = true,
+  saveNote,
 }: {
-  enableSaveNote?: boolean;
-  autoFocus?: boolean;
+  saveNote: (editor: EditorView | undefined) => void;
 }) {
   const { codeMirrorInstance, setCodeMirrorInstance } = useCodeMirrorInstance();
   const { resolvedTheme } = useTheme();
@@ -112,16 +109,14 @@ export function CodeMirrorEditor({
 
   const [isContainedWidth] = useEditorContainedWidth();
 
-  const saveNote = useSaveNote();
-
   useKeyDownEvent((e) => {
-    if (enableSaveNote && getIsSaveCurrentNoteKeyCombo(e)) {
+    if (getIsSaveCurrentNoteKeyCombo(e)) {
       e.preventDefault();
       saveNote(codeMirrorInstance);
     }
   });
 
-  const [isAutosaving] = useEditorAutosave();
+  const [shouldAutoSave] = useEditorAutosave();
 
   const theme = useMemo(() => {
     return resolvedTheme === ThemeMode.Dark
@@ -143,7 +138,7 @@ export function CodeMirrorEditor({
       onChange={(value) => {
         setNote(value);
 
-        if (enableSaveNote && id && isAutosaving) {
+        if (id && shouldAutoSave) {
           clearTimeout(autoSaveRef.current);
           autoSaveRef.current = setTimeout(
             () => saveNote(codeMirrorInstance),
@@ -190,10 +185,8 @@ export function CodeMirrorEditor({
             location.state = null;
           }
         } else {
-          if (autoFocus) {
-            setCurrentCursorPosition(editor, 0);
-            editor.focus();
-          }
+          setCurrentCursorPosition(editor, 0);
+          editor.focus();
         }
       }}
       extensions={[

@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useBeforeUnload, useBlocker, useParams } from "react-router-dom";
+import { EditorView } from "codemirror";
 import { SaveIcon } from "lucide-react";
 
 import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
@@ -12,7 +13,7 @@ import {
 } from "~/components/ui";
 import { saveCurrentNoteShortcut } from "~/constants/shortcuts";
 import { useCodeMirrorInstance } from "~/context";
-import { useNote, useSaveNote } from "~/hooks/query";
+import { useNote } from "~/hooks/query";
 import {
   useEditorAutosave,
   useEditorNote,
@@ -21,7 +22,11 @@ import {
 } from "~/hooks/store/editor";
 import { cn } from "~/lib/utils";
 
-export function SaveNoteButton() {
+export function SaveNoteButton({
+  saveNote,
+}: {
+  saveNote: (editor: EditorView | undefined) => void;
+}) {
   const params = useParams<{ id: string }>();
   const id = params.id;
 
@@ -34,8 +39,6 @@ export function SaveNoteButton() {
 
   const [prevNote, setPrevNote] = useEditorNotePrevState();
   const [welcomeNote] = useEditorWelcomeNote();
-
-  const saveNote = useSaveNote();
 
   useEffect(() => {
     if (!data?.note) return;

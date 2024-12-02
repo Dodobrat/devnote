@@ -30,3 +30,10 @@ export function useEditorContainedWidth() {
 export function useEditorWelcomeNote() {
   return usePersistQueryStore(storeKeys.editorWelcomeNote, WELCOME_TEXT);
 }
+
+export function useEditorPreviewMode() {
+  return usePersistQueryStore<"editor" | "preview">(
+    storeKeys.editorPreviewMode,
+    "editor",
+  );
+}

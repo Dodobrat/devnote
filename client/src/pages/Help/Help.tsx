@@ -1,10 +1,16 @@
 import { Page } from "~/components/Layout";
 import { CommandShortcutSnippet } from "~/components/ui";
 import {
+  addCursorAboveShortcut,
+  addCursorBelowShortcut,
   createNewNoteShortcut,
   openCommandPaletteBrowserShortcut,
   openCommandPaletteVSCodeShortcut,
   saveCurrentNoteShortcut,
+  selectLineShortcut,
+  selectSelectionMatchesShortcut,
+  showEditorShortcut,
+  showPreviewShortcut,
   toggleSidebarShortcut,
 } from "~/constants/shortcuts";
 import { useDocumentTitle } from "~/hooks";
@@ -35,12 +41,9 @@ export function Help() {
             description="Increase your speed and productivity with keyboard shortcuts"
           >
             <div className="grid w-full divide-y">
-              {/* TODO: add more shortcuts */}
+              <h3 className="py-4 text-base font-semibold">Global shortcuts</h3>
               <ShortcutSnippet shortcut={createNewNoteShortcut}>
                 Create a new note
-              </ShortcutSnippet>
-              <ShortcutSnippet shortcut={saveCurrentNoteShortcut}>
-                Save your current note
               </ShortcutSnippet>
               <ShortcutSnippet shortcut={toggleSidebarShortcut}>
                 Toggle the sidebar state
@@ -53,6 +56,41 @@ export function Help() {
               >
                 Open the command palette
               </ShortcutSnippet>
+
+              <h3 className="!border-t-0 py-4 text-base font-semibold">
+                Editor shortcuts
+              </h3>
+              <ShortcutSnippet shortcut={saveCurrentNoteShortcut}>
+                Save your current note
+              </ShortcutSnippet>
+              <ShortcutSnippet shortcut={showEditorShortcut}>
+                Show editor view
+              </ShortcutSnippet>
+              <ShortcutSnippet shortcut={showPreviewShortcut}>
+                Show preview view
+              </ShortcutSnippet>
+
+              <ShortcutSnippet shortcut={selectSelectionMatchesShortcut}>
+                Select all highlighted matches
+              </ShortcutSnippet>
+              <ShortcutSnippet shortcut={addCursorAboveShortcut}>
+                Add cursor above
+              </ShortcutSnippet>
+              <ShortcutSnippet shortcut={addCursorBelowShortcut}>
+                Add cursor below
+              </ShortcutSnippet>
+              <ShortcutSnippet shortcut={selectLineShortcut}>
+                Select line
+              </ShortcutSnippet>
+
+              <a
+                href="https://codemirror.net/docs/ref/#commands.defaultKeymap"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="py-2 text-primary underline underline-offset-4"
+              >
+                see more keybindings
+              </a>
             </div>
           </Page.Section>
 
@@ -91,7 +129,7 @@ function ShortcutSnippet({
 }: React.PropsWithChildren<{ shortcut: string | string[] }>) {
   return (
     <div className="flex flex-col gap-1 py-3 md:flex-row">
-      <p className="flex w-48 shrink-0 flex-col items-start gap-1">
+      <p className="flex w-56 shrink-0 flex-col items-start gap-1">
         {Array.isArray(shortcut) ? (
           shortcut.map((s) => (
             <CommandShortcutSnippet key={s} className="ml-0">

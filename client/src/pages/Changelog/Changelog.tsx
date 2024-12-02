@@ -3,8 +3,6 @@ import Markdown from "markdown-to-jsx";
 import { Page } from "~/components/Layout";
 import { useDocumentTitle } from "~/hooks";
 
-// TODO: add new minor version update for the migration to codemirror
-
 export function Changelog() {
   useDocumentTitle("DevNote | Changelog");
 
@@ -24,6 +22,19 @@ export function Changelog() {
 }
 
 const CHANGELOG = `
+## v0.1.0 ( 2 Dec 2024 )
+
+### Refactor
+
+- **Editor**: Migrated internal library for editor to CodeMirror 6 allowing for better styling and reduced bundle size.
+- **Editor**: Removed resizable panels in favour of a 'Editor / Preview' toggle due to feedback from users.
+- **Settings**: Changing the welcome message now redirects to a new page for the full experience while editing.
+
+### Fixes
+
+- Fixed wrong colors for toast close button.
+
+
 ## v0.0.6 ( 12 Oct 2024 )
 
 ### Added

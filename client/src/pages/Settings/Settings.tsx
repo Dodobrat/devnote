@@ -1,15 +1,15 @@
-import { LaptopMinimalIcon, MoonIcon, SunIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { LaptopMinimalIcon, MoonIcon, PencilIcon, SunIcon } from "lucide-react";
 
 import { Page } from "~/components/Layout";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui";
+import { Button, Tabs, TabsList, TabsTrigger } from "~/components/ui";
 import { ThemeMode, useTheme } from "~/context";
 import { useDocumentTitle } from "~/hooks";
 import {
   useEditorAutosave,
   useEditorContainedWidth,
 } from "~/hooks/store/editor";
-
-// TODO: bring back the welcome message setting
+import { AppRoutes } from "~/routes";
 
 export function Settings() {
   useDocumentTitle("DevNote | Settings");
@@ -41,12 +41,17 @@ export function Settings() {
             <ContainedWidthToggle />
           </Page.Section>
 
-          {/* <Page.Section
+          <Page.Section
             title="Welcome message"
             description="Edit the message that appears when creating a new note"
           >
-            <WelcomeMessage />
-          </Page.Section> */}
+            <Button asChild>
+              <Link to={AppRoutes.SettingsWelcomeMessage}>
+                <PencilIcon className="mr-2 size-5" aria-hidden />
+                Edit Welcome Message
+              </Link>
+            </Button>
+          </Page.Section>
         </div>
       </Page.Content>
     </Page.Card>
@@ -115,78 +120,3 @@ function BooleanToggle({
     </Tabs>
   );
 }
-
-// function WelcomeMessage() {
-//   const [welcomeNote, setWelcomeNote] = useEditorWelcomeNote();
-//   const { note, setNote } = useEditorNote();
-
-//   const [isViewingEditor, setIsViewingEditor] = useState(true);
-//   const [showConfirmReset, setShowConfirmReset] = useState(false);
-
-//   useEffect(() => {
-//     if (!welcomeNote) return;
-//     setNote(welcomeNote);
-//   }, [setNote, welcomeNote]);
-
-//   const canReset = note !== WELCOME_TEXT;
-//   const canSave = note !== welcomeNote;
-
-//   return (
-//     <>
-//       <BooleanToggle
-//         value={isViewingEditor}
-//         onValueChange={setIsViewingEditor}
-//         truthyLabel="Editor"
-//         falsyLabel="Preview"
-//       />
-
-//       <div className="grid h-96 min-h-20 w-full resize-y overflow-hidden rounded border">
-//         <div className={cn("overflow-hidden", !isViewingEditor && "hidden")}>
-//           {/* <MonacoInstanceProvider>
-//             <Suspense fallback={<MonacoEditorFallback />}>
-//               <MonacoEditor enableSaveNote={false} autoFocus={false} />
-//             </Suspense>
-//           </MonacoInstanceProvider> */}
-//           {!isViewingEditor && <EditorOutput />}
-//         </div>
-//         <div className={cn("overflow-hidden", isViewingEditor && "hidden")}>
-//           {/* <EditorOutput /> */}
-//         </div>
-//       </div>
-
-//       <div className="flex w-full gap-2 pt-2">
-//         <Button
-//           disabled={!canSave}
-//           onClick={() => {
-//             setWelcomeNote(note);
-//           }}
-//         >
-//           Save
-//         </Button>
-//         <Button
-//           variant="secondary"
-//           disabled={!canReset}
-//           onClick={() => setShowConfirmReset(true)}
-//         >
-//           Reset to default
-//         </Button>
-//       </div>
-
-//       <ResponsiveConfirmation
-//         open={showConfirmReset}
-//         onOpenChange={setShowConfirmReset}
-//         onContinue={() => {
-//           setWelcomeNote(WELCOME_TEXT);
-//           setNote(WELCOME_TEXT);
-//           setShowConfirmReset(false);
-//         }}
-//         labels={{
-//           title: "Are you absolutely sure?",
-//           desc: "This action cannot be undone. You will lose your changes.",
-//           cancel: "Cancel",
-//           continue: "Continue",
-//         }}
-//       />
-//     </>
-//   );
-// }

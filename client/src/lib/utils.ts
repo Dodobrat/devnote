@@ -102,6 +102,10 @@ export function getMetaKey() {
   return getIsAppleDevice() ? "⌘" : "Ctrl";
 }
 
+export function getAltKey() {
+  return getIsAppleDevice() ? "⌥" : "Alt";
+}
+
 export function deriveTitle(markdownContent: string) {
   const lines = markdownContent.split("\n");
   const firstLineWithWords = lines.find((line) => /\w+/.test(line)) || "";
