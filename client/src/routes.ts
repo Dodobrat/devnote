@@ -8,6 +8,7 @@ export enum AppRoutes {
   Help = "/help",
   Changelog = "/changelog",
   Settings = "/settings",
+  SettingsWelcomeMessage = "/welcome-message",
   // Feedback = "/feedback",
   NotFound = "/not-found",
 }

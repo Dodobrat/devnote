@@ -1,2 +1,2 @@
-export * from "./MonacoInstanceProvider";
+export * from "./CodeMirrorInstanceProvider";
 export * from "./ThemeProvider";

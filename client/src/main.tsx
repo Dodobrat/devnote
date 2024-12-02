@@ -22,6 +22,7 @@ import {
   Settings,
   Welcome,
 } from "./pages";
+import { SettingsWelcomeMessage } from "./pages/SettingsWelcomeMessage";
 import { AppRoutes } from "./routes";
 
 import "./index.css";
@@ -62,6 +63,11 @@ const router = createBrowserRouter(
       <Route
         path={AppRoutes.Settings}
         element={<Settings />}
+        errorElement={<PageErrorBoundary />}
+      />
+      <Route
+        path={AppRoutes.SettingsWelcomeMessage}
+        element={<SettingsWelcomeMessage />}
         errorElement={<PageErrorBoundary />}
       />
 

@@ -12,42 +12,34 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
-      closeButton
-      expand={false}
       toastOptions={{
+        closeButton: true,
         unstyled: true,
         classNames: {
           toast: cn(
-            "toast isolate",
-            "grid grid-cols-[auto,1fr,auto] gap-2 items-start",
-            "w-full p-4 leading-tight",
-            "rounded-lg shadow-lg",
+            "group-[&_[data-close-button]]:bg-background",
+            "bg-background text-foreground border rounded-lg shadow-lg overflow-hidden",
+            "flex items-start gap-2 p-4 w-full",
           ),
-
-          icon: "m-0 mt-0.5 grid place-content-center [&>svg]:m-0",
-          title: "leading-tight",
-
-          warning: cn(
-            "bg-yellow-500 text-black border-yellow-800 [&>[data-action]]:text-white [&>[data-action]]:bg-black",
+          content: "leading-tight text-base pr-4 w-full",
+          icon: "h-6 w-auto mx-0 *:mx-0",
+          closeButton: "border right-0 top-3.5 left-auto rounded",
+          success: cn(
+            "bg-green-600 text-green-50 group-[&_[data-close-button]]:!bg-green-600",
+            "dark:bg-green-700 dark:group-[&_[data-close-button]]:!bg-green-700",
           ),
           error: cn(
-            "bg-red-600 text-white border-red-800 [&>[data-action]]:text-black [&>[data-action]]:bg-white",
-          ),
-          success: cn(
-            "bg-green-600 text-white border-green-800 [&>[data-action]]:text-black [&>[data-action]]:bg-white",
+            "bg-red-600 text-red-50 group-[&_[data-close-button]]:!bg-red-600",
+            "dark:bg-red-700 dark:group-[&_[data-close-button]]:!bg-red-700",
           ),
           info: cn(
-            "bg-blue-500 text-white border-blue-800 [&>[data-action]]:text-black [&>[data-action]]:bg-white",
+            "bg-sky-600 text-sky-50 group-[&_[data-close-button]]:!bg-sky-600",
+            "dark:bg-sky-700 dark:group-[&_[data-close-button]]:!bg-sky-700",
           ),
-
-          closeButton: cn(
-            "relative size-6 top-0 left-0 rounded-sm transform-none",
-            "col-start-3 col-span-1 row-start-1 row-span-1",
-            "bg-inherit hover:bg-black/10",
-            "border border-[currentColor] hover:border-[currentColor]",
+          warning: cn(
+            "bg-amber-600 text-amber-50 group-[&_[data-close-button]]:!bg-amber-600",
+            "dark:bg-amber-700 dark:group-[&_[data-close-button]]:!bg-amber-700",
           ),
-          actionButton: cn("w-full rounded-sm p-2 col-span-full"),
-          cancelButton: cn("w-full rounded-sm p-2 col-span-full order-1"),
         },
       }}
       {...props}

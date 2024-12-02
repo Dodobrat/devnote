@@ -27,8 +27,6 @@ import { toast } from "sonner";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
 import {
-  collapseEditorPanelShortcut,
-  collapsePreviewPanelShortcut,
   createNewNoteShortcut,
   getIsCreateNewNoteKeyCombo,
   getIsOpenCommandPaletteBrowserKeyCombo,
@@ -36,19 +34,16 @@ import {
   getIsToggleSidebarKeyCombo,
   openCommandPaletteBrowserShortcut,
   openCommandPaletteVSCodeShortcut,
-  resetEditorPanelSizesShortcut,
   toggleSidebarShortcut,
-  toggleSplitViewModeShortcut,
 } from "~/constants/shortcuts";
 import { useActions, useKeyDownEvent, useMediaQuery } from "~/hooks";
 import { useSearchNotes } from "~/hooks/query";
 import {
   SidebarState,
   useCommandPaletteOpenStore,
-  useMobileOptimizationMessageSeenStore,
   useSidebarStateStore,
 } from "~/hooks/store/layout";
-import { cn, getCssVar, isMobileOrTabletDevice } from "~/lib/utils";
+import { cn, getCssVar } from "~/lib/utils";
 import { AppRoutes } from "~/routes";
 
 import {
@@ -74,7 +69,6 @@ export function Layout() {
   return (
     <div className="flex h-screen overflow-hidden p-safe">
       <ServiceWorkerPrompt />
-      <MobileDeviceUsabilityWarning />
       <GlobalKeyboardShortcuts />
       <OnlineIndicator />
 
@@ -121,43 +115,6 @@ function ServiceWorkerPrompt() {
       });
     }
   }, [needRefresh, updateServiceWorker]);
-
-  return null;
-}
-
-/**
- * Mobile device info
- */
-
-function MobileDeviceUsabilityWarning() {
-  const [isSeen, setIsSeen] = useMobileOptimizationMessageSeenStore();
-
-  useEffect(() => {
-    if (isSeen) return;
-
-    const isNotDesktop = isMobileOrTabletDevice();
-
-    if (isNotDesktop) {
-      setTimeout(() => {
-        toast.info(
-          <>
-            This application is designed for desktop and is not optimized for
-            mobile devices.
-            <br />
-            <br />
-            Please keep that in mind if you decide to use it without an external
-            keyboard.
-          </>,
-          {
-            id: "mobile-instructions",
-            duration: 8000,
-            onDismiss: () => setIsSeen(true),
-            onAutoClose: () => setIsSeen(true),
-          },
-        );
-      });
-    }
-  }, [isSeen, setIsSeen]);
 
   return null;
 }
@@ -432,26 +389,6 @@ function ActionsCommandGroup({ show, closeAndReset }: CommandGroupProps) {
         {
           label: "Toggle contained width",
           action: actions.toggleEditorContainedWidth,
-        },
-        {
-          label: "Collapse editor panel",
-          shortcut: collapseEditorPanelShortcut,
-          action: actions.collapseEditorPanel,
-        },
-        {
-          label: "Collapse preview panel",
-          shortcut: collapsePreviewPanelShortcut,
-          action: actions.collapsePreviewPanel,
-        },
-        {
-          label: "Reset editor panel sizes",
-          shortcut: resetEditorPanelSizesShortcut,
-          action: actions.resetPanelSizes,
-        },
-        {
-          label: "Toggle split view mode between horizontal and vertical",
-          shortcut: toggleSplitViewModeShortcut,
-          action: actions.toggleSplitViewMode,
         },
         {
           label: "Toggle sidebar open/closed",
