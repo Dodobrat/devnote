@@ -8,6 +8,8 @@ export enum SidebarState {
   Expanded = "expanded",
 }
 
+// TODO: refactor sidebar with shadcn examples + full page scrolling
+
 export function useSidebarStateStore() {
   const isLargerThanLg = useMediaQuery(getCssVar("--screen-lg"));
 
@@ -19,8 +21,4 @@ export function useSidebarStateStore() {
 
 export function useCommandPaletteOpenStore() {
   return useQueryStore(storeKeys.commandPaletteOpenState, false);
-}
-
-export function useMobileOptimizationMessageSeenStore() {
-  return usePersistQueryStore(storeKeys.mobileOptimizationMessageSeen, false);
 }

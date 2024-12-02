@@ -46,13 +46,6 @@ export const webStorage = {
   },
 };
 
-export function remToPx(rem: number): number {
-  const rootFontSize = parseFloat(
-    getComputedStyle(document.documentElement).fontSize,
-  );
-  return rem * rootFontSize;
-}
-
 export function getCssVar(name: string) {
   return getComputedStyle(document.documentElement).getPropertyValue(name);
 }
@@ -88,24 +81,6 @@ export function hslToNumberValues(hslStr: string) {
   return matches ? matches.map(Number) : [];
 }
 
-type RangeParams = {
-  targetValue: number;
-  diff: number;
-  value: number;
-};
-
-export function getIsInRange({
-  targetValue,
-  diff,
-  value,
-}: RangeParams): boolean {
-  const lowerBound = targetValue - diff;
-  const upperBound = targetValue + diff;
-
-  // Check if the value is within the range
-  return value >= lowerBound && value <= upperBound;
-}
-
 export function getIsAppleDevice() {
   const platform = navigator.platform.toLowerCase();
   const userAgent = navigator.userAgent.toLowerCase();
@@ -123,27 +98,12 @@ export function getIsAppleDevice() {
   return isIOS || isIPadOS || isMac;
 }
 
-export function isMobileOrTabletDevice() {
-  const isTouchDevice =
-    navigator.maxTouchPoints > 0 ||
-    "ontouchstart" in window ||
-    window.TouchEvent !== undefined;
-
-  const userAgent =
-    navigator.userAgent ||
-    navigator.vendor ||
-    ("opera" in window ? (window.opera as string) : "");
-
-  const mobileOrTabletRegex =
-    /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
-
-  const isMobileOrTablet = mobileOrTabletRegex.test(userAgent);
-
-  return isMobileOrTablet && isTouchDevice;
-}
-
 export function getMetaKey() {
   return getIsAppleDevice() ? "⌘" : "Ctrl";
+}
+
+export function getAltKey() {
+  return getIsAppleDevice() ? "⌥" : "Alt";
 }
 
 export function deriveTitle(markdownContent: string) {

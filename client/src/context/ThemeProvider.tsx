@@ -11,7 +11,7 @@ export enum ThemeMode {
 }
 
 type ThemeProviderState = {
-  resolvedTheme: ThemeMode;
+  resolvedTheme: ThemeMode.Light | ThemeMode.Dark;
   theme: ThemeMode;
   setTheme: (theme: ThemeMode) => void;
 };

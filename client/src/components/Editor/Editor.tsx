@@ -1,88 +1,100 @@
-import { lazy, Suspense } from "react";
+import { EditorView } from "codemirror";
 
 import {
-  getIsCollapseEditorPanelKeyCombo,
-  getIsCollapsePreviewPanelKeyCombo,
-  getIsResetEditorPanelSizesKeyCombo,
-  getIsToggleSplitViewModeKeyCombo,
+  getIsShowEditorKeyCombo,
+  getIsShowPreviewKeyCombo,
+  showEditorShortcut,
+  showPreviewShortcut,
 } from "~/constants/shortcuts";
-import { MonacoInstanceProvider } from "~/context";
-import { useActions, useKeyDownEvent } from "~/hooks";
+import { CodeMirrorInstanceProvider } from "~/context";
+import { useKeyDownEvent } from "~/hooks";
+import { useEditorPreviewMode } from "~/hooks/store/editor";
 
 import { Page } from "../Layout";
 import {
-  EditorOutput,
-  EditorOutputResizePanel,
-  EditorResizableGroup,
-  EditorResizeHandle,
-  EditorResizePanel,
-  MonacoEditorFallback,
-} from "./components";
+  CommandShortcutSnippet,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../ui";
+import { CodeMirrorEditor } from "./components/CodeMirrorEditor";
+import { EditorOutput } from "./components/CodeMirrorEditorOutput";
+import { SaveNoteButton } from "./components/SaveNoteButton";
 
-const MonacoEditor = lazy(async () => {
-  const res = await import("./components/MonacoEditor");
-  return { default: res.MonacoEditor };
-});
+export function Editor({
+  saveNote,
+  renderSaveActions,
+}: {
+  saveNote: (editor: EditorView | undefined) => void;
+  renderSaveActions?: () => React.ReactNode;
+}) {
+  const [mode, setMode] = useEditorPreviewMode();
 
-export function Editor() {
+  useKeyDownEvent((e) => {
+    if (getIsShowEditorKeyCombo(e)) {
+      e.preventDefault();
+      setMode("editor");
+    }
+  });
+
+  useKeyDownEvent((e) => {
+    if (getIsShowPreviewKeyCombo(e)) {
+      e.preventDefault();
+      setMode("preview");
+    }
+  });
+
   return (
-    <Page>
-      <EditorResizableGroup>
-        <MonacoInstanceProvider>
-          <EditorResizePanel>
-            <Suspense fallback={<MonacoEditorFallback />}>
-              <MonacoEditor />
-            </Suspense>
-          </EditorResizePanel>
-
-          <EditorResizeHandle />
-        </MonacoInstanceProvider>
-
-        <EditorOutputResizePanel>
-          <EditorOutput />
-        </EditorOutputResizePanel>
-      </EditorResizableGroup>
-
-      <EditorKeyboardShortcuts />
-    </Page>
+    <Page.Card>
+      <CodeMirrorInstanceProvider>
+        <Tabs
+          value={mode}
+          onValueChange={(v) => setMode(v as typeof mode)}
+          className="flex h-full flex-col overflow-hidden"
+        >
+          <div className="flex items-center justify-between gap-4 border-b p-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <TabsList className="h-auto">
+                  <TabsTrigger value="editor" className="h-full">
+                    Editor
+                  </TabsTrigger>
+                  <TabsTrigger value="preview" className="h-full">
+                    Preview
+                  </TabsTrigger>
+                </TabsList>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="start">
+                <div className="space-y-2">
+                  <p>
+                    <CommandShortcutSnippet>
+                      {showEditorShortcut}
+                    </CommandShortcutSnippet>
+                    <span> Editor</span>
+                  </p>
+                  <p>
+                    <CommandShortcutSnippet>
+                      {showPreviewShortcut}
+                    </CommandShortcutSnippet>
+                    <span> Preview</span>
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+            {renderSaveActions?.() ?? <SaveNoteButton saveNote={saveNote} />}
+          </div>
+          <TabsContent value="editor" className="mt-0 grow overflow-auto">
+            <CodeMirrorEditor saveNote={saveNote} />
+          </TabsContent>
+          <TabsContent value="preview" className="mt-0 grow overflow-auto">
+            <EditorOutput />
+          </TabsContent>
+        </Tabs>
+      </CodeMirrorInstanceProvider>
+    </Page.Card>
   );
-}
-
-function EditorKeyboardShortcuts() {
-  const {
-    collapseEditorPanel,
-    collapsePreviewPanel,
-    toggleSplitViewMode,
-    resetPanelSizes,
-  } = useActions();
-
-  useKeyDownEvent((e) => {
-    if (getIsCollapseEditorPanelKeyCombo(e)) {
-      e.preventDefault();
-      collapseEditorPanel();
-    }
-  });
-
-  useKeyDownEvent((e) => {
-    if (getIsToggleSplitViewModeKeyCombo(e)) {
-      e.preventDefault();
-      toggleSplitViewMode();
-    }
-  });
-
-  useKeyDownEvent((e) => {
-    if (getIsResetEditorPanelSizesKeyCombo(e)) {
-      e.preventDefault();
-      resetPanelSizes();
-    }
-  });
-
-  useKeyDownEvent((e) => {
-    if (getIsCollapsePreviewPanelKeyCombo(e)) {
-      e.preventDefault();
-      collapsePreviewPanel();
-    }
-  });
-
-  return null;
 }

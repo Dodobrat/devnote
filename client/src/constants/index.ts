@@ -1,7 +1,3 @@
-export const DEFAULT_RESIZE_PANEL_SIZE = 50;
-export const COLLAPSED_RESIZE_PANEL_SIZE = 0;
-export const MIN_RESIZE_PANEL_SIZE = 20;
-
 export const WELCOME_TEXT = `# Welcome to DevNote
 
 The aim of this project is to provide a simple and intuitive interface with a focus on writing and productivity achieved with a variety of shortcuts and carefully thought out default settings.
@@ -10,7 +6,7 @@ Hope you enjoy using it :)
 
 ## Features
 
-- **Markdown Preview**: Real-time markdown preview with syntax highlighting
+- **Markdown Preview**: Markdown preview with syntax highlighting
 
 \`\`\`javascript
 const example = "Hello, World!";
@@ -25,11 +21,8 @@ const example = "Hello, World!";
 \`\`\`
 
 - **Keyboard Shortcuts**: Increase your productivity with a variety of shortcuts
-- **Split View**: Split the editor and preview vertically or horizontally
 
-> Press \`Cmd + Shift + M\` to toggle between horizontal and vertical split screen mode
-
-- **Customizable Theme**: Choose a theme that suits your preference
+- **Light / Dark mode**: Choose a theme that suits your preference
 - **Autosave**: Automatically save your work as you type
 
 > Press \`Cmd + Shift + P\` to open the command palette, Type in \`>theme\` or \`>auto\` and configure the settings by your preference.

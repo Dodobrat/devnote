@@ -1,15 +1,8 @@
 import { useCallback, useMemo } from "react";
 
-import { DEFAULT_RESIZE_PANEL_SIZE } from "~/constants";
 import { ThemeMode, useTheme } from "~/context";
 
-import {
-  useEditorAutosave,
-  useEditorContainedWidth,
-  useEditorLayoutState,
-  useEditorPanelHandle,
-  usePreviewPanelHandle,
-} from "./store/editor";
+import { useEditorAutosave, useEditorContainedWidth } from "./store/editor";
 import { SidebarState, useSidebarStateStore } from "./store/layout";
 
 export function useActions() {
@@ -36,31 +29,6 @@ export function useActions() {
     [setEditorContainedWidth],
   );
 
-  const [, setState] = useEditorLayoutState();
-  const [editorPanelHandle] = useEditorPanelHandle();
-  const [previewPanelHandle] = usePreviewPanelHandle();
-  const collapseEditorPanel = useCallback(
-    () => editorPanelHandle?.collapse(),
-    [editorPanelHandle],
-  );
-  const collapsePreviewPanel = useCallback(
-    () => previewPanelHandle?.collapse(),
-    [previewPanelHandle],
-  );
-  const resetPanelSizes = useCallback(
-    () => editorPanelHandle?.resize(DEFAULT_RESIZE_PANEL_SIZE),
-    [editorPanelHandle],
-  );
-  const toggleSplitViewMode = useCallback(
-    () =>
-      setState((v) => ({
-        ...v,
-        isDisabled: false,
-        direction: v.direction === "horizontal" ? "vertical" : "horizontal",
-      })),
-    [setState],
-  );
-
   const { setTheme } = useTheme();
   const setLightTheme = useCallback(
     () => setTheme(ThemeMode.Light),
@@ -77,25 +45,17 @@ export function useActions() {
       setLightTheme,
       setDarkTheme,
       setSystemTheme,
-      collapseEditorPanel,
-      collapsePreviewPanel,
-      resetPanelSizes,
-      toggleSplitViewMode,
       toggleSidebar,
       toggleEditorAutosave,
       toggleEditorContainedWidth,
     }),
     [
-      collapseEditorPanel,
-      collapsePreviewPanel,
-      resetPanelSizes,
       setDarkTheme,
       setLightTheme,
       setSystemTheme,
       toggleEditorAutosave,
       toggleEditorContainedWidth,
       toggleSidebar,
-      toggleSplitViewMode,
     ],
   );
 }
