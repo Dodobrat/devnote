@@ -35,8 +35,6 @@ export function Note() {
     setLastOpenedNote(id);
   }, [id, setLastOpenedNote]);
 
-  const saveNote = useSaveNote();
-
   useEffect(() => {
     if (!data) return;
     setNote(data.note);
