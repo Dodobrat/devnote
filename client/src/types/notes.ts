@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const intSchema = z.coerce.number().int();
 export const intBoolSchema = z.number().int().min(0).max(1); // 0 or 1
-export const titleSchema = z.string().trim().min(2).max(50);
+export const titleSchema = z.string().trim().min(2).max(100);
 
 export const noteSchema = z.object({
   id: z.string().uuid(),
