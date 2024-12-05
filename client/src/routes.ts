@@ -1,5 +1,6 @@
 export enum AppRoutes {
   Root = "/",
+  New = "/new",
   // GoPremium = "/get-premium",
   // Account = "/account",
   Notes = "/notes",

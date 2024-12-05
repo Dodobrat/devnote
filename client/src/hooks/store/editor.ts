@@ -23,6 +23,10 @@ export function useEditorAutosave() {
   return usePersistQueryStore(storeKeys.editorAutosave, true);
 }
 
+export function useLastOpenedNote() {
+  return usePersistQueryStore(storeKeys.editorLastOpenedNote, "");
+}
+
 export function useEditorContainedWidth() {
   return usePersistQueryStore(storeKeys.editorContainedWidth, false);
 }

@@ -159,7 +159,7 @@ function GlobalKeyboardShortcuts() {
   useKeyDownEvent((e) => {
     if (getIsCreateNewNoteKeyCombo(e)) {
       e.preventDefault();
-      navigate(AppRoutes.Root);
+      navigate(AppRoutes.New);
     }
   });
 
@@ -300,7 +300,7 @@ type CommandEntry = {
 type PageCommandEntry = CommandEntry & { to: AppRoutes };
 const pages: PageCommandEntry[] = [
   {
-    to: AppRoutes.Root,
+    to: AppRoutes.New,
     label: "New note",
     shortcut: createNewNoteShortcut,
   },
@@ -533,7 +533,7 @@ function Navigation() {
 
         <InstallButton />
 
-        <SidebarItem to={AppRoutes.Root}>
+        <SidebarItem to={AppRoutes.New}>
           <SidebarIconItem>
             <PlusIcon className="size-5" aria-hidden />
             <span className="sr-only">Create new note</span>

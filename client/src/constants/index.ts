@@ -1,3 +1,5 @@
+export const LAST_VISITED_ROUTE_STATE_KEY = "last-visited";
+
 export const WELCOME_TEXT = `# Welcome to DevNote
 
 The aim of this project is to provide a simple and intuitive interface with a focus on writing and productivity achieved with a variety of shortcuts and carefully thought out default settings.
