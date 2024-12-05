@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { EditorView } from "codemirror";
 
 import {
@@ -6,9 +7,10 @@ import {
   showEditorShortcut,
   showPreviewShortcut,
 } from "~/constants/shortcuts";
-import { CodeMirrorInstanceProvider } from "~/context";
+import { CodeMirrorInstanceProvider, useCodeMirrorInstance } from "~/context";
 import { useKeyDownEvent } from "~/hooks";
 import { useEditorPreviewMode } from "~/hooks/store/editor";
+import { cn } from "~/lib/utils";
 
 import { Page } from "../Layout";
 import {
@@ -87,14 +89,46 @@ export function Editor({
             </Tooltip>
             {renderSaveActions?.() ?? <SaveNoteButton saveNote={saveNote} />}
           </div>
-          <TabsContent value="editor" className="mt-0 grow overflow-auto">
+          <TabsContent
+            value="editor"
+            className={cn(
+              "mt-0 grow overflow-auto",
+              mode === "preview" && "hidden",
+            )}
+            forceMount
+          >
             <CodeMirrorEditor saveNote={saveNote} />
+            <EditorFocusManager mode={mode} />
           </TabsContent>
-          <TabsContent value="preview" className="mt-0 grow overflow-auto">
+          <TabsContent
+            value="preview"
+            className={cn(
+              "mt-0 grow overflow-auto",
+              mode === "editor" && "hidden",
+            )}
+            forceMount
+          >
             <EditorOutput />
           </TabsContent>
         </Tabs>
       </CodeMirrorInstanceProvider>
     </Page.Card>
   );
+}
+
+function EditorFocusManager({
+  mode,
+}: {
+  mode: ReturnType<typeof useEditorPreviewMode>[0];
+}) {
+  const { codeMirrorInstance } = useCodeMirrorInstance();
+
+  useEffect(() => {
+    if (!codeMirrorInstance) return;
+    if (mode === "editor") {
+      codeMirrorInstance.focus();
+    }
+  }, [codeMirrorInstance, mode]);
+
+  return null;
 }

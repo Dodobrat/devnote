@@ -16,6 +16,7 @@ import { ThemeProvider } from "./context";
 import {
   Changelog,
   Help,
+  LastVisitedNavigator,
   Note,
   Notes,
   NotFound,
@@ -38,7 +39,16 @@ const router = createBrowserRouter(
       element={<Layout />}
       errorElement={<ErrorBoundary />}
     >
-      <Route index element={<Welcome />} errorElement={<PageErrorBoundary />} />
+      <Route
+        index
+        element={<LastVisitedNavigator />}
+        errorElement={<PageErrorBoundary />}
+      />
+      <Route
+        path={AppRoutes.New}
+        element={<Welcome />}
+        errorElement={<PageErrorBoundary />}
+      />
       <Route
         path={AppRoutes.Notes}
         element={<Notes />}

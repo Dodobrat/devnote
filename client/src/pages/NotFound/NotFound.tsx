@@ -23,7 +23,7 @@ export function NotFound() {
             </p>
           </header>
           <Button asChild>
-            <Link to={AppRoutes.Root}>Go to homepage</Link>
+            <Link to={AppRoutes.New}>Create new note</Link>
           </Button>
         </section>
       </Page.Content>

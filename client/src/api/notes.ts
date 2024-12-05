@@ -87,7 +87,14 @@ export const LocalNotesAPI = {
 
       // Create new note
       const now = new Date();
-      const title = deriveTitle(body.note) || `New note - ${now.toUTCString()}`;
+      const fallbackTitle = `New note - ${now.toUTCString()}`;
+
+      let title = deriveTitle(body.note);
+
+      const isValidTitle = noteSchema.shape.title.safeParse(title);
+      if (!isValidTitle.success) {
+        title = fallbackTitle;
+      }
 
       const newNote = {
         id: crypto.randomUUID(),
