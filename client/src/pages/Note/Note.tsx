@@ -1,13 +1,16 @@
 import { useEffect } from "react";
-import { Navigate, useParams } from "react-router-dom";
+import { Navigate, useLocation, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 import { Editor } from "~/components/Editor";
+import { LAST_VISITED_ROUTE_STATE_KEY } from "~/constants";
 import { useDocumentTitle } from "~/hooks";
 import { useNote, useSaveNote } from "~/hooks/query";
-import { useEditorNote } from "~/hooks/store/editor";
+import { useEditorNote, useLastOpenedNote } from "~/hooks/store/editor";
 import { AppRoutes } from "~/routes";
 
 export function Note() {
+  const location = useLocation();
   const params = useParams<{ id: string }>();
   const id = params.id!;
 
@@ -15,7 +18,22 @@ export function Note() {
 
   useDocumentTitle(`DevNote | ${data?.title || "My Note"}`);
 
+  const [, setLastOpenedNote] = useLastOpenedNote();
   const { setNote } = useEditorNote();
+  const saveNote = useSaveNote();
+
+  useEffect(() => {
+    if (!location.state?.from) return;
+    if (location.state.from === LAST_VISITED_ROUTE_STATE_KEY) {
+      toast("Navigated to last opened note", {
+        id: LAST_VISITED_ROUTE_STATE_KEY,
+      });
+    }
+  }, [location.state]);
+
+  useEffect(() => {
+    setLastOpenedNote(id);
+  }, [id, setLastOpenedNote]);
 
   const saveNote = useSaveNote();
 

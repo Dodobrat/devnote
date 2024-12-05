@@ -21,7 +21,7 @@ export function ErrorBoundary() {
         </h1>
         <div className="mt-10 flex items-center justify-center gap-x-6">
           <Button asChild>
-            <Link to={AppRoutes.Root} reloadDocument>
+            <Link to={AppRoutes.New} reloadDocument>
               Go to homepage
             </Link>
           </Button>

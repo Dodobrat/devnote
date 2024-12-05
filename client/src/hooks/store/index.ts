@@ -15,6 +15,7 @@ export const storeKeys = {
   editorNote: "devnote.editor.note",
   editorNotePrevState: "devnote.editor.note.prev",
   editorWelcomeNote: "devnote.editor.note.welcome",
+  editorLastOpenedNote: "devnote.editor.lastOpenedNote",
   editorAutosave: "devnote.editor.autosave",
   editorContainedWidth: "devnote.editor.containedWidth",
   editorPreviewMode: "devnote.editor.preview.mode",
