@@ -22,6 +22,21 @@ export function Changelog() {
 }
 
 const CHANGELOG = `
+## v0.1.1 ( 5 Dec 2024 )
+
+### Added
+
+- **Editor**: Open the last edited note when the app is opened.
+
+### Refactor
+
+- **Navigation**: New note path is now \`/new\` instead of \`/\`.
+
+### Fixes
+
+- Derived title from the first line of the note content breaks create request when it is invalid.
+- When switching between Editor and Preview modes, the editor history and focus were not preserved.
+
 ## v0.1.0 ( 2 Dec 2024 )
 
 ### Refactor
