@@ -78,7 +78,7 @@ export default defineConfig({
       },
     }),
     visualizer({
-      template: "flamegraph",
+      template: "treemap",
     }),
   ],
   resolve: {
