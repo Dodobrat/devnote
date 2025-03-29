@@ -1,40 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-import { Button } from "~/components/ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "~/components/ui/drawer";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
-  component: App,
+  component: RouteComponent,
 });
 
-function App() {
-  return (
-    <div>
-      HELLO WORLD
-      <Drawer direction="right">
-        <DrawerTrigger>Open</DrawerTrigger>
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-            <DrawerDescription>This action cannot be undone.</DrawerDescription>
-          </DrawerHeader>
-          <DrawerFooter>
-            <Button>Submit</Button>
-            <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
-    </div>
-  );
+function RouteComponent() {
+  // TODO: redirect to new note if no last visited saved
+
+  return <Navigate to="/note/new" />;
 }
