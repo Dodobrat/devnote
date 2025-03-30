@@ -35,14 +35,22 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
   ArrowUpRightIcon,
   EllipsisVerticalIcon,
+  FilePlus2Icon,
+  GitMergeIcon,
   HandIcon,
+  LaptopMinimalIcon,
   LinkIcon,
+  MessageCircleQuestionIcon,
+  MoonIcon,
+  MoreHorizontalIcon,
   PencilIcon,
   PinIcon,
   PinOffIcon,
   SearchIcon,
+  SunIcon,
   TerminalIcon,
   Trash2Icon,
+  WrenchIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -52,6 +60,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
@@ -76,6 +86,12 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar";
 import {
+  ThemeMode,
+  type ThemeModeKey,
+  ThemeProvider,
+  useTheme,
+} from "~/context";
+import {
   pinnedNotesQueryOptions,
   searchNotesQueryOptions,
   unPinnedNotesQueryOptions,
@@ -87,6 +103,8 @@ import {
 } from "~/hooks/query";
 import { cn } from "~/lib/utils";
 import { type NoteSchemaType } from "~/types/notes";
+
+// TODO: close sidebar on navigation
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
@@ -113,7 +131,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   return (
-    <>
+    <ThemeProvider>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -125,7 +143,7 @@ function RootComponent() {
       {/* DEV TOOLS */}
       <ReactQueryDevtools buttonPosition="top-right" />
       <TanStackRouterDevtools position="bottom-right" />
-    </>
+    </ThemeProvider>
   );
 }
 
@@ -135,12 +153,18 @@ function AppSidebar() {
       <SidebarHeader>
         <LogoAction />
         {/* TODO: install pwa button */}
-        {/* TODO: create new note link */}
+        <CreateNewNoteLink />
       </SidebarHeader>
       <SidebarContent className="overflow-x-hidden">
-        <NotesList />
+        <NotesContent />
       </SidebarContent>
-      <SidebarFooter>test</SidebarFooter>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <MorePagesDropdownMenu />
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
@@ -149,7 +173,7 @@ function AppSidebar() {
 function LogoAction() {
   return (
     <SidebarMenu>
-      <SidebarMenuItem>
+      <SidebarMenuItem className="flex gap-2">
         <SidebarMenuButton
           size="lg"
           className="cursor-pointer"
@@ -164,12 +188,66 @@ function LogoAction() {
             <span className="truncate font-bold">DevNote</span>
           </div>
         </SidebarMenuButton>
+        <ThemeSwitchMinimal />
       </SidebarMenuItem>
     </SidebarMenu>
   );
 }
 
-function NotesList() {
+function ThemeSwitchMinimal() {
+  const { isMobile } = useSidebar();
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        asChild
+        className="size-12 group-data-[collapsible=icon]:hidden"
+      >
+        <Button variant="outline">
+          {theme === ThemeMode.Light && <SunIcon />}
+          {theme === ThemeMode.Dark && <MoonIcon />}
+          {theme === ThemeMode.System && <LaptopMinimalIcon />}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        side={isMobile ? "bottom" : "right"}
+        align={isMobile ? "end" : "start"}
+      >
+        <DropdownMenuRadioGroup
+          value={theme}
+          onValueChange={(v) => setTheme(v as ThemeModeKey)}
+        >
+          <DropdownMenuRadioItem value={ThemeMode.Light}>
+            <SunIcon />
+            Light
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value={ThemeMode.Dark}>
+            <MoonIcon />
+            Dark
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value={ThemeMode.System}>
+            <LaptopMinimalIcon />
+            System
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function CreateNewNoteLink() {
+  return (
+    <SidebarMenuButton asChild tooltip="Create new note">
+      <Link to="/note/new">
+        <FilePlus2Icon />
+        <span>Create new note</span>
+      </Link>
+    </SidebarMenuButton>
+  );
+}
+
+function NotesContent() {
   const pinnedNotesQuery = useSuspenseInfiniteQuery(pinnedNotesQueryOptions());
   const unPinnedNotesQuery = useSuspenseInfiniteQuery(
     unPinnedNotesQueryOptions(),
@@ -181,9 +259,9 @@ function NotesList() {
 
   return (
     <>
-      <SidebarGroup className="bg-sidebar sticky top-0 z-10 -mb-4 group-data-[collapsible=icon]:hidden">
+      <SidebarGroup className="pb-0 group-data-[collapsible=icon]:hidden">
         <SidebarGroupContent>
-          <div className="bg-sidebar sticky top-0">
+          <div className="relative">
             <label htmlFor="search" className="sr-only">
               Search
             </label>
@@ -211,7 +289,7 @@ function NotesList() {
             )}
 
           {Boolean(searchedNotesQuery.data?.length) && (
-            <NoteList
+            <NotesList
               type="search"
               notes={searchedNotesQuery.data!}
               disableReorder
@@ -222,7 +300,7 @@ function NotesList() {
 
       {!query && (
         <>
-          <NoteList type="pinned" notes={pinnedNotesQuery.data} />
+          <NotesList type="pinned" notes={pinnedNotesQuery.data} />
 
           {pinnedNotesQuery.hasNextPage && !pinnedNotesQuery.isFetching && (
             <InView
@@ -234,7 +312,7 @@ function NotesList() {
             </InView>
           )}
 
-          <NoteList type="unpinned" notes={unPinnedNotesQuery.data} />
+          <NotesList type="unpinned" notes={unPinnedNotesQuery.data} />
 
           {unPinnedNotesQuery.hasNextPage && !unPinnedNotesQuery.isFetching && (
             <InView
@@ -251,7 +329,7 @@ function NotesList() {
   );
 }
 
-function NoteList({
+function NotesList({
   type,
   notes,
   disableReorder,
@@ -272,6 +350,7 @@ function NoteList({
 
   const sensors = useSensors(
     useSensor(PointerSensor),
+    // TODO: fix keyboard accessibility
     // useSensor(KeyboardSensor, {
     //   coordinateGetter: sortableKeyboardCoordinates,
     // }),
@@ -407,9 +486,9 @@ function NoteItem({
     <SidebarMenuItem
       key={note.id}
       className={cn(
-        "border-border bg-card grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto_auto] gap-1 rounded-lg border p-2",
+        "border-border bg-card grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto_auto] gap-1 rounded-md border p-2",
         isDragged && "bg-secondary *:opacity-0",
-        isOverlay && "cursor-grabbing opacity-75 *:pointer-events-none",
+        isOverlay && "cursor-grabbing *:pointer-events-none",
       )}
     >
       <Button
@@ -490,7 +569,6 @@ function NoteActions({ note }: { note: NoteSchemaType }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          className="w-56 rounded-lg"
           side={isMobile ? "bottom" : "right"}
           align={isMobile ? "end" : "start"}
         >
@@ -564,5 +642,42 @@ function NoteEditTitle({
         <Button>Update</Button>
       </form>
     </DrawerDialog>
+  );
+}
+
+function MorePagesDropdownMenu() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <SidebarMenuButton tooltip="More pages">
+          <span className="group-data-[collapsible=icon]:hidden">More</span>
+          <MoreHorizontalIcon className="ml-auto" />
+        </SidebarMenuButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-(--radix-popper-anchor-width)"
+        side="top"
+        align="start"
+      >
+        <DropdownMenuItem asChild>
+          <Link to="/app/help">
+            <MessageCircleQuestionIcon />
+            Help
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/app/changelog">
+            <GitMergeIcon />
+            Changelog
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link to="/app/settings">
+            <WrenchIcon />
+            Settings
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

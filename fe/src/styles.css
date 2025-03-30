@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -134,5 +135,8 @@ code {
   }
   body {
     @apply bg-background text-foreground selection:bg-foreground selection:text-background;
+  }
+  .dark {
+    color-scheme: dark;
   }
 }

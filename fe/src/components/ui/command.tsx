@@ -162,6 +162,18 @@ function CommandShortcut({
   );
 }
 
+function CommandShortcutSnippet({
+  className,
+  ...props
+}: React.ComponentProps<"span">) {
+  return (
+    <CommandShortcut
+      className={cn("rounded border px-1 text-base", className)}
+      {...props}
+    />
+  );
+}
+
 export {
   Command,
   CommandDialog,
@@ -172,4 +184,5 @@ export {
   CommandList,
   CommandSeparator,
   CommandShortcut,
+  CommandShortcutSnippet,
 };
