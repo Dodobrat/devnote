@@ -1,3 +1,9 @@
+import { cn } from "~/lib/utils";
+
+function PageBase({ children }: React.PropsWithChildren) {
+  return <div className={cn("")}>{children}</div>;
+}
+
 function PageTitle({ children }: React.PropsWithChildren) {
   return <h1 className="mb-8 text-4xl lg:text-6xl">{children}</h1>;
 }
@@ -18,12 +24,9 @@ function PageSection({
   );
 }
 
-export const Page = Object.assign(
-  {},
-  {
-    // Card: PageCard,
-    // Content: PageContent,
-    Title: PageTitle,
-    Section: PageSection,
-  },
-);
+export const Page = Object.assign(PageBase, {
+  // Card: PageCard,
+  // Content: PageContent,
+  Title: PageTitle,
+  Section: PageSection,
+});

@@ -80,7 +80,6 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarRail,
-  SidebarTrigger,
   useSidebar,
 } from "~/components/ui/sidebar";
 import {
@@ -112,7 +111,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       const pinnedNotes = await queryClient.ensureInfiniteQueryData(
         pinnedNotesQueryOptions(),
       );
-      const unPinnedNotes = queryClient.ensureInfiniteQueryData(
+      const unPinnedNotes = await queryClient.ensureInfiniteQueryData(
         unPinnedNotesQueryOptions(),
       );
       return { pinnedNotes, unPinnedNotes };
@@ -134,7 +133,6 @@ function RootComponent() {
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <SidebarTrigger />
           <Outlet />
         </SidebarInset>
       </SidebarProvider>
@@ -148,7 +146,10 @@ function RootComponent() {
 
 function AppSidebar() {
   return (
-    <Sidebar variant="floating" collapsible="icon">
+    <Sidebar
+      variant="floating"
+      // collapsible="icon"
+    >
       <SidebarHeader>
         <LogoAction />
         {/* TODO: install pwa button */}

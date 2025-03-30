@@ -66,7 +66,7 @@ export function useUnPinnedNotes() {
   return useInfiniteQuery(unPinnedNotesQueryOptions());
 }
 
-export function noteByIdQueryOptions({ id }: { id: NoteSchemaType["id"] }) {
+export function noteByIdQueryOptions({ id }: Pick<NoteSchemaType, "id">) {
   return queryOptions({
     queryKey: notesQueryKeys.byId(id),
     queryFn: () => {
