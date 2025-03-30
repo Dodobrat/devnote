@@ -1,6 +1,28 @@
+import { useEffect, useState } from "react";
 import { InView } from "react-intersection-observer";
 import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  DragOverlay,
+  type DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  restrictToParentElement,
+  restrictToVerticalAxis,
+} from "@dnd-kit/modifiers";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
   type QueryClient,
+  useQuery,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -13,14 +35,18 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
   ArrowUpRightIcon,
   EllipsisVerticalIcon,
-  GripVerticalIcon,
+  HandIcon,
   LinkIcon,
   PencilIcon,
   PinIcon,
+  PinOffIcon,
+  SearchIcon,
   TerminalIcon,
   Trash2Icon,
 } from "lucide-react";
+import { toast } from "sonner";
 
+import { DrawerDialog } from "~/components";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -29,6 +55,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { Input } from "~/components/ui/input";
+import { Separator } from "~/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
@@ -37,18 +65,27 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
+  SidebarInput,
   SidebarInset,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
   SidebarRail,
+  SidebarTrigger,
   useSidebar,
 } from "~/components/ui/sidebar";
 import {
   pinnedNotesQueryOptions,
+  searchNotesQueryOptions,
   unPinnedNotesQueryOptions,
+  usePinNote,
+  useReorderPinnedNotes,
+  useReorderUnpinnedNotes,
+  useUnpinNote,
+  useUpdateNote,
 } from "~/hooks/query";
+import { cn } from "~/lib/utils";
 import { type NoteSchemaType } from "~/types/notes";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
@@ -80,6 +117,7 @@ function RootComponent() {
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
+          <SidebarTrigger />
           <Outlet />
         </SidebarInset>
       </SidebarProvider>
@@ -93,10 +131,7 @@ function RootComponent() {
 
 function AppSidebar() {
   return (
-    <Sidebar
-      variant="floating"
-      // collapsible="icon"
-    >
+    <Sidebar variant="floating" collapsible="icon">
       <SidebarHeader>
         <LogoAction />
         {/* TODO: install pwa button */}
@@ -140,95 +175,313 @@ function NotesList() {
     unPinnedNotesQueryOptions(),
   );
 
+  const [query, setQuery] = useState("");
+
+  const searchedNotesQuery = useQuery(searchNotesQueryOptions({ query }));
+
   return (
     <>
-      {/* <SidebarGroupContent> */}
-      {/* <div className="bg-sidebar sticky top-0 -my-2 py-2">
-                  <label htmlFor="search" className="sr-only">
-                    Search
-                  </label>
-                  <SidebarInput
-                    id="search"
-                    placeholder="Search notes" // TODO: translate
-                    className="pl-8"
-                    // value={noteQuery}
-                    // onChange={onNoteSearchChange}
-                  />
-                  <SearchIcon className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
-                </div> */}
-      {/* </SidebarGroupContent> */}
+      <SidebarGroup className="bg-sidebar sticky top-0 z-10 -mb-4 group-data-[collapsible=icon]:hidden">
+        <SidebarGroupContent>
+          <div className="bg-sidebar sticky top-0">
+            <label htmlFor="search" className="sr-only">
+              Search
+            </label>
+            <SidebarInput
+              id="search"
+              placeholder="Search notes" // TODO: translate
+              className="pl-8"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <SearchIcon className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
+          </div>
+        </SidebarGroupContent>
+      </SidebarGroup>
 
-      {!!pinnedNotesQuery.data.length && (
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupContent>
-            <SidebarGroupLabel>
-              {pinnedNotesQuery.data.length} Pinned Notes
-            </SidebarGroupLabel>
-            <SidebarMenu>
-              {pinnedNotesQuery.data.map((note) => (
-                <NoteItem key={note.id} note={note} />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      {Boolean(query) && (
+        <>
+          {!searchedNotesQuery.isFetching &&
+            !searchedNotesQuery.data?.length && (
+              <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+                <SidebarGroupContent>
+                  <SidebarGroupLabel>No notes found</SidebarGroupLabel>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
+
+          {Boolean(searchedNotesQuery.data?.length) && (
+            <NoteList
+              type="search"
+              notes={searchedNotesQuery.data!}
+              disableReorder
+            />
+          )}
+        </>
       )}
 
-      {pinnedNotesQuery.hasNextPage && !pinnedNotesQuery.isFetching && (
-        <InView
-          onChange={(isInView) => isInView && pinnedNotesQuery.fetchNextPage()}
-        >
-          Loading more...
-        </InView>
-      )}
+      {!query && (
+        <>
+          <NoteList type="pinned" notes={pinnedNotesQuery.data} />
 
-      {!!unPinnedNotesQuery.data.length && (
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupContent>
-            <SidebarGroupLabel>
-              {unPinnedNotesQuery.data.length} Notes
-            </SidebarGroupLabel>
-            <SidebarMenu>
-              {unPinnedNotesQuery.data.map((note) => (
-                <NoteItem key={note.id} note={note} />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      )}
+          {pinnedNotesQuery.hasNextPage && !pinnedNotesQuery.isFetching && (
+            <InView
+              onChange={(isInView) =>
+                isInView && pinnedNotesQuery.fetchNextPage()
+              }
+            >
+              Loading more...
+            </InView>
+          )}
 
-      {unPinnedNotesQuery.hasNextPage && !unPinnedNotesQuery.isFetching && (
-        <InView
-          onChange={(isInView) =>
-            isInView && unPinnedNotesQuery.fetchNextPage()
-          }
-        >
-          Loading more...
-        </InView>
+          <NoteList type="unpinned" notes={unPinnedNotesQuery.data} />
+
+          {unPinnedNotesQuery.hasNextPage && !unPinnedNotesQuery.isFetching && (
+            <InView
+              onChange={(isInView) =>
+                isInView && unPinnedNotesQuery.fetchNextPage()
+              }
+            >
+              Loading more...
+            </InView>
+          )}
+        </>
       )}
     </>
   );
 }
 
-function NoteItem({ note }: { note: NoteSchemaType }) {
-  const { isMobile } = useSidebar();
+function NoteList({
+  type,
+  notes,
+  disableReorder,
+}: {
+  type: "pinned" | "unpinned" | "search";
+  notes: NoteSchemaType[];
+  disableReorder?: boolean;
+}) {
+  const [items, setItems] = useState(notes);
+  const [activeNote, setActiveNote] = useState<NoteSchemaType | null>(null);
 
+  const reorderPinnedMutation = useReorderPinnedNotes();
+  const reorderUnpinnedMutation = useReorderUnpinnedNotes();
+
+  useEffect(() => {
+    setItems(notes);
+  }, [notes]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    // useSensor(KeyboardSensor, {
+    //   coordinateGetter: sortableKeyboardCoordinates,
+    // }),
+  );
+
+  if (!items.length) return null;
+
+  const onDragStart = (event: DragStartEvent) => {
+    const activeQuestion = items.find((n) => n.id === event.active.id);
+    setActiveNote(activeQuestion || null);
+  };
+
+  const onDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveNote(null);
+
+    if (active.id !== over?.id) {
+      setItems((prev) => {
+        const oldIndex = prev.findIndex((v) => v.id === active.id);
+        const newIndex = prev.findIndex((v) => v.id === over?.id);
+        const updatedNotesOrder = arrayMove(prev, oldIndex, newIndex);
+        if (type === "pinned") {
+          reorderPinnedMutation.mutate(updatedNotesOrder.map((n) => n.id));
+        }
+        if (type === "unpinned") {
+          reorderUnpinnedMutation.mutate(updatedNotesOrder.map((n) => n.id));
+        }
+        return updatedNotesOrder;
+      });
+    }
+  };
+
+  const getNoteLabel = () => {
+    if (type === "pinned") return "Pinned Notes";
+    if (type === "unpinned") return "Notes";
+    if (type === "search") return "Search result";
+    return "Other";
+  };
+
+  const isDisabledReorder = disableReorder || items.length < 2;
+
+  return (
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroupContent>
+        <SidebarGroupLabel>{getNoteLabel()}</SidebarGroupLabel>
+        <SidebarMenu>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+          >
+            <SortableContext
+              items={items.map((n) => n.id)}
+              strategy={verticalListSortingStrategy}
+              disabled={isDisabledReorder}
+            >
+              {items.map((note) => (
+                <DraggableNoteItem
+                  key={note.id}
+                  note={note}
+                  isDisabledReorder={isDisabledReorder}
+                />
+              ))}
+            </SortableContext>
+            <DragOverlay>
+              {activeNote ? <NoteItem note={activeNote} isOverlay /> : null}
+            </DragOverlay>
+          </DndContext>
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
+  );
+}
+
+function DraggableNoteItem({
+  note,
+  isDisabledReorder,
+}: {
+  note: NoteSchemaType;
+  isDisabledReorder: boolean;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: note.id });
+
+  const style: React.CSSProperties = {
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
+    transition,
+    touchAction: "none", // for mobile devices
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      // do not allow keyboard focus
+      tabIndex={-1}
+    >
+      <NoteItem
+        note={note}
+        listeners={listeners}
+        isDragged={isDragging}
+        isDisabledReorder={isDisabledReorder}
+      />
+    </div>
+  );
+}
+
+function NoteItem({
+  note,
+  listeners,
+  isDragged,
+  isOverlay,
+  isDisabledReorder,
+}: {
+  note: NoteSchemaType;
+  listeners?: ReturnType<typeof useSortable>["listeners"];
+  isDragged?: boolean;
+  isOverlay?: boolean;
+  isDisabledReorder?: boolean;
+}) {
   return (
     <SidebarMenuItem
       key={note.id}
-      className="border-border grid grid-cols-[auto_1fr_auto] gap-1 rounded-lg border p-2"
+      className={cn(
+        "border-border bg-card grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto_auto] gap-1 rounded-lg border p-2",
+        isDragged && "bg-secondary *:opacity-0",
+        isOverlay && "cursor-grabbing opacity-75 *:pointer-events-none",
+      )}
     >
-      {/* TODO: reorder dnd */}
-      <Button size="icon" variant="ghost">
-        <GripVerticalIcon />
+      <Button
+        size="icon"
+        variant={isDisabledReorder ? "secondary" : "ghost"}
+        className="cursor-grab"
+        {...listeners}
+        disabled={isDisabledReorder}
+      >
+        <HandIcon />
         <span className="sr-only">Reorder</span>
       </Button>
 
-      {/* TODO: pin */}
-      <Button size="icon" variant="ghost">
-        <PinIcon />
-        <span className="sr-only">Pin</span>
-      </Button>
+      <NotePinAction note={note} />
 
+      <NoteActions note={note} />
+
+      <Separator className="col-span-full" />
+
+      <Button
+        asChild
+        variant="ghost"
+        className="col-span-full inline-grid h-auto justify-start gap-0 overflow-hidden px-2 whitespace-normal"
+      >
+        <Link to="/note/$noteId" params={{ noteId: note.id }}>
+          <p className="truncate text-lg font-semibold">{note.title}</p>
+          <p className="text-muted-foreground line-clamp-2 break-words">
+            {note.note}
+          </p>
+        </Link>
+      </Button>
+    </SidebarMenuItem>
+  );
+}
+
+function NotePinAction({ note }: { note: NoteSchemaType }) {
+  const pinMutation = usePinNote();
+  const unpinMutation = useUnpinNote();
+
+  if (note.isPinned) {
+    return (
+      <Button
+        size="icon"
+        variant="ghost"
+        onClick={() => unpinMutation.mutate(note.id)}
+      >
+        <PinOffIcon />
+        <span className="sr-only">Unpin</span>
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      size="icon"
+      variant="ghost"
+      onClick={() => pinMutation.mutate(note.id)}
+    >
+      <PinIcon />
+      <span className="sr-only">Pin</span>
+    </Button>
+  );
+}
+
+function NoteActions({ note }: { note: NoteSchemaType }) {
+  const { isMobile } = useSidebar();
+  const [targetAction, setTargetAction] = useState<"edit" | "delete" | null>(
+    null,
+  );
+
+  return (
+    <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="icon" variant="ghost">
@@ -241,7 +494,7 @@ function NoteItem({ note }: { note: NoteSchemaType }) {
           side={isMobile ? "bottom" : "right"}
           align={isMobile ? "end" : "start"}
         >
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTargetAction("edit")}>
             <PencilIcon className="text-muted-foreground" />
             <span>Edit Title</span>
           </DropdownMenuItem>
@@ -263,18 +516,53 @@ function NoteItem({ note }: { note: NoteSchemaType }) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Button
-        asChild
-        variant="secondary"
-        className="col-span-full inline-grid h-auto justify-start overflow-hidden px-2 whitespace-normal"
-      >
-        <Link to="/note/$noteId" params={{ noteId: note.id }}>
-          <p className="truncate text-base">{note.title}</p>
-          <p className="text-muted-foreground line-clamp-2 break-words">
-            {note.note}
-          </p>
-        </Link>
-      </Button>
-    </SidebarMenuItem>
+      <NoteEditTitle
+        note={note}
+        open={targetAction === "edit"}
+        onClose={() => setTargetAction(null)}
+      />
+    </>
+  );
+}
+
+function NoteEditTitle({
+  note,
+  open,
+  onClose,
+}: {
+  note: NoteSchemaType;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const updateMutation = useUpdateNote();
+  const [title, setTitle] = useState(note.title);
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    updateMutation.mutate(
+      { ...note, title },
+      {
+        onSuccess: () => {
+          toast.success("Note title updated");
+          onClose();
+        },
+      },
+    );
+  };
+
+  return (
+    <DrawerDialog title="Edit Title" open={open} setOpen={() => onClose()}>
+      <form onSubmit={onSubmit}>
+        <label htmlFor="noteTitle">Title</label>
+        <Input
+          id="noteTitle"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <Button>Update</Button>
+      </form>
+    </DrawerDialog>
   );
 }

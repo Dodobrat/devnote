@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import {
   infiniteQueryOptions,
+  keepPreviousData,
   queryOptions,
   useInfiniteQuery,
   useMutation,
@@ -36,6 +37,7 @@ export function pinnedNotesQueryOptions() {
       return lastPage.meta.cursor;
     },
     select: (data) => data.pages.flatMap((page) => page.data),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -56,6 +58,7 @@ export function unPinnedNotesQueryOptions() {
       return lastPage.meta.cursor;
     },
     select: (data) => data.pages.flatMap((page) => page.data),
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -86,6 +89,7 @@ export function searchNotesQueryOptions({ query }: { query: string }) {
       return LocalNotesAPI.search(query);
     },
     enabled: Boolean(query),
+    placeholderData: keepPreviousData,
   });
 }
 

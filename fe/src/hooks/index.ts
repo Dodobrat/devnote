@@ -40,8 +40,10 @@ export function useMediaQuery(query: string) {
 
     window
       .matchMedia(query)
-      .addEventListener("change", () =>
-        setMatches(window.matchMedia(query).matches),
+      .addEventListener(
+        "change",
+        () => setMatches(window.matchMedia(query).matches),
+        { signal: controller.signal },
       );
 
     return () => {
