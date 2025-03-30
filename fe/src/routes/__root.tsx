@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { InView } from "react-intersection-observer";
 import {
   closestCenter,
@@ -33,13 +33,11 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
-  ArrowUpRightIcon,
   EllipsisVerticalIcon,
   FilePlus2Icon,
   GitMergeIcon,
   HandIcon,
   LaptopMinimalIcon,
-  LinkIcon,
   MessageCircleQuestionIcon,
   MoonIcon,
   MoreHorizontalIcon,
@@ -53,8 +51,9 @@ import {
   WrenchIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { type ZodError } from "zod";
 
-import { DrawerDialog } from "~/components";
+import { ResponsiveConfirmation, ResponsiveDialog } from "~/components";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -95,6 +94,7 @@ import {
   pinnedNotesQueryOptions,
   searchNotesQueryOptions,
   unPinnedNotesQueryOptions,
+  useDeleteNote,
   usePinNote,
   useReorderPinnedNotes,
   useReorderUnpinnedNotes,
@@ -102,7 +102,7 @@ import {
   useUpdateNote,
 } from "~/hooks/query";
 import { cn } from "~/lib/utils";
-import { type NoteSchemaType } from "~/types/notes";
+import { type NoteSchemaType, titleSchema } from "~/types/notes";
 
 // TODO: close sidebar on navigation
 
@@ -555,9 +555,11 @@ function NotePinAction({ note }: { note: NoteSchemaType }) {
 
 function NoteActions({ note }: { note: NoteSchemaType }) {
   const { isMobile } = useSidebar();
-  const [targetAction, setTargetAction] = useState<"edit" | "delete" | null>(
-    null,
-  );
+
+  const deleteNoteMutation = useDeleteNote();
+
+  const [editTitleDialog, setEditTitleDialog] = useState(false);
+  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false);
 
   return (
     <>
@@ -572,76 +574,113 @@ function NoteActions({ note }: { note: NoteSchemaType }) {
           side={isMobile ? "bottom" : "right"}
           align={isMobile ? "end" : "start"}
         >
-          <DropdownMenuItem onClick={() => setTargetAction("edit")}>
+          <DropdownMenuItem onClick={() => setEditTitleDialog(true)}>
             <PencilIcon className="text-muted-foreground" />
             <span>Edit Title</span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          {/* <DropdownMenuSeparator /> */}
+          {/* <DropdownMenuItem>
             <LinkIcon className="text-muted-foreground" />
             <span>Copy Link</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
+          </DropdownMenuItem> */}
+          {/* <DropdownMenuItem>
             <ArrowUpRightIcon className="text-muted-foreground" />
             <span>Open in New Tab</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          {/* TODO: delete with confirmation */}
-          <DropdownMenuItem>
-            <Trash2Icon className="text-muted-foreground" />
+          </DropdownMenuItem> */}
+          {/* <DropdownMenuSeparator /> */}
+          <DropdownMenuItem onClick={() => setDeleteConfirmDialog(true)}>
+            <Trash2Icon className="text-destructive-foreground" />
             <span>Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <NoteEditTitle
-        note={note}
-        open={targetAction === "edit"}
-        onClose={() => setTargetAction(null)}
+      <ResponsiveDialog
+        labels={{
+          title: "Update note title",
+          desc: "Edit the title of your note so you can find it faster later.",
+          cancel: "Cancel",
+        }}
+        open={editTitleDialog}
+        onOpenChange={setEditTitleDialog}
+      >
+        <NoteEditTitleForm
+          note={note}
+          onSuccess={() => setEditTitleDialog(false)}
+        />
+      </ResponsiveDialog>
+
+      <ResponsiveConfirmation
+        open={deleteConfirmDialog}
+        onOpenChange={setDeleteConfirmDialog}
+        onContinue={() => deleteNoteMutation.mutate(note.id)}
+        labels={{
+          title: "Are you absolutely sure?",
+          desc: "This action cannot be undone. This will permanently delete your note.",
+          cancel: "Cancel",
+          continue: "Continue",
+        }}
       />
     </>
   );
 }
 
-function NoteEditTitle({
+function NoteEditTitleForm({
   note,
-  open,
-  onClose,
+  onSuccess,
 }: {
   note: NoteSchemaType;
-  open: boolean;
-  onClose: () => void;
+  onSuccess?: () => void;
 }) {
-  const updateMutation = useUpdateNote();
+  const updateNoteMutation = useUpdateNote();
+
   const [title, setTitle] = useState(note.title);
+  const [error, setError] = useState<ZodError<string> | null>(null);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const validate = useCallback(() => {
+    const result = titleSchema.safeParse(title);
+    if (!result.success) return setError(result.error);
+    return setError(null);
+  }, [title]);
 
-    updateMutation.mutate(
-      { ...note, title },
-      {
-        onSuccess: () => {
-          toast.success("Note title updated");
-          onClose();
-        },
-      },
-    );
-  };
+  useEffect(() => {
+    validate();
+  }, [validate]);
 
   return (
-    <DrawerDialog title="Edit Title" open={open} setOpen={() => onClose()}>
-      <form onSubmit={onSubmit}>
-        <label htmlFor="noteTitle">Title</label>
-        <Input
-          id="noteTitle"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <Button>Update</Button>
-      </form>
-    </DrawerDialog>
+    <form
+      className={cn("flex flex-col gap-4", "px-4 md:px-0")}
+      onSubmit={(e) => {
+        e.preventDefault();
+
+        if (error) return;
+
+        updateNoteMutation.mutate(
+          { id: note.id, title: title },
+          {
+            onSuccess: () => {
+              toast.success("Note title updated");
+              onSuccess?.();
+            },
+            onError: () => toast.error("Failed to update note title"),
+          },
+        );
+      }}
+    >
+      <Input
+        value={title}
+        onChange={({ target }) => setTitle(target.value)}
+        placeholder="Enter a note title"
+      />
+      {Boolean(error) && (
+        <small className="text-destructive -mt-2 block text-xs font-bold">
+          {error!.issues[0].message}
+        </small>
+      )}
+      <Button className="md:self-end" type="submit">
+        Update
+      </Button>
+    </form>
   );
 }
 

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { getCssVar } from "~/lib/utils";
+
 export function useDebounce<T>(value: T, delay = 500): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
@@ -52,4 +54,8 @@ export function useMediaQuery(query: string) {
   }, [query]);
 
   return matches;
+}
+
+export function useIsMobile() {
+  return !useMediaQuery(`(min-width:${getCssVar("--breakpoint-md")})`);
 }
