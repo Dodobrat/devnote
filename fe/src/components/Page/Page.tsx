@@ -1,11 +1,38 @@
+import { useEditorAutosave, useEditorContainedWidth } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
+import { Separator } from "../ui/separator";
+import { SidebarTrigger } from "../ui/sidebar";
+
 function PageBase({ children }: React.PropsWithChildren) {
-  return <div className={cn("")}>{children}</div>;
+  const [isContainedWidth] = useEditorContainedWidth();
+
+  return (
+    <div
+      className={cn("mx-auto w-full p-4", isContainedWidth && "max-w-prose")}
+    >
+      {children}
+    </div>
+  );
 }
 
-function PageTitle({ children }: React.PropsWithChildren) {
-  return <h1 className="mb-8 text-4xl lg:text-6xl">{children}</h1>;
+function PageHeader({ title }: { title?: string }) {
+  return (
+    <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
+      <SidebarTrigger variant="outline" />
+      <Separator
+        orientation="vertical"
+        className="data-[orientation=vertical]:h-6"
+      />
+      <div className="grid grow items-center">
+        {Boolean(title) && (
+          <p className="truncate text-3xl leading-tight font-extrabold">
+            {title}
+          </p>
+        )}
+      </div>
+    </header>
+  );
 }
 
 function PageSection({
@@ -24,9 +51,45 @@ function PageSection({
   );
 }
 
+function PageEditorHeader({
+  children,
+  title,
+}: React.PropsWithChildren<{ title?: string }>) {
+  const [autoSaveEnabled] = useEditorAutosave();
+  const isNewNote = !title;
+
+  return (
+    <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2 overflow-hidden">
+      <SidebarTrigger variant="outline" />
+      <Separator
+        orientation="vertical"
+        className="data-[orientation=vertical]:h-6"
+      />
+      <div className="grid grow grid-cols-[1fr_auto] items-center">
+        <div className="grid">
+          <p className="truncate text-lg leading-tight font-extrabold">
+            {title || "Untitled Note"}
+          </p>
+          {isNewNote && (
+            <small className="text-muted-foreground truncate leading-tight">
+              Autosave is disabled while creating a note
+            </small>
+          )}
+          {!isNewNote && (
+            <small className="text-muted-foreground truncate leading-tight">
+              Autosave is {autoSaveEnabled ? "enabled" : "disabled"}
+            </small>
+          )}
+        </div>
+        {children}
+      </div>
+    </header>
+  );
+}
+
 export const Page = Object.assign(PageBase, {
-  // Card: PageCard,
-  // Content: PageContent,
-  Title: PageTitle,
+  Header: PageHeader,
+  // Title: PageTitle,
   Section: PageSection,
+  EditorHeader: PageEditorHeader,
 });

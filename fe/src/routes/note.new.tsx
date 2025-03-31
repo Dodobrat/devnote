@@ -1,27 +1,33 @@
+import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Button } from "~/components/ui/button";
-import { useCreateNote } from "~/hooks/query";
+import { Page } from "~/components";
+import { Editor } from "~/components/Editor";
+import { useSaveNote } from "~/hooks/query";
+import { useEditorNote, useEditorWelcomeNote } from "~/hooks/store";
 
 export const Route = createFileRoute("/note/new")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const createNoteMutation = useCreateNote();
+  const [welcomeNote] = useEditorWelcomeNote();
+
+  const { setNote } = useEditorNote();
+  const saveNote = useSaveNote();
+
+  useEffect(() => {
+    if (!welcomeNote) return;
+    setNote(welcomeNote);
+  }, [setNote, welcomeNote]);
 
   return (
-    <div>
-      Hello "/note/new"!
-      <Button
-        onClick={() =>
-          createNoteMutation.mutate({
-            note: "Testvam note 4 with additional long text because I need to test the truncation",
-          })
-        }
-      >
-        Create
-      </Button>
-    </div>
+    <>
+      <Page.EditorHeader>
+        {/* <NotePinAction note={noteQuery.data} /> */}
+      </Page.EditorHeader>
+
+      <Editor saveNote={saveNote} />
+    </>
   );
 }

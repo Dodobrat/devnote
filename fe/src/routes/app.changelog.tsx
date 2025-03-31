@@ -9,13 +9,16 @@ export const Route = createFileRoute("/app/changelog")({
 
 function RouteComponent() {
   return (
-    <div>
-      <Page.Title>Changelog</Page.Title>
-
-      <div className="prose dark:prose-invert max-w-none text-pretty break-words hyphens-auto">
-        <Markdown options={{ enforceAtxHeadings: true }}>{CHANGELOG}</Markdown>
-      </div>
-    </div>
+    <>
+      <Page.Header title="Changelog" />
+      <Page>
+        <div className="prose dark:prose-invert max-w-none text-pretty break-words hyphens-auto **:first-of-type:[h2]:mt-0!">
+          <Markdown options={{ enforceAtxHeadings: true }}>
+            {CHANGELOG}
+          </Markdown>
+        </div>
+      </Page>
+    </>
   );
 }
 

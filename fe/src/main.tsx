@@ -31,6 +31,10 @@ declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
   }
+
+  interface HistoryState {
+    cursorPosition?: number;
+  }
 }
 
 // Render the app

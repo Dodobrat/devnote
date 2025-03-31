@@ -13,44 +13,45 @@ export const Route = createFileRoute("/app/settings")({
 
 function RouteComponent() {
   return (
-    <div>
-      <Page.Title>Settings</Page.Title>
+    <>
+      <Page.Header title="Settings" />
+      <Page>
+        <div className="grid gap-10">
+          <Page.Section
+            title="Theme"
+            description="Choose a theme that suits your preference"
+          >
+            <ThemeSwitch />
+          </Page.Section>
 
-      <div className="grid gap-10">
-        <Page.Section
-          title="Theme"
-          description="Choose a theme that suits your preference"
-        >
-          <ThemeSwitch />
-        </Page.Section>
+          <Page.Section
+            title="Autosave"
+            description="Automatically save your work as you type ( Unavailable while creating a note )"
+          >
+            <AutosaveToggle />
+          </Page.Section>
 
-        <Page.Section
-          title="Autosave"
-          description="Automatically save your work as you type ( Unavailable while creating a note )"
-        >
-          <AutosaveToggle />
-        </Page.Section>
+          <Page.Section
+            title="Contained width"
+            description="Contain the width of the preview for big screen devices ( ~ 65 characters )"
+          >
+            <ContainedWidthToggle />
+          </Page.Section>
 
-        <Page.Section
-          title="Contained width"
-          description="Contain the width of the preview for big screen devices ( ~ 65 characters )"
-        >
-          <ContainedWidthToggle />
-        </Page.Section>
-
-        <Page.Section
-          title="Welcome message"
-          description="Edit the message that appears when creating a new note"
-        >
-          <Button asChild>
-            <Link to="/note/welcome">
-              <PencilIcon className="mr-2 size-5" aria-hidden />
-              Edit Welcome Message
-            </Link>
-          </Button>
-        </Page.Section>
-      </div>
-    </div>
+          <Page.Section
+            title="Welcome message"
+            description="Edit the message that appears when creating a new note"
+          >
+            <Button asChild>
+              <Link to="/note/welcome">
+                <PencilIcon className="mr-2 size-5" aria-hidden />
+                Edit Welcome Message
+              </Link>
+            </Button>
+          </Page.Section>
+        </div>
+      </Page>
+    </>
   );
 }
 

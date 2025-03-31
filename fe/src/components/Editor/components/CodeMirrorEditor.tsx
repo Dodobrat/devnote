@@ -6,7 +6,7 @@ import { languages } from "@codemirror/language-data";
 import { selectSelectionMatches } from "@codemirror/search";
 import { type Command, keymap } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
-import { useLocation, useParams } from "@tanstack/react-router";
+import { useLocation } from "@tanstack/react-router";
 import {
   hyperLinkExtension,
   hyperLinkStyle,
@@ -101,10 +101,7 @@ export function CodeMirrorEditor({
 
   const location = useLocation();
 
-  const id = useParams({
-    from: "/note/$noteId",
-    select: ({ noteId }) => noteId,
-  });
+  // const editNoteParams = useParams({ from: "/note/$noteId" });
 
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const { note, setNote } = useEditorNote();
@@ -140,13 +137,13 @@ export function CodeMirrorEditor({
       onChange={(value) => {
         setNote(value);
 
-        if (id && shouldAutoSave) {
-          clearTimeout(autoSaveRef.current);
-          autoSaveRef.current = setTimeout(
-            () => saveNote(codeMirrorInstance),
-            AUTOSAVE_DELAY,
-          );
-        }
+        // if (editNoteParams.noteId && shouldAutoSave) {
+        //   clearTimeout(autoSaveRef.current);
+        //   autoSaveRef.current = setTimeout(
+        //     () => saveNote(codeMirrorInstance),
+        //     AUTOSAVE_DELAY,
+        //   );
+        // }
       }}
       theme={theme}
       basicSetup={{
@@ -160,7 +157,7 @@ export function CodeMirrorEditor({
       className={cn(
         "h-full text-base",
         "**:[.cm-editor]:h-full",
-        "**:[.cm-editor]:outline-none",
+        "**:[.cm-editor]:outline-none!",
         "**:[.cm-editor]:bg-transparent!",
         //
         "**:[.cm-scroller]:font-mono!",
@@ -182,6 +179,8 @@ export function CodeMirrorEditor({
       )}
       onCreateEditor={(editor) => {
         setCodeMirrorInstance(editor);
+
+        console.log({ locationState: location.state });
 
         // After creation of a new note and redirect to edit page,
         // return the cursor to the last known location

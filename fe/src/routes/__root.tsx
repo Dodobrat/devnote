@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { InView } from "react-intersection-observer";
 import {
   closestCenter,
@@ -30,10 +30,10 @@ import {
   createRootRouteWithContext,
   Link,
   Outlet,
+  useLocation,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
-  EllipsisVerticalIcon,
   FilePlus2Icon,
   GitMergeIcon,
   HandIcon,
@@ -41,19 +41,13 @@ import {
   MessageCircleQuestionIcon,
   MoonIcon,
   MoreHorizontalIcon,
-  PencilIcon,
-  PinIcon,
-  PinOffIcon,
   SearchIcon,
   SunIcon,
   TerminalIcon,
-  Trash2Icon,
   WrenchIcon,
 } from "lucide-react";
-import { toast } from "sonner";
-import { type ZodError } from "zod";
 
-import { ResponsiveConfirmation, ResponsiveDialog } from "~/components";
+import { NoteActions, NotePinAction } from "~/blocks";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
@@ -63,7 +57,6 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
 import {
   Sidebar,
@@ -92,15 +85,11 @@ import {
   pinnedNotesQueryOptions,
   searchNotesQueryOptions,
   unPinnedNotesQueryOptions,
-  useDeleteNote,
-  usePinNote,
   useReorderPinnedNotes,
   useReorderUnpinnedNotes,
-  useUnpinNote,
-  useUpdateNote,
 } from "~/hooks/query";
 import { cn } from "~/lib/utils";
-import { type NoteSchemaType, titleSchema } from "~/types/notes";
+import { type NoteSchemaType } from "~/types/notes";
 
 // TODO: close sidebar on navigation
 
@@ -138,8 +127,8 @@ function RootComponent() {
       </SidebarProvider>
 
       {/* DEV TOOLS */}
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools position="bottom-right" />
+      <ReactQueryDevtools buttonPosition="bottom-left" />
+      <TanStackRouterDevtools position="bottom-left" />
     </ThemeProvider>
   );
 }
@@ -194,6 +183,7 @@ function LogoAction() {
   );
 }
 
+// TODO: redesign
 function ThemeSwitchMinimal() {
   const { isMobile } = useSidebar();
   const { theme, setTheme } = useTheme();
@@ -237,8 +227,15 @@ function ThemeSwitchMinimal() {
 }
 
 function CreateNewNoteLink() {
+  const location = useLocation();
+  const isNewNotePage = location.pathname.includes("/note/new");
+
   return (
-    <SidebarMenuButton asChild tooltip="Create new note">
+    <SidebarMenuButton
+      asChild
+      isActive={isNewNotePage}
+      tooltip="Create new note"
+    >
       <Link to="/note/new">
         <FilePlus2Icon />
         <span>Create new note</span>
@@ -482,6 +479,11 @@ function NoteItem({
   isOverlay?: boolean;
   isDisabledReorder?: boolean;
 }) {
+  const { isMobile } = useSidebar();
+
+  const location = useLocation();
+  const isNotePage = location.pathname.includes(`/note/${note.id}`);
+
   return (
     <SidebarMenuItem
       key={note.id}
@@ -489,6 +491,7 @@ function NoteItem({
         "border-border bg-card grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto_auto] gap-1 rounded-md border p-2",
         isDragged && "bg-secondary *:opacity-0",
         isOverlay && "cursor-grabbing *:pointer-events-none",
+        isNotePage && "ring-offset-sidebar ring-primary ring ring-offset-2",
       )}
     >
       <Button
@@ -504,7 +507,11 @@ function NoteItem({
 
       <NotePinAction note={note} />
 
-      <NoteActions note={note} />
+      <NoteActions
+        note={note}
+        side={isMobile ? "bottom" : "right"}
+        align={isMobile ? "end" : "start"}
+      />
 
       <Separator className="col-span-full" />
 
@@ -521,166 +528,6 @@ function NoteItem({
         </Link>
       </Button>
     </SidebarMenuItem>
-  );
-}
-
-function NotePinAction({ note }: { note: NoteSchemaType }) {
-  const pinMutation = usePinNote();
-  const unpinMutation = useUnpinNote();
-
-  if (note.isPinned) {
-    return (
-      <Button
-        size="icon"
-        variant="ghost"
-        onClick={() => unpinMutation.mutate(note.id)}
-      >
-        <PinOffIcon />
-        <span className="sr-only">Unpin</span>
-      </Button>
-    );
-  }
-
-  return (
-    <Button
-      size="icon"
-      variant="ghost"
-      onClick={() => pinMutation.mutate(note.id)}
-    >
-      <PinIcon />
-      <span className="sr-only">Pin</span>
-    </Button>
-  );
-}
-
-function NoteActions({ note }: { note: NoteSchemaType }) {
-  const { isMobile } = useSidebar();
-
-  const deleteNoteMutation = useDeleteNote();
-
-  const [editTitleDialog, setEditTitleDialog] = useState(false);
-  const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false);
-
-  return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="icon" variant="ghost">
-            <EllipsisVerticalIcon />
-            <span className="sr-only">More</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          side={isMobile ? "bottom" : "right"}
-          align={isMobile ? "end" : "start"}
-        >
-          <DropdownMenuItem onClick={() => setEditTitleDialog(true)}>
-            <PencilIcon className="text-muted-foreground" />
-            <span>Edit Title</span>
-          </DropdownMenuItem>
-          {/* <DropdownMenuSeparator /> */}
-          {/* <DropdownMenuItem>
-            <LinkIcon className="text-muted-foreground" />
-            <span>Copy Link</span>
-          </DropdownMenuItem> */}
-          {/* <DropdownMenuItem>
-            <ArrowUpRightIcon className="text-muted-foreground" />
-            <span>Open in New Tab</span>
-          </DropdownMenuItem> */}
-          {/* <DropdownMenuSeparator /> */}
-          <DropdownMenuItem onClick={() => setDeleteConfirmDialog(true)}>
-            <Trash2Icon className="text-destructive-foreground" />
-            <span>Delete</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <ResponsiveDialog
-        labels={{
-          title: "Update note title",
-          desc: "Edit the title of your note so you can find it faster later.",
-          cancel: "Cancel",
-        }}
-        open={editTitleDialog}
-        onOpenChange={setEditTitleDialog}
-      >
-        <NoteEditTitleForm
-          note={note}
-          onSuccess={() => setEditTitleDialog(false)}
-        />
-      </ResponsiveDialog>
-
-      <ResponsiveConfirmation
-        open={deleteConfirmDialog}
-        onOpenChange={setDeleteConfirmDialog}
-        onContinue={() => deleteNoteMutation.mutate(note.id)}
-        labels={{
-          title: "Are you absolutely sure?",
-          desc: "This action cannot be undone. This will permanently delete your note.",
-          cancel: "Cancel",
-          continue: "Continue",
-        }}
-      />
-    </>
-  );
-}
-
-function NoteEditTitleForm({
-  note,
-  onSuccess,
-}: {
-  note: NoteSchemaType;
-  onSuccess?: () => void;
-}) {
-  const updateNoteMutation = useUpdateNote();
-
-  const [title, setTitle] = useState(note.title);
-  const [error, setError] = useState<ZodError<string> | null>(null);
-
-  const validate = useCallback(() => {
-    const result = titleSchema.safeParse(title);
-    if (!result.success) return setError(result.error);
-    return setError(null);
-  }, [title]);
-
-  useEffect(() => {
-    validate();
-  }, [validate]);
-
-  return (
-    <form
-      className={cn("flex flex-col gap-4", "px-4 md:px-0")}
-      onSubmit={(e) => {
-        e.preventDefault();
-
-        if (error) return;
-
-        updateNoteMutation.mutate(
-          { id: note.id, title: title },
-          {
-            onSuccess: () => {
-              toast.success("Note title updated");
-              onSuccess?.();
-            },
-            onError: () => toast.error("Failed to update note title"),
-          },
-        );
-      }}
-    >
-      <Input
-        value={title}
-        onChange={({ target }) => setTitle(target.value)}
-        placeholder="Enter a note title"
-      />
-      {Boolean(error) && (
-        <small className="text-destructive -mt-2 block text-xs font-bold">
-          {error!.issues[0].message}
-        </small>
-      )}
-      <Button className="md:self-end" type="submit">
-        Update
-      </Button>
-    </form>
   );
 }
 
