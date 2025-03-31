@@ -9,7 +9,10 @@ function PageBase({ children }: React.PropsWithChildren) {
 
   return (
     <div
-      className={cn("mx-auto w-full p-4", isContainedWidth && "max-w-prose")}
+      className={cn(
+        "mx-auto w-full max-w-full p-4 transition-[max-width]",
+        isContainedWidth && "max-w-prose",
+      )}
     >
       {children}
     </div>

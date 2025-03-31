@@ -24,7 +24,8 @@ function RouteComponent() {
   return (
     <>
       <Page.EditorHeader>
-        {/* <NotePinAction note={noteQuery.data} /> */}
+        {/* TODO: manual save button */}
+        {/* TODO: preview toggle */}
       </Page.EditorHeader>
 
       <Editor saveNote={saveNote} />

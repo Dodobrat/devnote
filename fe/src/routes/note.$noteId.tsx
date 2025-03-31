@@ -28,6 +28,7 @@ function RouteComponent() {
   const params = Route.useParams();
   const saveNote = useSaveNote({ id: params.noteId });
 
+  // TODO: show toast when redirected to last opened note
   // useEffect(() => {
   //   if (!location.state?.from) return;
   //   if (location.state.from === LAST_VISITED_ROUTE_STATE_KEY) {
@@ -54,6 +55,7 @@ function RouteComponent() {
     <>
       <Page.EditorHeader title={noteQuery.data?.title}>
         <div className="flex items-center gap-2">
+          {/* TODO: preview toggle */}
           <NotePinAction note={noteQuery.data} />
           <NoteActions note={noteQuery.data} align="end" />
         </div>

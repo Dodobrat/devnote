@@ -25,14 +25,12 @@ import {
   useQuery,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   Link,
   Outlet,
   useLocation,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
   FilePlus2Icon,
   GitMergeIcon,
@@ -92,6 +90,14 @@ import { cn } from "~/lib/utils";
 import { type NoteSchemaType } from "~/types/notes";
 
 // TODO: close sidebar on navigation
+// TODO: general styling of the whole app to be more vibrant / coder like. Maybe add some custom fonts
+// TODO: editor links to work only with external pages or known static pages in the app
+// TODO: toggle for note stats
+// TODO: make the markdown preview draggable and snap to a couple places + resizeable
+// TODO: translations
+// TODO: Add link to my GitHub page
+// TODO: PWA correct spacing
+// TODO: NICE TO HAVE is a synched scroll between the markdown preview and the editor ( also a toggle )
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
@@ -127,8 +133,8 @@ function RootComponent() {
       </SidebarProvider>
 
       {/* DEV TOOLS */}
-      <ReactQueryDevtools buttonPosition="bottom-left" />
-      <TanStackRouterDevtools position="bottom-left" />
+      {/* <ReactQueryDevtools buttonPosition="bottom-left" /> */}
+      {/* <TanStackRouterDevtools position="bottom-left" /> */}
     </ThemeProvider>
   );
 }
@@ -195,9 +201,11 @@ function ThemeSwitchMinimal() {
         className="size-12 group-data-[collapsible=icon]:hidden"
       >
         <Button variant="outline">
-          {theme === ThemeMode.Light && <SunIcon />}
-          {theme === ThemeMode.Dark && <MoonIcon />}
-          {theme === ThemeMode.System && <LaptopMinimalIcon />}
+          {theme === ThemeMode.Light && <SunIcon className="size-5" />}
+          {theme === ThemeMode.Dark && <MoonIcon className="size-5" />}
+          {theme === ThemeMode.System && (
+            <LaptopMinimalIcon className="size-5" />
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -489,9 +497,9 @@ function NoteItem({
       key={note.id}
       className={cn(
         "border-border bg-card grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto_auto] gap-1 rounded-md border p-2",
-        isDragged && "bg-secondary *:opacity-0",
-        isOverlay && "cursor-grabbing *:pointer-events-none",
         isNotePage && "ring-offset-sidebar ring-primary ring ring-offset-2",
+        isOverlay && "cursor-grabbing *:pointer-events-none",
+        isDragged && "bg-secondary ring-0 ring-offset-0 *:opacity-0",
       )}
     >
       <Button
