@@ -3,6 +3,8 @@ import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 
+import { NotFound } from "./components/NotFound";
+import { PageErrorBoundary } from "./components/PageErrorBoundary";
 import { Toaster } from "./components/ui/sonner";
 import reportWebVitals from "./reportWebVitals.ts";
 // Import the generated route tree
@@ -24,6 +26,8 @@ const router = createRouter({
   scrollRestoration: true,
   defaultStructuralSharing: true,
   defaultPreloadStaleTime: 0,
+  defaultErrorComponent: PageErrorBoundary,
+  defaultNotFoundComponent: NotFound,
 });
 
 // Register the router instance for type safety
@@ -34,6 +38,7 @@ declare module "@tanstack/react-router" {
 
   interface HistoryState {
     cursorPosition?: number;
+    redirectedToLastSavedNote?: string;
   }
 }
 

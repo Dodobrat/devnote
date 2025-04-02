@@ -8,7 +8,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { type EditorView } from "codemirror";
 import { toast } from "sonner";
 
@@ -185,7 +185,7 @@ export function useUnpinNote() {
 
 export function useDeleteNote() {
   const queryClient = useQueryClient();
-  const location = useLocation();
+  const routerState = useRouterState();
   const navigate = useNavigate();
 
   return useMutation({
@@ -200,7 +200,7 @@ export function useDeleteNote() {
       queryClient.refetchQueries({
         queryKey: notesQueryKeys.list(),
       });
-      if (location.pathname.includes(`/note/${payload}`)) {
+      if (routerState.location.pathname.startsWith(`/note/${payload}`)) {
         navigate({ to: "/note/new", replace: true });
       }
     },

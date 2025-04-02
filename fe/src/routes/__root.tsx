@@ -29,7 +29,7 @@ import {
   createRootRouteWithContext,
   Link,
   Outlet,
-  useLocation,
+  useRouterState,
 } from "@tanstack/react-router";
 import {
   FilePlus2Icon,
@@ -92,6 +92,7 @@ import { type NoteSchemaType } from "~/types/notes";
 // TODO: close sidebar on navigation
 // TODO: general styling of the whole app to be more vibrant / coder like. Maybe add some custom fonts
 // TODO: editor links to work only with external pages or known static pages in the app
+// TODO: command palette + keyboard shortcuts
 // TODO: toggle for note stats
 // TODO: make the markdown preview draggable and snap to a couple places + resizeable
 // TODO: translations
@@ -110,14 +111,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         unPinnedNotesQueryOptions(),
       );
       return { pinnedNotes, unPinnedNotes };
-    },
-    notFoundComponent: () => {
-      return (
-        <div>
-          <p>This is the notFoundComponent configured on root route</p>
-          <Link to="/">Start Over</Link>
-        </div>
-      );
     },
   },
 );
@@ -235,8 +228,8 @@ function ThemeSwitchMinimal() {
 }
 
 function CreateNewNoteLink() {
-  const location = useLocation();
-  const isNewNotePage = location.pathname.includes("/note/new");
+  const routerState = useRouterState();
+  const isNewNotePage = routerState.location.pathname.includes("/note/new");
 
   return (
     <SidebarMenuButton
@@ -489,8 +482,10 @@ function NoteItem({
 }) {
   const { isMobile } = useSidebar();
 
-  const location = useLocation();
-  const isNotePage = location.pathname.includes(`/note/${note.id}`);
+  const routerState = useRouterState();
+  const isNotePage = routerState.location.pathname.startsWith(
+    `/note/${note.id}`,
+  );
 
   return (
     <SidebarMenuItem

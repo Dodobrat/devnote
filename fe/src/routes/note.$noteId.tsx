@@ -1,63 +1,75 @@
 import { useEffect } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  redirect,
+  useRouterState,
+} from "@tanstack/react-router";
+import { toast } from "sonner";
 
 import { NoteActions, NotePinAction } from "~/blocks";
 import { Page } from "~/components";
 import { Editor } from "~/components/Editor";
+import { LAST_VISITED_ROUTE_STATE_KEY } from "~/constants";
 import { noteByIdQueryOptions, useSaveNote } from "~/hooks/query";
 import { useEditorNote, useLastOpenedNote } from "~/hooks/store";
 
 export const Route = createFileRoute("/note/$noteId")({
-  loader: ({ context: { queryClient }, params: { noteId } }) => {
-    return queryClient.ensureQueryData(noteByIdQueryOptions({ id: noteId }));
+  loader: async ({ context: { queryClient }, params: { noteId } }) => {
+    const note = await queryClient.ensureQueryData(
+      noteByIdQueryOptions({ id: noteId }),
+    );
+    // TODO: throw 404 if note not found
+    if (!note) {
+      throw redirect({ to: "/404", replace: true });
+    }
+
+    return note;
   },
   component: RouteComponent,
-  notFoundComponent: () => {
-    return <>NOT FOUND NOTE</>;
-  },
 });
 
 function RouteComponent() {
   const { noteId } = Route.useParams();
   const noteQuery = useSuspenseQuery(noteByIdQueryOptions({ id: noteId }));
+  const data = noteQuery.data!;
 
   const [, setLastOpenedNote] = useLastOpenedNote();
   const { setNote } = useEditorNote();
 
-  const params = Route.useParams();
-  const saveNote = useSaveNote({ id: params.noteId });
+  const saveNote = useSaveNote({ id: noteId });
 
-  // TODO: show toast when redirected to last opened note
-  // useEffect(() => {
-  //   if (!location.state?.from) return;
-  //   if (location.state.from === LAST_VISITED_ROUTE_STATE_KEY) {
-  //     toast("Navigated to last opened note", {
-  //       id: LAST_VISITED_ROUTE_STATE_KEY,
-  //     });
-  //   }
-  // }, [location.state]);
+  const navigate = Route.useNavigate();
+  const routerState = useRouterState();
+  const redirectedKey = routerState.location.state?.redirectedToLastSavedNote;
+
+  useEffect(() => {
+    if (!redirectedKey) return;
+    if (redirectedKey === LAST_VISITED_ROUTE_STATE_KEY) {
+      toast("Navigated to last opened note", {
+        id: LAST_VISITED_ROUTE_STATE_KEY,
+      });
+      // Remove state to prevent toast from showing on refresh
+      navigate({ state: {}, replace: true });
+    }
+  }, [redirectedKey, navigate]);
 
   useEffect(() => {
     setLastOpenedNote(noteId);
   }, [noteId, setLastOpenedNote]);
 
   useEffect(() => {
-    if (!noteQuery.data) return;
-    setNote(noteQuery.data.note);
-  }, [noteQuery.data, setNote]);
-
-  if (!noteQuery.data) {
-    return null;
-  }
+    if (!data) return;
+    setNote(data.note);
+  }, [data, setNote]);
 
   return (
     <>
-      <Page.EditorHeader title={noteQuery.data?.title}>
+      <Page.EditorHeader title={data.title}>
         <div className="flex items-center gap-2">
           {/* TODO: preview toggle */}
-          <NotePinAction note={noteQuery.data} />
-          <NoteActions note={noteQuery.data} align="end" />
+          <NotePinAction note={data} />
+          <NoteActions note={data} align="end" />
         </div>
       </Page.EditorHeader>
 

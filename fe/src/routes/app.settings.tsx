@@ -44,7 +44,7 @@ function RouteComponent() {
           >
             <Button asChild>
               <Link to="/note/welcome">
-                <PencilIcon className="mr-2 size-5" aria-hidden />
+                <PencilIcon aria-hidden />
                 Edit Welcome Message
               </Link>
             </Button>

@@ -1,4 +1,4 @@
-export const LAST_VISITED_ROUTE_STATE_KEY = "last-visited";
+export const LAST_VISITED_ROUTE_STATE_KEY = "devnote.restore-last";
 
 export const WELCOME_TEXT = `# Welcome to DevNote
 
@@ -37,7 +37,7 @@ const example = "Hello, World!";
 
 ## Getting Started
 
-1. Create a new note by saving the current note. 
+1. Create a new note by saving the current note.
 2. ...that's it!
 
 ## Shortcuts

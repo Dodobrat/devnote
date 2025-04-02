@@ -6,7 +6,7 @@ import { languages } from "@codemirror/language-data";
 import { selectSelectionMatches } from "@codemirror/search";
 import { type Command, keymap } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
-import { useLocation } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 import {
   hyperLinkExtension,
   hyperLinkStyle,
@@ -99,7 +99,7 @@ export function CodeMirrorEditor({
   const { codeMirrorInstance, setCodeMirrorInstance } = useCodeMirrorInstance();
   const { resolvedTheme } = useTheme();
 
-  const location = useLocation();
+  const routerState = useRouterState();
 
   // const editNoteParams = useParams({ from: "/note/$noteId" });
 
@@ -180,20 +180,17 @@ export function CodeMirrorEditor({
       onCreateEditor={(editor) => {
         setCodeMirrorInstance(editor);
 
-        console.log({ locationState: location.state });
-
         // After creation of a new note and redirect to edit page,
         // return the cursor to the last known location
-        if (location.state && "cursorPosition" in location.state) {
-          const cursorPosition = location.state.cursorPosition;
+        if (routerState.location.state?.cursorPosition) {
+          const cursorPosition = routerState.location.state.cursorPosition;
           if (typeof cursorPosition === "number") {
             setCurrentCursorPosition(editor, cursorPosition);
             editor.focus();
 
             // clear after navigate
             window.history.replaceState(null, "");
-            // TODO: is a workaround necessary?
-            // location.state = null;
+            routerState.location.state.cursorPosition = undefined;
           }
         } else {
           setCurrentCursorPosition(editor, 0);

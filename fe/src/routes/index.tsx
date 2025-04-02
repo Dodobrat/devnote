@@ -1,11 +1,23 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
+import { LAST_VISITED_ROUTE_STATE_KEY } from "~/constants";
+import { useLastOpenedNote } from "~/hooks/store";
+
 export const Route = createFileRoute("/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  // TODO: redirect to new note if no last visited saved
+  const [lastOpenedNote] = useLastOpenedNote();
 
-  return <Navigate to="/note/new" />;
+  if (!lastOpenedNote) return <Navigate to="/note/new" />;
+
+  return (
+    <Navigate
+      replace
+      state={{ redirectedToLastSavedNote: LAST_VISITED_ROUTE_STATE_KEY }}
+      to="/note/$noteId"
+      params={{ noteId: lastOpenedNote }}
+    />
+  );
 }
