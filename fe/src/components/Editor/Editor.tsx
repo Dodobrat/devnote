@@ -3,15 +3,19 @@ import { type EditorView } from "codemirror";
 
 import { CodeMirrorInstanceProvider, useCodeMirrorInstance } from "~/context";
 
+import { Page } from "../Page";
 import { CodeMirrorEditor } from "./components/CodeMirrorEditor";
 
-export function Editor({
-  saveNote,
-}: {
+type EditorProps = React.PropsWithChildren<{
+  title?: string;
   saveNote: (editor: EditorView | undefined) => void;
-}) {
+}>;
+
+export function Editor({ children, title, saveNote }: EditorProps) {
   return (
     <CodeMirrorInstanceProvider>
+      <Page.EditorHeader title={title}>{children}</Page.EditorHeader>
+
       <CodeMirrorEditor saveNote={saveNote} />
       <EditorFocusManager />
       {/* <EditorOutput /> */}

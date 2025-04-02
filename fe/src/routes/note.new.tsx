@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Page } from "~/components";
 import { Editor } from "~/components/Editor";
+import { SaveNoteButton } from "~/components/Editor/components/SaveNoteButton";
 import { useSaveNote } from "~/hooks/query";
 import { useEditorNote, useEditorWelcomeNote } from "~/hooks/store";
 
@@ -22,13 +22,9 @@ function RouteComponent() {
   }, [setNote, welcomeNote]);
 
   return (
-    <>
-      <Page.EditorHeader>
-        {/* TODO: manual save button */}
-        {/* TODO: preview toggle */}
-      </Page.EditorHeader>
-
-      <Editor saveNote={saveNote} />
-    </>
+    <Editor saveNote={saveNote}>
+      <SaveNoteButton saveNote={saveNote} />
+      {/* TODO: preview toggle */}
+    </Editor>
   );
 }

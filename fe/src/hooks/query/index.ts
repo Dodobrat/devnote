@@ -243,7 +243,6 @@ export function useReorderUnpinnedNotes() {
   });
 }
 
-// TODO: check if this should be split
 export function useSaveNote(noteData?: Pick<NoteSchemaType, "id">) {
   const navigate = useNavigate();
 

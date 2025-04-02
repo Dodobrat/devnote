@@ -8,8 +8,8 @@ import {
 import { toast } from "sonner";
 
 import { NoteActions, NotePinAction } from "~/blocks";
-import { Page } from "~/components";
 import { Editor } from "~/components/Editor";
+import { SaveNoteButton } from "~/components/Editor/components/SaveNoteButton";
 import { LAST_VISITED_ROUTE_STATE_KEY } from "~/constants";
 import { noteByIdQueryOptions, useSaveNote } from "~/hooks/query";
 import { useEditorNote, useLastOpenedNote } from "~/hooks/store";
@@ -64,16 +64,13 @@ function RouteComponent() {
   }, [data, setNote]);
 
   return (
-    <>
-      <Page.EditorHeader title={data.title}>
-        <div className="flex items-center gap-2">
-          {/* TODO: preview toggle */}
-          <NotePinAction note={data} />
-          <NoteActions note={data} align="end" />
-        </div>
-      </Page.EditorHeader>
-
-      <Editor saveNote={saveNote} />
-    </>
+    <Editor saveNote={saveNote} title={data.title}>
+      <div className="flex items-center gap-2">
+        {/* TODO: preview toggle */}
+        <SaveNoteButton note={data} saveNote={saveNote} />
+        <NotePinAction note={data} />
+        <NoteActions note={data} align="end" />
+      </div>
+    </Editor>
   );
 }

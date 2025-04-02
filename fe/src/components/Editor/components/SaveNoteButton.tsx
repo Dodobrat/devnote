@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useBlocker, useParams } from "@tanstack/react-router";
+import { useBlocker, useRouterState } from "@tanstack/react-router";
 import { type EditorView } from "codemirror";
 import { SaveIcon } from "lucide-react";
 
@@ -13,73 +13,50 @@ import {
 } from "~/components/ui/tooltip";
 import { saveCurrentNoteShortcut } from "~/constants/shortcuts";
 import { useCodeMirrorInstance } from "~/context";
-import { useNote } from "~/hooks/query";
 import {
-  useEditorAutosave,
   useEditorNote,
   useEditorNotePrevState,
   useEditorWelcomeNote,
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
+import { type NoteSchemaType } from "~/types/notes";
 
 export function SaveNoteButton({
   saveNote,
+  note,
 }: {
   saveNote: (editor: EditorView | undefined) => void;
+  note?: NoteSchemaType;
 }) {
-  const id = useParams({
-    from: "/note/$noteId",
-    select: ({ noteId }) => noteId,
-  });
-
-  const [autoSaveEnabled] = useEditorAutosave();
+  const routerState = useRouterState();
+  const matches = routerState.matches;
+  const editNoteRouteMatch = matches.find((m) => m.routeId === "/note/$noteId");
+  const id = editNoteRouteMatch?.params?.noteId;
 
   const { codeMirrorInstance } = useCodeMirrorInstance();
 
-  const { note } = useEditorNote();
-  const { data } = useNote(id || "");
+  const { note: noteValue } = useEditorNote();
 
   const [prevNote, setPrevNote] = useEditorNotePrevState();
   const [welcomeNote] = useEditorWelcomeNote();
 
   useEffect(() => {
-    if (!data?.note) return;
-    setPrevNote(data?.note);
-  }, [data?.note, setPrevNote]);
+    if (!note?.note) return;
+    setPrevNote(note?.note);
+  }, [note?.note, setPrevNote]);
 
-  const isDiff = note !== prevNote;
-  const isDirty = id ? isDiff : note !== welcomeNote;
+  const isDiff = noteValue !== prevNote;
+  const isDirty = id ? isDiff : noteValue !== welcomeNote;
 
   const blocker = useBlocker({
     shouldBlockFn: ({ current, next }) => {
-      return isDirty && current.fullPath !== next.fullPath;
+      return isDirty && current.pathname !== next.pathname;
     },
     withResolver: true,
   });
 
-  // TODO: verify this works
-  // useBeforeUnload(
-  //   useCallback(
-  //     (e) => {
-  //       if (!isDirty) return;
-  //       // if dirty, show browser confirm dialog
-  //       e.preventDefault();
-  //     },
-  //     [isDirty],
-  //   ),
-  // );
-
   return (
-    <div className="flex items-center justify-end gap-2">
-      {id ? (
-        <p className="hidden text-right leading-tight md:block">
-          Autosave {autoSaveEnabled ? <b>Enabled</b> : <b>Disabled</b>}
-        </p>
-      ) : (
-        <p className="hidden text-right leading-tight md:block">
-          Autosave is disabled while creating a note
-        </p>
-      )}
+    <>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -106,16 +83,6 @@ export function SaveNoteButton({
               {saveCurrentNoteShortcut}
             </CommandShortcutSnippet>
           </p>
-          <hr className="my-1 block md:hidden" />
-          {id ? (
-            <p className="block md:hidden">
-              Autosave {autoSaveEnabled ? <b>Enabled</b> : <b>Disabled</b>}
-            </p>
-          ) : (
-            <p className="block md:hidden">
-              Autosave is unavailable while creating a note
-            </p>
-          )}
         </TooltipContent>
       </Tooltip>
 
@@ -130,6 +97,6 @@ export function SaveNoteButton({
           continue: "Continue",
         }}
       />
-    </div>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Page } from "~/components";
 import { Editor } from "~/components/Editor";
 import { useEditorNote, useEditorWelcomeNote } from "~/hooks/store";
 
@@ -20,22 +19,19 @@ function RouteComponent() {
   }, [setNote, welcomeNote]);
 
   return (
-    <>
-      <Page.EditorHeader title="Welcome Message">
-        {/* TODO: autosave is always disabled */}
-        {/* TODO: reset button */}
-        {/* TODO: show confirmation on reset */}
-        {/* TODO: manual save button */}
-        {/* TODO: preview toggle */}
-      </Page.EditorHeader>
-
-      <Editor
-        saveNote={(editor) => {
-          if (!editor) return;
-          setWelcomeNote(editor.state.doc.toString());
-        }}
-      />
-    </>
+    <Editor
+      title="Welcome Message"
+      saveNote={(editor) => {
+        if (!editor) return;
+        setWelcomeNote(editor.state.doc.toString());
+      }}
+    >
+      {/* TODO: autosave is always disabled */}
+      {/* TODO: reset button */}
+      {/* TODO: show confirmation on reset */}
+      {/* TODO: manual save button */}
+      {/* TODO: preview toggle */}
+    </Editor>
   );
 }
 

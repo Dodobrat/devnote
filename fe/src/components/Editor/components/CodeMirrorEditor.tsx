@@ -100,8 +100,9 @@ export function CodeMirrorEditor({
   const { resolvedTheme } = useTheme();
 
   const routerState = useRouterState();
-
-  // const editNoteParams = useParams({ from: "/note/$noteId" });
+  const matches = routerState.matches;
+  const editNoteRouteMatch = matches.find((m) => m.routeId === "/note/$noteId");
+  const isEditing = Boolean(editNoteRouteMatch?.params?.noteId);
 
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const { note, setNote } = useEditorNote();
@@ -137,13 +138,13 @@ export function CodeMirrorEditor({
       onChange={(value) => {
         setNote(value);
 
-        // if (editNoteParams.noteId && shouldAutoSave) {
-        //   clearTimeout(autoSaveRef.current);
-        //   autoSaveRef.current = setTimeout(
-        //     () => saveNote(codeMirrorInstance),
-        //     AUTOSAVE_DELAY,
-        //   );
-        // }
+        if (isEditing && shouldAutoSave) {
+          clearTimeout(autoSaveRef.current);
+          autoSaveRef.current = setTimeout(
+            () => saveNote(codeMirrorInstance),
+            AUTOSAVE_DELAY,
+          );
+        }
       }}
       theme={theme}
       basicSetup={{
@@ -155,7 +156,7 @@ export function CodeMirrorEditor({
         lintKeymap: false,
       }}
       className={cn(
-        "h-full text-base",
+        "isolate h-full text-base",
         "**:[.cm-editor]:h-full",
         "**:[.cm-editor]:outline-none!",
         "**:[.cm-editor]:bg-transparent!",
