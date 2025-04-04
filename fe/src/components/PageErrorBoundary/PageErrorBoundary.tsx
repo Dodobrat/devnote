@@ -4,8 +4,8 @@ import { Page } from "../Page";
 import { Button } from "../ui/button";
 
 export function PageErrorBoundary(props: ErrorComponentProps) {
-  //TODO: log error
   console.log(props.error);
+  //TODO: log error
 
   return (
     <>

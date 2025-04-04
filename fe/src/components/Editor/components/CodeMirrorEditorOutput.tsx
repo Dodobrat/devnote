@@ -118,6 +118,7 @@ function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 type HLJS = Awaited<typeof import("highlight.js")>["default"];
 
 function Code(props: React.ComponentPropsWithoutRef<"code">) {

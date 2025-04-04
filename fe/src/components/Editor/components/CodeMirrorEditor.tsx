@@ -81,7 +81,8 @@ function keepSelectingLines(view: EditorView) {
 function createCustomHyperLinkExtension(): Extension {
   return [
     hyperLinkExtension({
-      regexp: /(?:https?:\/\/[^\s]+|(?<!<)(?!\/[/*])\/[^\s]+)/gi,
+      regexp:
+        /(?:https?:\/\/[^\s]+|\/(?:note\/(?:new|welcome|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})|app\/(?:help|changelog|settings)))/gi,
       handle: (value) => {
         const cleanedValue = value.trim().replace(/[.,;!?)'"\]]$/, "");
         return cleanedValue;

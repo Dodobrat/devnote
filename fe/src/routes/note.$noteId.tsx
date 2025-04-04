@@ -65,12 +65,9 @@ function RouteComponent() {
 
   return (
     <Editor saveNote={saveNote} title={data.title}>
-      <div className="flex items-center gap-2">
-        {/* TODO: preview toggle */}
-        <SaveNoteButton note={data} saveNote={saveNote} />
-        <NotePinAction note={data} />
-        <NoteActions note={data} align="end" />
-      </div>
+      <SaveNoteButton noteValue={data.note} saveNote={saveNote} />
+      <NotePinAction note={data} />
+      <NoteActions note={data} align="end" />
     </Editor>
   );
 }

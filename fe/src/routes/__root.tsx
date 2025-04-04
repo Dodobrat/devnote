@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { InView } from "react-intersection-observer";
 import {
   closestCenter,
@@ -32,34 +32,21 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 import {
-  FilePlus2Icon,
   GitMergeIcon,
   HandIcon,
-  LaptopMinimalIcon,
   MessageCircleQuestionIcon,
-  MoonIcon,
-  MoreHorizontalIcon,
+  PlusIcon,
   SearchIcon,
-  SunIcon,
   TerminalIcon,
   WrenchIcon,
 } from "lucide-react";
 
 import { NoteActions, NotePinAction } from "~/blocks";
 import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 import { Separator } from "~/components/ui/separator";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -71,14 +58,11 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarRail,
+  SidebarSeparator,
   useSidebar,
 } from "~/components/ui/sidebar";
-import {
-  ThemeMode,
-  type ThemeModeKey,
-  ThemeProvider,
-  useTheme,
-} from "~/context";
+import { Toaster } from "~/components/ui/sonner";
+import { ThemeProvider } from "~/context";
 import {
   pinnedNotesQueryOptions,
   searchNotesQueryOptions,
@@ -89,16 +73,19 @@ import {
 import { cn } from "~/lib/utils";
 import { type NoteSchemaType } from "~/types/notes";
 
-// TODO: close sidebar on navigation
-// TODO: general styling of the whole app to be more vibrant / coder like. Maybe add some custom fonts
-// TODO: editor links to work only with external pages or known static pages in the app
+// ORDERED BY PRIORITY
+// TODO: different link component depending on external link or internal
+// TODO: fix crop of focused buttons in page header
+// TODO: verify infinite scroll functionality ( add mocked delay )
 // TODO: command palette + keyboard shortcuts
-// TODO: toggle for note stats
-// TODO: make the markdown preview draggable and snap to a couple places + resizeable
+// TODO: show note character count
+// TODO: somehow reset preview size
+// TODO: offline / online toast
+// TODO: sidebar skip to content hidden link
+// TODO: tooltips everywhere
 // TODO: translations
-// TODO: Add link to my GitHub page
 // TODO: PWA correct spacing
-// TODO: NICE TO HAVE is a synched scroll between the markdown preview and the editor ( also a toggle )
+// TODO: general styling of the whole app to be more vibrant / coder like. Maybe add some custom fonts
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
@@ -125,6 +112,8 @@ function RootComponent() {
         </SidebarInset>
       </SidebarProvider>
 
+      <Toaster />
+
       {/* DEV TOOLS */}
       {/* <ReactQueryDevtools buttonPosition="bottom-left" /> */}
       {/* <TanStackRouterDevtools position="bottom-left" /> */}
@@ -141,21 +130,33 @@ function AppSidebar() {
       <SidebarHeader>
         <LogoAction />
         {/* TODO: install pwa button */}
-        <CreateNewNoteLink />
       </SidebarHeader>
-      <SidebarContent className="overflow-x-hidden">
+      <SidebarContent>
+        <AppLinks />
+        <SidebarSeparator className="mx-0" />
         <NotesContent />
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <MorePagesDropdownMenu />
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
       <SidebarRail />
+      <NavigationSidebarToggler />
     </Sidebar>
   );
+}
+
+function NavigationSidebarToggler() {
+  const routerState = useRouterState();
+  const pathRef = useRef(routerState.location.pathname);
+  const path = routerState.location.pathname;
+
+  const { setOpenMobile } = useSidebar();
+
+  useEffect(() => {
+    const currentPath = pathRef.current;
+    if (currentPath !== path) {
+      setOpenMobile(false);
+    }
+  }, [path, setOpenMobile]);
+
+  return null;
 }
 
 function LogoAction() {
@@ -165,9 +166,9 @@ function LogoAction() {
         <SidebarMenuButton
           size="lg"
           className="cursor-pointer"
-          tooltip="Command palette" // TODO: translate
-          // onClick={() => setCommandPaletteOpenState(true)} // TODO: add interactivity
-          onClick={() => console.log("CLICKED SIDEBAR LOGO")} // TODO: remove
+          tooltip="Command palette"
+          // onClick={() => setCommandPaletteOpenState(true)}
+          onClick={() => console.log("CLICKED SIDEBAR LOGO")}
         >
           <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-md">
             <TerminalIcon aria-hidden className="size-4 stroke-3" />
@@ -176,72 +177,89 @@ function LogoAction() {
             <span className="truncate font-bold">DevNote</span>
           </div>
         </SidebarMenuButton>
-        <ThemeSwitchMinimal />
+        <Button asChild variant="ghost" className="size-12">
+          {/* "https://github.com/Dodobrat/devnote" */}
+          <a href="https://github.com/Dodobrat" target="_blank">
+            <svg
+              role="img"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              className="size-6"
+            >
+              <title>GitHub</title>
+              <path
+                fill="currentColor"
+                d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+              />
+            </svg>
+            <span className="sr-only">GitHub Repository</span>
+          </a>
+        </Button>
       </SidebarMenuItem>
     </SidebarMenu>
   );
 }
 
-// TODO: redesign
-function ThemeSwitchMinimal() {
-  const { isMobile } = useSidebar();
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        asChild
-        className="size-12 group-data-[collapsible=icon]:hidden"
-      >
-        <Button variant="outline">
-          {theme === ThemeMode.Light && <SunIcon className="size-5" />}
-          {theme === ThemeMode.Dark && <MoonIcon className="size-5" />}
-          {theme === ThemeMode.System && (
-            <LaptopMinimalIcon className="size-5" />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        side={isMobile ? "bottom" : "right"}
-        align={isMobile ? "end" : "start"}
-      >
-        <DropdownMenuRadioGroup
-          value={theme}
-          onValueChange={(v) => setTheme(v as ThemeModeKey)}
-        >
-          <DropdownMenuRadioItem value={ThemeMode.Light}>
-            <SunIcon />
-            Light
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value={ThemeMode.Dark}>
-            <MoonIcon />
-            Dark
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value={ThemeMode.System}>
-            <LaptopMinimalIcon />
-            System
-          </DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-function CreateNewNoteLink() {
+function AppLinks() {
   const routerState = useRouterState();
-  const isNewNotePage = routerState.location.pathname.includes("/note/new");
 
   return (
-    <SidebarMenuButton
-      asChild
-      isActive={isNewNotePage}
-      tooltip="Create new note"
-    >
-      <Link to="/note/new">
-        <FilePlus2Icon />
-        <span>Create new note</span>
-      </Link>
-    </SidebarMenuButton>
+    <SidebarGroup>
+      <SidebarGroupContent>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={routerState.location.pathname.includes("/note/new")}
+              tooltip="Create new note"
+            >
+              <Link to="/note/new">
+                <PlusIcon />
+                <span>Create new note</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={routerState.location.pathname.includes("/app/help")}
+              tooltip="Help"
+            >
+              <Link to="/app/help">
+                <MessageCircleQuestionIcon />
+                Help
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={routerState.location.pathname.includes(
+                "/app/changelog",
+              )}
+              tooltip="Changelog"
+            >
+              <Link to="/app/changelog">
+                <GitMergeIcon />
+                Changelog
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={routerState.location.pathname.includes("/app/settings")}
+              tooltip="Changelog"
+            >
+              <Link to="/app/settings">
+                <WrenchIcon />
+                Settings
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarGroupContent>
+    </SidebarGroup>
   );
 }
 
@@ -257,7 +275,8 @@ function NotesContent() {
 
   return (
     <>
-      <SidebarGroup className="pb-0 group-data-[collapsible=icon]:hidden">
+      <SidebarGroup className="py-0 group-data-[collapsible=icon]:hidden">
+        <SidebarGroupLabel>Notes</SidebarGroupLabel>
         <SidebarGroupContent>
           <div className="relative">
             <label htmlFor="search" className="sr-only">
@@ -265,7 +284,7 @@ function NotesContent() {
             </label>
             <SidebarInput
               id="search"
-              placeholder="Search notes" // TODO: translate
+              placeholder="Search notes"
               className="pl-8"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -383,7 +402,7 @@ function NotesList({
 
   const getNoteLabel = () => {
     if (type === "pinned") return "Pinned Notes";
-    if (type === "unpinned") return "Notes";
+    if (type === "unpinned") return "Unpinned Notes";
     if (type === "search") return "Search result";
     return "Other";
   };
@@ -531,42 +550,5 @@ function NoteItem({
         </Link>
       </Button>
     </SidebarMenuItem>
-  );
-}
-
-function MorePagesDropdownMenu() {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <SidebarMenuButton tooltip="More pages">
-          <span className="group-data-[collapsible=icon]:hidden">More</span>
-          <MoreHorizontalIcon className="ml-auto" />
-        </SidebarMenuButton>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        className="w-(--radix-popper-anchor-width)"
-        side="top"
-        align="start"
-      >
-        <DropdownMenuItem asChild>
-          <Link to="/app/help">
-            <MessageCircleQuestionIcon />
-            Help
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/app/changelog">
-            <GitMergeIcon />
-            Changelog
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/app/settings">
-            <WrenchIcon />
-            Settings
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }

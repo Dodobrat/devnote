@@ -1,3 +1,5 @@
+import { useRouterState } from "@tanstack/react-router";
+
 import { useEditorAutosave, useEditorContainedWidth } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
@@ -58,8 +60,13 @@ function PageEditorHeader({
   children,
   title,
 }: React.PropsWithChildren<{ title?: string }>) {
+  const routerState = useRouterState();
+  const isNewNote = routerState.location.pathname.startsWith("/note/new");
+  const isWelcomeNote =
+    routerState.location.pathname.startsWith("/note/welcome");
+  const isUserNote = !isNewNote && !isWelcomeNote;
+
   const [autoSaveEnabled] = useEditorAutosave();
-  const isNewNote = !title;
 
   return (
     <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2 overflow-hidden">
@@ -78,7 +85,12 @@ function PageEditorHeader({
               Autosave is disabled while creating a note
             </small>
           )}
-          {!isNewNote && (
+          {isWelcomeNote && (
+            <small className="text-muted-foreground truncate leading-tight">
+              Autosave is disabled while editing welcome note
+            </small>
+          )}
+          {isUserNote && (
             <small className="text-muted-foreground truncate leading-tight">
               Autosave is {autoSaveEnabled ? "enabled" : "disabled"}
             </small>

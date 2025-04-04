@@ -24,7 +24,6 @@ function RouteComponent() {
   return (
     <Editor saveNote={saveNote}>
       <SaveNoteButton saveNote={saveNote} />
-      {/* TODO: preview toggle */}
     </Editor>
   );
 }

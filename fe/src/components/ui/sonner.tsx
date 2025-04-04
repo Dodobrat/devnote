@@ -1,14 +1,19 @@
-import { useTheme } from "next-themes";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
+import { useTheme } from "~/context";
+import { useIsMobile } from "~/hooks";
+
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { theme = "system" } = useTheme();
+  const { theme } = useTheme();
+  const isMobile = useIsMobile();
 
   return (
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
-      position="top-center"
+      position={isMobile ? "top-center" : "bottom-left"}
+      richColors
+      closeButton
       style={
         {
           "--normal-bg": "var(--popover)",

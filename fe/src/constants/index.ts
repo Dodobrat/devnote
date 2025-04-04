@@ -42,11 +42,11 @@ const example = "Hello, World!";
 
 ## Shortcuts
 
-Refer to the [Help](/help) page for a list of available shortcuts.
+Refer to the [Help](/app/help) page for a list of available shortcuts.
 
 ## Settings
 
-Customize your experience on the [Settings](/settings) page.
+Customize your experience on the [Settings](/app/settings) page.
 
 ## Futher reading
 

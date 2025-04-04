@@ -1,6 +1,10 @@
 import { useCallback, useState } from "react";
 import {
+  ArrowUpRightIcon,
+  CalendarClockIcon,
+  CalendarSyncIcon,
   EllipsisVerticalIcon,
+  LinkIcon,
   PencilIcon,
   PinIcon,
   PinOffIcon,
@@ -15,6 +19,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Input } from "~/components/ui/input";
@@ -24,7 +29,7 @@ import {
   useUnpinNote,
   useUpdateNote,
 } from "~/hooks/query";
-import { cn } from "~/lib/utils";
+import { cn, getPrettyDate } from "~/lib/utils";
 import { type NoteSchemaType, titleSchema } from "~/types/notes";
 
 export function NotePinAction({ note }: { note: NoteSchemaType }) {
@@ -79,21 +84,59 @@ export function NoteActions({
             <span className="sr-only">More</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side={side} align={align}>
+        <DropdownMenuContent side={side} align={align} className="min-w-56">
+          <div className="flex flex-col text-sm">
+            <div className="space-y-0.5 p-2">
+              <p className="text-muted-foreground flex items-center gap-2 leading-tight">
+                <CalendarClockIcon className="size-4" />
+                <span>Created at</span>
+              </p>
+              <p className="leading-tight">{getPrettyDate(note.createdAt)}</p>
+            </div>
+            {note.updatedAt && (
+              <div className="space-y-0.5 p-2">
+                <p className="text-muted-foreground flex items-center gap-2 leading-tight">
+                  <CalendarSyncIcon className="size-4" />
+                  <span>Updated at</span>
+                </p>
+                <p className="leading-tight">{getPrettyDate(note.updatedAt)}</p>
+              </div>
+            )}
+          </div>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setEditTitleDialog(true)}>
             <PencilIcon className="text-muted-foreground" />
             <span>Edit Title</span>
           </DropdownMenuItem>
-          {/* <DropdownMenuSeparator /> */}
-          {/* <DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => {
+              const fullNoteUrl = new URL(
+                `/note/${note.id}`,
+                window.location.origin,
+              ).toString();
+
+              window.navigator.clipboard
+                .writeText(fullNoteUrl)
+                .then(() => toast.success("Link copied to clipboard"))
+                .catch(() => toast.error("Failed to copy link"));
+            }}
+          >
             <LinkIcon className="text-muted-foreground" />
             <span>Copy Link</span>
-          </DropdownMenuItem> */}
-          {/* <DropdownMenuItem>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => {
+              window.open(
+                new URL(`/note/${note.id}`, window.location.origin),
+                "_blank",
+              );
+            }}
+          >
             <ArrowUpRightIcon className="text-muted-foreground" />
             <span>Open in New Tab</span>
-          </DropdownMenuItem> */}
-          {/* <DropdownMenuSeparator /> */}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setDeleteConfirmDialog(true)}>
             <Trash2Icon className="text-destructive-foreground" />
             <span>Delete</span>

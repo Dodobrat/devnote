@@ -5,8 +5,10 @@ import { atomWithStorage } from "jotai/utils";
 import { WELCOME_TEXT } from "~/constants";
 import { type ThemeModeKey } from "~/context";
 
-const storeKeys = {
+export const storeKeys = {
   theme: "devnote.theme",
+  editorLayout: "devnote.editor.layout",
+  editorShowPreview: "devnote.editor.showPreview",
   editorAutosave: "devnote.editor.autosave",
   editorLastOpenedNote: "devnote.editor.lastOpenedNote",
   editorWelcomeNote: "devnote.editor.note.welcome",
@@ -15,6 +17,10 @@ const storeKeys = {
 } as const;
 
 const themeAtom = atomWithStorage<ThemeModeKey>(storeKeys.theme, "system");
+const showEditorPreviewAtom = atomWithStorage(
+  storeKeys.editorShowPreview,
+  false,
+);
 const autosaveAtom = atomWithStorage(storeKeys.editorAutosave, true);
 const lastOpenedNoteAtom = atomWithStorage(storeKeys.editorLastOpenedNote, "");
 const welcomeNoteAtom = atomWithStorage(
@@ -47,6 +53,10 @@ export function useEditorNote() {
 
 export function useEditorNotePrevState() {
   return useAtom(notePrevStateAtom);
+}
+
+export function useShowEditorPreview() {
+  return useAtom(showEditorPreviewAtom);
 }
 
 export function useEditorAutosave() {

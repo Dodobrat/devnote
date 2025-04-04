@@ -5,7 +5,6 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 
 import { NotFound } from "./components/NotFound";
 import { PageErrorBoundary } from "./components/PageErrorBoundary";
-import { Toaster } from "./components/ui/sonner";
 import reportWebVitals from "./reportWebVitals.ts";
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -50,7 +49,6 @@ if (rootElement && !rootElement.innerHTML) {
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
-        <Toaster />
       </QueryClientProvider>
     </StrictMode>,
   );

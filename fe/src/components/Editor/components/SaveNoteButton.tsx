@@ -19,14 +19,13 @@ import {
   useEditorWelcomeNote,
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
-import { type NoteSchemaType } from "~/types/notes";
 
 export function SaveNoteButton({
   saveNote,
-  note,
+  noteValue,
 }: {
   saveNote: (editor: EditorView | undefined) => void;
-  note?: NoteSchemaType;
+  noteValue?: string;
 }) {
   const routerState = useRouterState();
   const matches = routerState.matches;
@@ -35,24 +34,23 @@ export function SaveNoteButton({
 
   const { codeMirrorInstance } = useCodeMirrorInstance();
 
-  const { note: noteValue } = useEditorNote();
+  const { note } = useEditorNote();
 
   const [prevNote, setPrevNote] = useEditorNotePrevState();
   const [welcomeNote] = useEditorWelcomeNote();
 
   useEffect(() => {
-    if (!note?.note) return;
-    setPrevNote(note?.note);
-  }, [note?.note, setPrevNote]);
+    if (!noteValue) return;
+    setPrevNote(noteValue);
+  }, [noteValue, setPrevNote]);
 
-  const isDiff = noteValue !== prevNote;
-  const isDirty = id ? isDiff : noteValue !== welcomeNote;
+  const isDiff = note !== prevNote;
+  const isDirty = id ? isDiff : note !== welcomeNote;
 
   const blocker = useBlocker({
-    shouldBlockFn: ({ current, next }) => {
-      return isDirty && current.pathname !== next.pathname;
-    },
+    shouldBlockFn: () => isDirty,
     withResolver: true,
+    disabled: !isDirty,
   });
 
   return (
