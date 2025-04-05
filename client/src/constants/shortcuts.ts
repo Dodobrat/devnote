@@ -30,6 +30,12 @@ export function getIsShowEditorPreviewKeyCombo(e: KeyboardEvent) {
   return (isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.code === "Period";
 }
 
+export const resetEditorPreviewSizeShortcut = `${getMetaKey()} + Shift + ,`;
+export function getIsResetEditorPreviewSizeKeyCombo(e: KeyboardEvent) {
+  const isMac = getIsAppleDevice();
+  return (isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.code === "Comma";
+}
+
 export const selectSelectionMatchesShortcut = `${getMetaKey()} + Shift + L`;
 export const addCursorAboveShortcut = `${getMetaKey()} + ${getAltKey()} + ArrowUp`;
 export const addCursorBelowShortcut = `${getMetaKey()} + ${getAltKey()} + ArrowDown`;

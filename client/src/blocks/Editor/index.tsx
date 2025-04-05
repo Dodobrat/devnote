@@ -19,7 +19,10 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { getIsShowEditorPreviewKeyCombo } from "~/constants/shortcuts";
+import {
+  getIsResetEditorPreviewSizeKeyCombo,
+  getIsShowEditorPreviewKeyCombo,
+} from "~/constants/shortcuts";
 import { useIsMobile, useKeyDownEvent } from "~/hooks";
 import { storeKeys, useShowEditorPreviewAtom } from "~/hooks/store";
 
@@ -50,6 +53,13 @@ export function Editor({ children, title, saveNote }: EditorProps) {
     if (getIsShowEditorPreviewKeyCombo(e)) {
       e.preventDefault();
       setShowEditorPreview((v) => !v);
+    }
+  });
+
+  useKeyDownEvent((e) => {
+    if (getIsResetEditorPreviewSizeKeyCombo(e)) {
+      e.preventDefault();
+      resetPanelSize();
     }
   });
 

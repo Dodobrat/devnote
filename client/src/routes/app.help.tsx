@@ -8,6 +8,7 @@ import {
   createNewNoteShortcut,
   openCommandPaletteBrowserShortcut,
   openCommandPaletteVSCodeShortcut,
+  resetEditorPreviewSizeShortcut,
   saveCurrentNoteShortcut,
   selectLineShortcut,
   selectSelectionMatchesShortcut,
@@ -62,6 +63,9 @@ function RouteComponent() {
               </ShortcutSnippet>
               <ShortcutSnippet shortcut={showEditorPreviewShortcut}>
                 Toggle editor preview
+              </ShortcutSnippet>
+              <ShortcutSnippet shortcut={resetEditorPreviewSizeShortcut}>
+                Reset editor preview panel size
               </ShortcutSnippet>
 
               <ShortcutSnippet shortcut={selectSelectionMatchesShortcut}>

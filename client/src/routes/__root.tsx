@@ -48,14 +48,12 @@ import {
 import { useCommandPaletteOpenAtom } from "~/hooks/store";
 
 // ORDERED BY PRIORITY
-// TODO: verify infinite scroll functionality ( add mocked delay )
-// TODO: upload note
-// TODO: show note character count
-// TODO: sidebar skip to content hidden link
 // TODO: tooltips everywhere
-// TODO: translations
+// TODO: upload note
+// TODO: sidebar skip to content hidden link
 // TODO: PWA correct spacing
 // TODO: add workspace suggestions
+// TODO: translations
 // TODO: general styling of the whole app to be more vibrant / coder like. Maybe add some custom fonts
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
