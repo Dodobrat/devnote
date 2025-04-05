@@ -46,10 +46,9 @@ import {
   unPinnedNotesQueryOptions,
 } from "~/hooks/query";
 import { useCommandPaletteOpenAtom } from "~/hooks/store";
+import { cn } from "~/lib/utils";
 
 // ORDERED BY PRIORITY
-// TODO: upload note
-// TODO: sidebar skip to content hidden link
 // TODO: PWA correct spacing
 // TODO: add workspace suggestions
 // TODO: translations
@@ -106,6 +105,9 @@ function RootComponent() {
 function AppSidebar() {
   return (
     <Sidebar variant="floating">
+      <HiddenSkipLink href="#sidebar-end">Go to content</HiddenSkipLink>
+      <div id="sidebar-start" />
+
       <SidebarHeader>
         <LogoAction />
       </SidebarHeader>
@@ -116,7 +118,32 @@ function AppSidebar() {
       </SidebarContent>
       <SidebarRail />
       <NavigationSidebarToggler />
+
+      <HiddenSkipLink href="#sidebar-start" className="bottom-2">
+        Go to start of navigation
+      </HiddenSkipLink>
+      <div id="sidebar-end" />
     </Sidebar>
+  );
+}
+
+function HiddenSkipLink(props: React.ComponentProps<"a">) {
+  return (
+    <a
+      {...props}
+      className={cn(
+        "text-background",
+        "bg-foreground",
+        "pointer-events-none",
+        "absolute",
+        "z-50",
+        "rounded-md",
+        "p-2",
+        "opacity-0",
+        "focus-visible:opacity-100",
+        props.className,
+      )}
+    />
   );
 }
 
@@ -149,11 +176,12 @@ function LogoAction() {
           onClick={() => setCommandPaletteOpen(true)}
         >
           <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-md">
-            <TerminalIcon aria-hidden className="size-4 stroke-3" />
+            <TerminalIcon className="size-4 stroke-3" />
           </div>
           <div className="grid flex-1 text-left text-2xl leading-tight">
             <span className="truncate font-bold">DevNote</span>
           </div>
+          <span className="sr-only">Open command palette</span>
         </SidebarMenuButton>
         <Button asChild variant="ghost" className="size-12">
           {/* "https://github.com/Dodobrat/devnote" */}

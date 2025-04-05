@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { InView } from "react-intersection-observer";
 import {
   closestCenter,
@@ -21,7 +21,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useQuery, useSuspenseInfiniteQuery } from "@tanstack/react-query";
+import {
+  useQuery,
+  useQueryClient,
+  useSuspenseInfiniteQuery,
+} from "@tanstack/react-query";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   ArrowUpRightIcon,
@@ -36,7 +40,9 @@ import {
   PinIcon,
   PinOffIcon,
   SearchIcon,
+  StickyNoteIcon,
   Trash2Icon,
+  UploadIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { type ZodError } from "zod";
@@ -72,9 +78,11 @@ import {
 } from "~/components/ui/tooltip";
 import { openCommandPaletteBrowserShortcut } from "~/constants/shortcuts";
 import {
+  notesQueryKeys,
   pinnedNotesQueryOptions,
   searchNotesQueryOptions,
   unPinnedNotesQueryOptions,
+  useCreateNote,
   useDeleteNote,
   usePinNote,
   useReorderPinnedNotes,
@@ -103,21 +111,25 @@ export function Notes() {
       <SidebarGroup className="py-0 group-data-[collapsible=icon]:hidden">
         <SidebarGroupLabel>Notes</SidebarGroupLabel>
         <SidebarGroupContent>
-          <div className="relative">
-            <label htmlFor="search" className="sr-only">
-              Search
-            </label>
-            <SidebarInput
-              id="search"
-              placeholder="Search notes"
-              className="pr-21 pl-8"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <SearchIcon className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
-            <CommandShortcutSnippet className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 select-none">
-              {openCommandPaletteBrowserShortcut}
-            </CommandShortcutSnippet>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <label htmlFor="search" className="sr-only">
+                Search
+              </label>
+              <SidebarInput
+                id="search"
+                placeholder="Search notes"
+                className="pr-21 pl-8"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              <SearchIcon className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
+              <CommandShortcutSnippet className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 select-none">
+                {openCommandPaletteBrowserShortcut}
+              </CommandShortcutSnippet>
+            </div>
+
+            <NotesUpload />
           </div>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -178,6 +190,124 @@ export function Notes() {
           </SidebarGroupContent>
         </SidebarGroup>
       )}
+    </>
+  );
+}
+
+type UploadedNote = {
+  filename: string;
+  note: string;
+};
+
+function NotesUpload() {
+  const queryClient = useQueryClient();
+  const createNoteMutation = useCreateNote();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [fileUploadStack, setFileUploadStack] = useState<UploadedNote[]>([]);
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+
+    if (!files) return;
+
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        const note = `<!-- ${file.name} -->
+
+${event.target?.result as string}`;
+
+        setFileUploadStack((v) => [...v, { note, filename: file.name }]);
+      };
+
+      reader.readAsText(file);
+    });
+  };
+
+  const createUploadedNotes = () => {
+    const promises = fileUploadStack.map((x) =>
+      createNoteMutation.mutateAsync({ note: x.note }),
+    );
+
+    Promise.allSettled(promises)
+      .then((results) => {
+        const failed = results.filter((p) => p.status === "rejected");
+        if (failed.length) {
+          toast.error(`${failed.length} notes failed to upload`);
+        }
+
+        const success = results.filter((p) => p.status === "fulfilled");
+        if (success.length) {
+          toast.success(`${success.length} notes uploaded`);
+        }
+      })
+      .finally(() => {
+        queryClient.refetchQueries({
+          queryKey: notesQueryKeys.unpinnedList(),
+        });
+
+        setFileUploadStack([]);
+      });
+  };
+
+  const isMultipleUploaded = fileUploadStack.length > 1;
+
+  return (
+    <>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <UploadIcon />
+            <span className="sr-only">Upload .md files</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Upload .md files</p>
+        </TooltipContent>
+      </Tooltip>
+
+      <input
+        type="file"
+        accept=".md"
+        multiple
+        onChange={onChange}
+        className="sr-only"
+        ref={fileInputRef}
+      />
+
+      <ResponsiveDialog
+        open={Boolean(fileUploadStack.length)}
+        onOpenChange={() => setFileUploadStack([])}
+        labels={{
+          cancel: "Cancel",
+          title: `Upload note${isMultipleUploaded ? "s" : ""}`,
+          desc: `Confirm uploaded note${isMultipleUploaded ? "s" : ""} creation`,
+        }}
+      >
+        <div className={cn("flex flex-col gap-4", "px-4 md:px-0")}>
+          <div className="grid divide-y overflow-hidden rounded-md border">
+            {fileUploadStack.map((x, index) => (
+              <div
+                key={index + x.filename}
+                className="flex items-start gap-2 overflow-hidden p-2"
+              >
+                <StickyNoteIcon className="mt-1 size-4 shrink-0" />
+                <p title={x.filename}>{x.filename}</p>
+              </div>
+            ))}
+          </div>
+          <Button className="md:self-end" onClick={createUploadedNotes}>
+            Create note{isMultipleUploaded && "s"}
+          </Button>
+        </div>
+      </ResponsiveDialog>
     </>
   );
 }
