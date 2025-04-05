@@ -20,6 +20,7 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useQuery, useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
@@ -88,6 +89,9 @@ export function Notes() {
   const [query, setQuery] = useState("");
 
   const searchedNotesQuery = useQuery(searchNotesQueryOptions({ query }));
+
+  const hasNoNotesYet =
+    pinnedNotesQuery.data.length + unPinnedNotesQuery.data.length === 0;
 
   return (
     <>
@@ -161,6 +165,14 @@ export function Notes() {
           )}
         </>
       )}
+
+      {!query && hasNoNotesYet && (
+        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+          <SidebarGroupContent>
+            <SidebarGroupLabel>No notes</SidebarGroupLabel>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      )}
     </>
   );
 }
@@ -232,19 +244,19 @@ function NotesList({
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupContent>
         <SidebarGroupLabel>{getNoteLabel()}</SidebarGroupLabel>
-        <SidebarMenu>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
-            modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+        >
+          <SortableContext
+            items={items.map((n) => n.id)}
+            strategy={verticalListSortingStrategy}
+            disabled={isDisabledReorder}
           >
-            <SortableContext
-              items={items.map((n) => n.id)}
-              strategy={verticalListSortingStrategy}
-              disabled={isDisabledReorder}
-            >
+            <SidebarMenu>
               {items.map((note) => (
                 <DraggableNoteItem
                   key={note.id}
@@ -252,12 +264,12 @@ function NotesList({
                   isDisabledReorder={isDisabledReorder}
                 />
               ))}
-            </SortableContext>
-            <DragOverlay>
-              {activeNote ? <NoteItem note={activeNote} isOverlay /> : null}
-            </DragOverlay>
-          </DndContext>
-        </SidebarMenu>
+            </SidebarMenu>
+          </SortableContext>
+          <DragOverlay>
+            {activeNote ? <NoteItem note={activeNote} isOverlay /> : null}
+          </DragOverlay>
+        </DndContext>
       </SidebarGroupContent>
     </SidebarGroup>
   );
@@ -280,28 +292,24 @@ function DraggableNoteItem({
   } = useSortable({ id: note.id });
 
   const style: React.CSSProperties = {
-    transform: transform
-      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
-      : undefined,
+    transform: CSS.Transform.toString(transform),
     transition,
     touchAction: "none", // for mobile devices
   };
 
   return (
-    <div
+    <NoteItem
+      note={note}
+      listeners={listeners}
+      isDragged={isDragging}
+      isDisabledReorder={isDisabledReorder}
       ref={setNodeRef}
       style={style}
       {...attributes}
+      role="listitem"
       // do not allow keyboard focus
       tabIndex={-1}
-    >
-      <NoteItem
-        note={note}
-        listeners={listeners}
-        isDragged={isDragging}
-        isDisabledReorder={isDisabledReorder}
-      />
-    </div>
+    />
   );
 }
 
@@ -311,7 +319,8 @@ function NoteItem({
   isDragged,
   isOverlay,
   isDisabledReorder,
-}: {
+  ...rest
+}: React.ComponentProps<typeof SidebarMenuItem> & {
   note: NoteSchemaType;
   listeners?: ReturnType<typeof useSortable>["listeners"];
   isDragged?: boolean;
@@ -327,13 +336,13 @@ function NoteItem({
 
   return (
     <SidebarMenuItem
-      key={note.id}
       className={cn(
         "border-border bg-card grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto_auto] gap-1 rounded-md border p-2",
         isNotePage && "ring-offset-sidebar ring-primary ring ring-offset-2",
         isOverlay && "cursor-grabbing *:pointer-events-none",
         isDragged && "bg-secondary ring-0 ring-offset-0 *:opacity-0",
       )}
+      {...rest}
     >
       <Button
         size="icon"
