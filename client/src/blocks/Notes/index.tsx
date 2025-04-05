@@ -65,6 +65,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "~/components/ui/sidebar";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { openCommandPaletteBrowserShortcut } from "~/constants/shortcuts";
 import {
   pinnedNotesQueryOptions,
@@ -344,16 +349,23 @@ function NoteItem({
       )}
       {...rest}
     >
-      <Button
-        size="icon"
-        variant={isDisabledReorder ? "secondary" : "ghost"}
-        className="cursor-grab"
-        {...listeners}
-        disabled={isDisabledReorder}
-      >
-        <HandIcon />
-        <span className="sr-only">Reorder</span>
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="icon"
+            variant={isDisabledReorder ? "secondary" : "ghost"}
+            className="cursor-grab"
+            {...listeners}
+            disabled={isDisabledReorder}
+          >
+            <HandIcon />
+            <span className="sr-only">Reorder</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Reorder</p>
+        </TooltipContent>
+      </Tooltip>
 
       <NotePinAction note={note} />
 
@@ -387,26 +399,40 @@ export function NotePinAction({ note }: { note: NoteSchemaType }) {
 
   if (note.isPinned) {
     return (
-      <Button
-        size="icon"
-        variant="ghost"
-        onClick={() => unpinMutation.mutate(note.id)}
-      >
-        <PinOffIcon />
-        <span className="sr-only">Unpin</span>
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => unpinMutation.mutate(note.id)}
+          >
+            <PinOffIcon />
+            <span className="sr-only">Unpin</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Unpin</p>
+        </TooltipContent>
+      </Tooltip>
     );
   }
 
   return (
-    <Button
-      size="icon"
-      variant="ghost"
-      onClick={() => pinMutation.mutate(note.id)}
-    >
-      <PinIcon />
-      <span className="sr-only">Pin</span>
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => pinMutation.mutate(note.id)}
+        >
+          <PinIcon />
+          <span className="sr-only">Pin</span>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Pin</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -427,12 +453,19 @@ export function NoteActions({
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button size="icon" variant="ghost">
-            <EllipsisVerticalIcon />
-            <span className="sr-only">More</span>
-          </Button>
-        </DropdownMenuTrigger>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <DropdownMenuTrigger asChild>
+              <Button size="icon" variant="ghost">
+                <EllipsisVerticalIcon />
+                <span className="sr-only">Note actions</span>
+              </Button>
+            </DropdownMenuTrigger>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Note actions</p>
+          </TooltipContent>
+        </Tooltip>
         <DropdownMenuContent side={side} align={align} className="min-w-56">
           <div className="flex flex-col text-sm">
             <div className="space-y-0.5 p-2">

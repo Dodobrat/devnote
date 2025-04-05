@@ -20,6 +20,11 @@ import {
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
+import {
   getIsResetEditorPreviewSizeKeyCombo,
   getIsShowEditorPreviewKeyCombo,
 } from "~/constants/shortcuts";
@@ -68,43 +73,75 @@ export function Editor({ children, title, saveNote }: EditorProps) {
       <Page.EditorHeader title={title}>
         <div className="flex items-center gap-2">
           {isMobile && (
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => setShowEditorPreview((v) => !v)}
-            >
-              {showEditorPreview ? <EyeOffIcon /> : <EyeIcon />}
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setShowEditorPreview((v) => !v)}
+                >
+                  {showEditorPreview ? <EyeOffIcon /> : <EyeIcon />}
+                  <span className="sr-only">Toggle editor preview</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Toggle editor preview</p>
+              </TooltipContent>
+            </Tooltip>
           )}
 
           {!isMobile && !showEditorPreview && (
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => setShowEditorPreview(true)}
-            >
-              <EyeIcon />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setShowEditorPreview(true)}
+                >
+                  <EyeIcon />
+                  <span className="sr-only">Toggle editor preview</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Toggle editor preview</p>
+              </TooltipContent>
+            </Tooltip>
           )}
 
           {!isMobile && showEditorPreview && (
             <div className="inline-flex items-center gap-1 rounded-lg border">
-              <Button
-                size="icon"
-                variant="ghost"
-                disabled={isEvenPanels}
-                onClick={resetPanelSize}
-              >
-                <Columns2Icon />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    disabled={isEvenPanels}
+                    onClick={resetPanelSize}
+                  >
+                    <Columns2Icon />
+                    <span className="sr-only">Reset preview size</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Reset preview size</p>
+                </TooltipContent>
+              </Tooltip>
               <div className="bg-border h-6 w-px" />
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setShowEditorPreview(false)}
-              >
-                <EyeOffIcon />
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => setShowEditorPreview(false)}
+                  >
+                    <EyeOffIcon />
+                    <span className="sr-only">Toggle editor preview</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Toggle editor preview</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           )}
 

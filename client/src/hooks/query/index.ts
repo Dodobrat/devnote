@@ -283,6 +283,7 @@ export function useSaveNote(noteData?: Pick<NoteSchemaType, "id">) {
               to: "/note/$noteId",
               params: { noteId: res.id },
               state: { cursorPosition },
+              ignoreBlocker: true,
             });
           },
         },

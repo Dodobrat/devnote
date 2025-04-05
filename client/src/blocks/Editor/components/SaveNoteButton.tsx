@@ -5,13 +5,11 @@ import { SaveIcon } from "lucide-react";
 
 import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
 import { Button } from "~/components/ui/button";
-import { CommandShortcutSnippet } from "~/components/ui/command";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { saveCurrentNoteShortcut } from "~/constants/shortcuts";
 import {
   useEditorNoteAtom,
   useEditorNotePrevStateAtom,
@@ -75,13 +73,8 @@ export function SaveNoteButton({
             <span className="sr-only">Save note</span>
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom">
-          <p>
-            Save note{" "}
-            <CommandShortcutSnippet>
-              {saveCurrentNoteShortcut}
-            </CommandShortcutSnippet>
-          </p>
+        <TooltipContent>
+          <p>Save note</p>
         </TooltipContent>
       </Tooltip>
 

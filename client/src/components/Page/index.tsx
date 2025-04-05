@@ -9,6 +9,7 @@ import { cn } from "~/lib/utils";
 
 import { Separator } from "../ui/separator";
 import { SidebarTrigger } from "../ui/sidebar";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 function PageBase({ children }: React.PropsWithChildren) {
   const [isContainedWidth] = useEditorContainedWidthAtom();
@@ -30,7 +31,14 @@ function PageHeader({ title }: { title?: string }) {
 
   return (
     <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
-      <SidebarTrigger variant="outline" />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <SidebarTrigger variant="outline" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Toggle sidebar</p>
+        </TooltipContent>
+      </Tooltip>
       <Separator
         orientation="vertical"
         className="data-[orientation=vertical]:h-6"
@@ -63,7 +71,14 @@ function PageEditorHeader({
 
   return (
     <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
-      <SidebarTrigger variant="outline" />
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <SidebarTrigger variant="outline" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Toggle sidebar</p>
+        </TooltipContent>
+      </Tooltip>
       <Separator
         orientation="vertical"
         className="data-[orientation=vertical]:h-6"

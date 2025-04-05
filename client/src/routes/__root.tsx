@@ -48,7 +48,6 @@ import {
 import { useCommandPaletteOpenAtom } from "~/hooks/store";
 
 // ORDERED BY PRIORITY
-// TODO: tooltips everywhere
 // TODO: upload note
 // TODO: sidebar skip to content hidden link
 // TODO: PWA correct spacing
