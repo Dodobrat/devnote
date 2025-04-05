@@ -13,7 +13,6 @@ export const storeKeys = {
   editorLastOpenedNote: "devnote.editor.lastOpenedNote",
   editorWelcomeNote: "devnote.editor.note.welcome",
   editorContainedWidth: "devnote.editor.containedWidth",
-  editorPreviewMode: "devnote.editor.preview.mode",
 } as const;
 
 const autosaveAtom = atomWithStorage(storeKeys.editorAutosave, true);
@@ -47,12 +46,6 @@ export function useEditorContainedWidthAtom() {
 const welcomeNoteAtom = atomWithStorage(storeKeys.editorWelcomeNote, WELCOME_TEXT);
 export function useEditorWelcomeNoteAtom() {
   return useAtom(welcomeNoteAtom);
-}
-
-// prettier-ignore
-const previewModeAtom = atomWithStorage<"editor" | "preview">(storeKeys.editorPreviewMode, "editor");
-export function useEditorPreviewModeAtom() {
-  return useAtom(previewModeAtom);
 }
 
 const noteAtom = atom("");

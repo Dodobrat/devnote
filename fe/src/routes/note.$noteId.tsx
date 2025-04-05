@@ -7,8 +7,8 @@ import {
 } from "@tanstack/react-router";
 import { toast } from "sonner";
 
-import { NoteActions, NotePinAction } from "~/blocks";
 import { Editor, SaveNoteButton } from "~/blocks/Editor";
+import { NoteActions, NotePinAction } from "~/blocks/Notes";
 import { LAST_VISITED_ROUTE_STATE_KEY } from "~/constants";
 import { noteByIdQueryOptions, useSaveNote } from "~/hooks/query";
 import { useEditorNoteAtom, useLastOpenedNoteAtom } from "~/hooks/store";

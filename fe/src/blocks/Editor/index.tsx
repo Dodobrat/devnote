@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { type ImperativePanelHandle } from "react-resizable-panels";
 import { type EditorView } from "codemirror";
-import { ViewIcon } from "lucide-react";
+import { Columns2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
 
 import { Page } from "~/components/Page";
 import { Button } from "~/components/ui/button";
@@ -8,7 +9,10 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
+  DrawerDescription,
   DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
 } from "~/components/ui/drawer";
 import {
   ResizableHandle,
@@ -32,18 +36,59 @@ const MIN_RESIZE_PANEL_SIZE = 20;
 export function Editor({ children, title, saveNote }: EditorProps) {
   const isMobile = useIsMobile();
   const [showEditorPreview, setShowEditorPreview] = useShowEditorPreviewAtom();
+  const editorResizePanelRef = useRef<ImperativePanelHandle>(null);
+  const [isEvenPanels, setIsEvenPanels] = useState(false);
+
+  const resetPanelSize = () => {
+    const panel = editorResizePanelRef.current;
+    if (!panel) return;
+    panel.resize(50);
+  };
 
   return (
     <CodeMirrorInstanceProvider>
       <Page.EditorHeader title={title}>
         <div className="flex items-center gap-2">
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => setShowEditorPreview((v) => !v)}
-          >
-            <ViewIcon />
-          </Button>
+          {isMobile && (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => setShowEditorPreview((v) => !v)}
+            >
+              {showEditorPreview ? <EyeOffIcon /> : <EyeIcon />}
+            </Button>
+          )}
+
+          {!isMobile && !showEditorPreview && (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => setShowEditorPreview(true)}
+            >
+              <EyeIcon />
+            </Button>
+          )}
+
+          {!isMobile && showEditorPreview && (
+            <div className="inline-flex items-center gap-1 rounded-lg border">
+              <Button
+                size="icon"
+                variant="ghost"
+                disabled={isEvenPanels}
+                onClick={resetPanelSize}
+              >
+                <Columns2Icon />
+              </Button>
+              <div className="bg-border h-6 w-px" />
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => setShowEditorPreview(false)}
+              >
+                <EyeOffIcon />
+              </Button>
+            </div>
+          )}
 
           {children}
         </div>
@@ -55,6 +100,10 @@ export function Editor({ children, title, saveNote }: EditorProps) {
           <EditorFocusManager />
 
           <Drawer open={showEditorPreview} onOpenChange={setShowEditorPreview}>
+            <DrawerHeader>
+              <DrawerTitle></DrawerTitle>
+              <DrawerDescription></DrawerDescription>
+            </DrawerHeader>
             <DrawerContent>
               <EditorOutput />
               <DrawerFooter>
@@ -71,8 +120,17 @@ export function Editor({ children, title, saveNote }: EditorProps) {
         <ResizablePanelGroup
           direction="horizontal"
           autoSaveId={storeKeys.editorLayout}
+          onLayout={([left, right]) => {
+            const isEven = Math.abs(left - right) < 1;
+            setIsEvenPanels(isEven);
+          }}
         >
-          <ResizablePanel id="editor" order={0} minSize={MIN_RESIZE_PANEL_SIZE}>
+          <ResizablePanel
+            id="editor"
+            order={0}
+            minSize={MIN_RESIZE_PANEL_SIZE}
+            ref={editorResizePanelRef}
+          >
             <CodeMirrorEditor saveNote={saveNote} />
             <EditorFocusManager />
           </ResizablePanel>
