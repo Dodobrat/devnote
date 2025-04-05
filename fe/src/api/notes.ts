@@ -1,7 +1,6 @@
 import { type DBSchema, openDB } from "idb";
 import { ZodError } from "zod";
 
-import { deriveTitle } from "~/lib/utils";
 import {
   noteSchema,
   type NoteSchemaType,
@@ -10,6 +9,8 @@ import {
   updateNoteSchema,
   type UpdateNoteSchemaType,
 } from "~/types/notes";
+
+// TODO: simplify
 
 const DEFAULT_PAGINATION_SLICE = 50;
 
@@ -65,6 +66,14 @@ const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
     store.createIndex("tags", "tags", { multiEntry: true });
   },
 });
+
+function deriveTitle(markdownContent: string) {
+  const lines = markdownContent.split("\n");
+  const firstLineWithWords = lines.find((line) => /\w+/.test(line)) || "";
+  const withoutHtmlTags = firstLineWithWords.replace(/<\/?[^>]+(>|$)/g, "");
+  const cleanTitle = withoutHtmlTags.replace(/[^\w\s]/g, "");
+  return cleanTitle.trim();
+}
 
 export const LocalNotesAPI = {
   // Create a new note

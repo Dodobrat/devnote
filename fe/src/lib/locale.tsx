@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import { webLocalStorage } from "./storage";
 
+// TODO: refactor with jotai
+
 function createLocaleStore<
   TLocaleKey extends string,
   TResourceStruct extends object,

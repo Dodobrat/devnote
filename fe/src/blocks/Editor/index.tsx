@@ -19,12 +19,13 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { CodeMirrorInstanceProvider, useCodeMirrorInstance } from "~/context";
-import { useIsMobile } from "~/hooks";
+import { getIsShowEditorPreviewKeyCombo } from "~/constants/shortcuts";
+import { useIsMobile, useKeyDownEvent } from "~/hooks";
 import { storeKeys, useShowEditorPreviewAtom } from "~/hooks/store";
 
 import { CodeMirrorEditor } from "./components/CodeMirrorEditor";
 import { EditorOutput } from "./components/CodeMirrorEditorOutput";
+import { CodeMirrorInstanceProvider, useCodeMirrorInstance } from "./context";
 
 type EditorProps = React.PropsWithChildren<{
   title?: string;
@@ -44,6 +45,13 @@ export function Editor({ children, title, saveNote }: EditorProps) {
     if (!panel) return;
     panel.resize(50);
   };
+
+  useKeyDownEvent((e) => {
+    if (getIsShowEditorPreviewKeyCombo(e)) {
+      e.preventDefault();
+      setShowEditorPreview((v) => !v);
+    }
+  });
 
   return (
     <CodeMirrorInstanceProvider>

@@ -1,16 +1,17 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { type QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
+  type FileRoutesByPath,
   Link,
   Outlet,
   useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
-  AppWindowMacIcon,
   GitMergeIcon,
+  type LucideIcon,
   MessageCircleQuestionIcon,
   PlusIcon,
   TerminalIcon,
@@ -19,6 +20,7 @@ import {
 
 import { CommandPalette } from "~/blocks/CommandPalette";
 import { Notes } from "~/blocks/Notes";
+import { InstallButton } from "~/blocks/PWA";
 import { Button } from "~/components/ui/button";
 import {
   Sidebar,
@@ -38,17 +40,16 @@ import {
 import { Toaster } from "~/components/ui/sonner";
 import { getIsCreateNewNoteKeyCombo } from "~/constants/shortcuts";
 import { ThemeProvider } from "~/context";
-import { useKeyDownEvent, useMediaQuery, useOnlineNotification } from "~/hooks";
+import { useKeyDownEvent, useOnlineNotification } from "~/hooks";
 import {
   pinnedNotesQueryOptions,
   unPinnedNotesQueryOptions,
 } from "~/hooks/query";
 import { useCommandPaletteOpenAtom } from "~/hooks/store";
-import { cn } from "~/lib/utils";
 
 // ORDERED BY PRIORITY
 // TODO: verify infinite scroll functionality ( add mocked delay )
-// TODO: update shortcuts docs
+// TODO: upload note
 // TODO: show note character count
 // TODO: sidebar skip to content hidden link
 // TODO: tooltips everywhere
@@ -148,7 +149,6 @@ function LogoAction() {
         <SidebarMenuButton
           size="lg"
           className="cursor-pointer"
-          tooltip="Command palette"
           onClick={() => setCommandPaletteOpen(true)}
         >
           <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-md">
@@ -181,83 +181,17 @@ function LogoAction() {
   );
 }
 
-function InstallButton() {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent>();
-  const [isInstalled, setIsInstalled] = useState(false);
-
-  const isDisplayStandalone = useMediaQuery("(display-mode: standalone)");
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    // Check if the app is already installed
-    const isNavigatorStandalone =
-      "standalone" in window.navigator &&
-      Boolean(window.navigator["standalone"]);
-
-    setIsInstalled(isDisplayStandalone || isNavigatorStandalone);
-
-    window.addEventListener(
-      "beforeinstallprompt",
-      (e) => {
-        e.preventDefault();
-        setDeferred(e);
-      },
-      { signal: controller.signal },
-    );
-
-    window.addEventListener(
-      "appinstalled",
-      () => {
-        setIsInstalled(true);
-      },
-      { signal: controller.signal },
-    );
-
-    return () => {
-      controller.abort();
-    };
-  }, [isDisplayStandalone]);
-
-  const handleInstallClick = async () => {
-    if (!deferred) return;
-
-    deferred.prompt();
-
-    const { outcome } = await deferred.userChoice;
-
-    if (outcome === "accepted") {
-      console.log("User accepted the install prompt");
-    }
-
-    if (outcome === "dismissed") {
-      console.log("User dismissed the install prompt");
-    }
-
-    setDeferred(undefined);
-  };
-
-  console.log("SHOW", { deferred, isInstalled, isDisplayStandalone });
-
-  if (!deferred || isInstalled) return null;
-
-  if (isDisplayStandalone) return null;
-
-  return (
-    <Button
-      variant="secondary"
-      className={cn(
-        "fixed bottom-4 left-1/2 -translate-x-1/2",
-        "max-w-[calc(100%_-_2rem)]",
-        "z-50",
-      )}
-      onClick={handleInstallClick}
-    >
-      <AppWindowMacIcon aria-hidden />
-      <span>Install the App</span>
-    </Button>
-  );
-}
+type SidebarPage = {
+  to: keyof FileRoutesByPath;
+  label: string;
+  icon: LucideIcon;
+};
+const pages: SidebarPage[] = [
+  { to: "/note/new", label: "Create new note", icon: PlusIcon },
+  { to: "/app/help", label: "Help", icon: MessageCircleQuestionIcon },
+  { to: "/app/changelog", label: "Changelog", icon: GitMergeIcon },
+  { to: "/app/settings", label: "Settings", icon: WrenchIcon },
+];
 
 function AppLinks() {
   const routerState = useRouterState();
@@ -266,56 +200,19 @@ function AppLinks() {
     <SidebarGroup>
       <SidebarGroupContent>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={routerState.location.pathname.includes("/note/new")}
-              tooltip="Create new note"
-            >
-              <Link to="/note/new">
-                <PlusIcon />
-                <span>Create new note</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={routerState.location.pathname.includes("/app/help")}
-              tooltip="Help"
-            >
-              <Link to="/app/help">
-                <MessageCircleQuestionIcon />
-                Help
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={routerState.location.pathname.includes(
-                "/app/changelog",
-              )}
-              tooltip="Changelog"
-            >
-              <Link to="/app/changelog">
-                <GitMergeIcon />
-                Changelog
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              isActive={routerState.location.pathname.includes("/app/settings")}
-              tooltip="Changelog"
-            >
-              <Link to="/app/settings">
-                <WrenchIcon />
-                Settings
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {pages.map(({ to, label, icon: Icon }) => (
+            <SidebarMenuItem key={to}>
+              <SidebarMenuButton
+                asChild
+                isActive={routerState.location.pathname.includes(to)}
+              >
+                <Link to={to}>
+                  <Icon />
+                  <span>{label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

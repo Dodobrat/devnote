@@ -12,13 +12,14 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { saveCurrentNoteShortcut } from "~/constants/shortcuts";
-import { useCodeMirrorInstance } from "~/context";
 import {
   useEditorNoteAtom,
   useEditorNotePrevStateAtom,
   useEditorWelcomeNoteAtom,
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
+
+import { useCodeMirrorInstance } from "../context";
 
 export function SaveNoteButton({
   saveNote,

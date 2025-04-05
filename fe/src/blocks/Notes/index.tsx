@@ -26,7 +26,9 @@ import {
   ArrowUpRightIcon,
   CalendarClockIcon,
   CalendarSyncIcon,
+  DownloadIcon,
   EllipsisVerticalIcon,
+  FileDigitIcon,
   HandIcon,
   LinkIcon,
   PencilIcon,
@@ -74,7 +76,7 @@ import {
   useUnpinNote,
   useUpdateNote,
 } from "~/hooks/query";
-import { cn, getPrettyDate } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 import { type NoteSchemaType, titleSchema } from "~/types/notes";
 
 export function Notes() {
@@ -440,6 +442,13 @@ export function NoteActions({
                 <p className="leading-tight">{getPrettyDate(note.updatedAt)}</p>
               </div>
             )}
+            <div className="space-y-0.5 p-2">
+              <p className="text-muted-foreground flex items-center gap-2 leading-tight">
+                <FileDigitIcon className="size-4" />
+                <span>Characters</span>
+              </p>
+              <p className="leading-tight">{note.note.length}</p>
+            </div>
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setEditTitleDialog(true)}>
@@ -447,32 +456,17 @@ export function NoteActions({
             <span>Edit Title</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => {
-              const fullNoteUrl = new URL(
-                `/note/${note.id}`,
-                window.location.origin,
-              ).toString();
-
-              window.navigator.clipboard
-                .writeText(fullNoteUrl)
-                .then(() => toast.success("Link copied to clipboard"))
-                .catch(() => toast.error("Failed to copy link"));
-            }}
-          >
+          <DropdownMenuItem onClick={copyNoteLink(note)}>
             <LinkIcon className="text-muted-foreground" />
             <span>Copy Link</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => {
-              window.open(
-                new URL(`/note/${note.id}`, window.location.origin),
-                "_blank",
-              );
-            }}
-          >
+          <DropdownMenuItem onClick={openNoteInNewTab(note)}>
             <ArrowUpRightIcon className="text-muted-foreground" />
             <span>Open in New Tab</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={downloadNote(note)}>
+            <DownloadIcon className="text-muted-foreground" />
+            <span>Download .md file</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setDeleteConfirmDialog(true)}>
@@ -510,6 +504,72 @@ export function NoteActions({
       />
     </>
   );
+}
+
+function copyNoteLink(note: NoteSchemaType) {
+  return () => {
+    const fullNoteUrl = new URL(
+      `/note/${note.id}`,
+      window.location.origin,
+    ).toString();
+
+    window.navigator.clipboard
+      .writeText(fullNoteUrl)
+      .then(() => toast.success("Link copied to clipboard"))
+      .catch(() => toast.error("Failed to copy link"));
+  };
+}
+
+function openNoteInNewTab(note: NoteSchemaType) {
+  return () => {
+    window.open(new URL(`/note/${note.id}`, window.location.origin), "_blank");
+  };
+}
+
+function downloadNote(note: NoteSchemaType) {
+  return () => {
+    const element = document.createElement("a");
+    element.setAttribute(
+      "href",
+      "data:text/plain;charset=utf-8," + encodeURIComponent(note.note),
+    );
+    element.setAttribute("download", `${note.id}.md`);
+
+    element.style.display = "none";
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  };
+}
+
+function getPrettyDate(date: Date) {
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(date);
+
+  const getPartValue = (type: string) => {
+    return parts.find((part) => part.type === type)?.value || "";
+  };
+
+  const day = getPartValue("day");
+  const month = getPartValue("month");
+  const year = getPartValue("year");
+  const hour = getPartValue("hour");
+  const minute = getPartValue("minute");
+  const second = getPartValue("second");
+
+  // "12 Mar 2025, 23:59:59"
+  return `${day} ${month} ${year}, ${hour}:${minute}:${second}`;
 }
 
 function NoteEditTitleForm({

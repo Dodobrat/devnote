@@ -11,7 +11,7 @@ import {
   saveCurrentNoteShortcut,
   selectLineShortcut,
   selectSelectionMatchesShortcut,
-  showPreviewShortcut,
+  showEditorPreviewShortcut,
 } from "~/constants/shortcuts";
 
 export const Route = createFileRoute("/app/help")({
@@ -60,8 +60,8 @@ function RouteComponent() {
               <ShortcutSnippet shortcut={saveCurrentNoteShortcut}>
                 Save your current note
               </ShortcutSnippet>
-              <ShortcutSnippet shortcut={showPreviewShortcut}>
-                Show preview view
+              <ShortcutSnippet shortcut={showEditorPreviewShortcut}>
+                Toggle editor preview
               </ShortcutSnippet>
 
               <ShortcutSnippet shortcut={selectSelectionMatchesShortcut}>
@@ -107,9 +107,10 @@ function RouteComponent() {
               NOTE: For new versions, you will see a pop-up, which will refresh
               the page and update the app.
             </FAQItem>
-            {/* <FAQItem question="Can I request a new feature?">
-              Yes, please create an issue on the project's GitHub repository.
-            </FAQItem> */}
+            <FAQItem question="Can I request a new feature?">
+              Yes, please create an issue on the project's GitHub repository or
+              fork the repo and refactor it anyway you want.
+            </FAQItem>
           </Page.Section>
         </div>
       </Page>

@@ -16,7 +16,7 @@ import CodeMirror, { type Extension } from "@uiw/react-codemirror";
 import { EditorView } from "codemirror";
 
 import { getIsSaveCurrentNoteKeyCombo } from "~/constants/shortcuts";
-import { ThemeMode, useCodeMirrorInstance, useTheme } from "~/context";
+import { ThemeMode, useTheme } from "~/context";
 import { useKeyDownEvent } from "~/hooks";
 import {
   useEditorAutosaveAtom,
@@ -24,6 +24,8 @@ import {
   useEditorNoteAtom,
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
+
+import { useCodeMirrorInstance } from "../context";
 
 const AUTOSAVE_DELAY = 500;
 

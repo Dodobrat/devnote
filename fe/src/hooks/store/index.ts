@@ -37,7 +37,7 @@ export function useShowEditorPreviewAtom() {
 }
 
 // prettier-ignore
-const containedWidthAtom = atomWithStorage(storeKeys.editorContainedWidth, false);
+const containedWidthAtom = atomWithStorage(storeKeys.editorContainedWidth, true);
 export function useEditorContainedWidthAtom() {
   return useAtom(containedWidthAtom);
 }

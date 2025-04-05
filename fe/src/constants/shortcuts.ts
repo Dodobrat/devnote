@@ -24,8 +24,8 @@ export function getIsCreateNewNoteKeyCombo(e: KeyboardEvent) {
   return (isMac ? e.metaKey : e.ctrlKey) && e.key === "Enter";
 }
 
-export const showPreviewShortcut = `${getMetaKey()} + Shift + .`;
-export function getIsShowPreviewKeyCombo(e: KeyboardEvent) {
+export const showEditorPreviewShortcut = `${getMetaKey()} + Shift + .`;
+export function getIsShowEditorPreviewKeyCombo(e: KeyboardEvent) {
   const isMac = getIsAppleDevice();
   return (isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.code === "Period";
 }
