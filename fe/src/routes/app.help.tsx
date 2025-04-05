@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Page } from "~/components";
+import { Page } from "~/components/Page";
 import { CommandShortcutSnippet } from "~/components/ui/command";
 import {
   addCursorAboveShortcut,
@@ -11,9 +11,7 @@ import {
   saveCurrentNoteShortcut,
   selectLineShortcut,
   selectSelectionMatchesShortcut,
-  showEditorShortcut,
   showPreviewShortcut,
-  toggleSidebarShortcut,
 } from "~/constants/shortcuts";
 
 export const Route = createFileRoute("/app/help")({
@@ -47,9 +45,6 @@ function RouteComponent() {
               <ShortcutSnippet shortcut={createNewNoteShortcut}>
                 Create a new note
               </ShortcutSnippet>
-              <ShortcutSnippet shortcut={toggleSidebarShortcut}>
-                Toggle the sidebar state
-              </ShortcutSnippet>
               <ShortcutSnippet
                 shortcut={[
                   openCommandPaletteBrowserShortcut,
@@ -64,9 +59,6 @@ function RouteComponent() {
               </h3>
               <ShortcutSnippet shortcut={saveCurrentNoteShortcut}>
                 Save your current note
-              </ShortcutSnippet>
-              <ShortcutSnippet shortcut={showEditorShortcut}>
-                Show editor view
               </ShortcutSnippet>
               <ShortcutSnippet shortcut={showPreviewShortcut}>
                 Show preview view

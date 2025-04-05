@@ -8,8 +8,7 @@ import {
 import { toast } from "sonner";
 
 import { NoteActions, NotePinAction } from "~/blocks";
-import { Editor } from "~/components/Editor";
-import { SaveNoteButton } from "~/components/Editor/components/SaveNoteButton";
+import { Editor, SaveNoteButton } from "~/blocks/Editor";
 import { LAST_VISITED_ROUTE_STATE_KEY } from "~/constants";
 import { noteByIdQueryOptions, useSaveNote } from "~/hooks/query";
 import { useEditorNote, useLastOpenedNote } from "~/hooks/store";

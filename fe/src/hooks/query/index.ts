@@ -13,7 +13,7 @@ import { type EditorView } from "codemirror";
 import { toast } from "sonner";
 
 import { LocalNotesAPI } from "~/api";
-import { getCurrentCursorPosition } from "~/components/Editor/components/CodeMirrorEditor";
+import { getCurrentCursorPosition } from "~/blocks/Editor/components/CodeMirrorEditor";
 import { type NoteSchemaType, type UpdateNoteSchemaType } from "~/types/notes";
 
 import { useEditorNotePrevState } from "../store";

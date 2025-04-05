@@ -25,13 +25,16 @@ import {
   useQuery,
   useSuspenseInfiniteQuery,
 } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import {
   createRootRouteWithContext,
   Link,
   Outlet,
   useRouterState,
 } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
+  AppWindowMacIcon,
   GitMergeIcon,
   HandIcon,
   MessageCircleQuestionIcon,
@@ -62,7 +65,9 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
+import { getIsCreateNewNoteKeyCombo } from "~/constants/shortcuts";
 import { ThemeProvider } from "~/context";
+import { useKeyDownEvent, useMediaQuery, useOnlineNotification } from "~/hooks";
 import {
   pinnedNotesQueryOptions,
   searchNotesQueryOptions,
@@ -74,13 +79,11 @@ import { cn } from "~/lib/utils";
 import { type NoteSchemaType } from "~/types/notes";
 
 // ORDERED BY PRIORITY
-// TODO: different link component depending on external link or internal
-// TODO: fix crop of focused buttons in page header
 // TODO: verify infinite scroll functionality ( add mocked delay )
 // TODO: command palette + keyboard shortcuts
+// TODO: update shortcuts docs
 // TODO: show note character count
 // TODO: somehow reset preview size
-// TODO: offline / online toast
 // TODO: sidebar skip to content hidden link
 // TODO: tooltips everywhere
 // TODO: translations
@@ -103,8 +106,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 );
 
 function RootComponent() {
+  useOnlineNotification();
+
+  const navigate = Route.useNavigate();
+  useKeyDownEvent((e) => {
+    if (getIsCreateNewNoteKeyCombo(e)) {
+      e.preventDefault();
+      navigate({ to: "/note/new" });
+    }
+  });
+
   return (
     <ThemeProvider>
+      <InstallButton />
+
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -115,21 +130,17 @@ function RootComponent() {
       <Toaster />
 
       {/* DEV TOOLS */}
-      {/* <ReactQueryDevtools buttonPosition="bottom-left" /> */}
-      {/* <TanStackRouterDevtools position="bottom-left" /> */}
+      <ReactQueryDevtools buttonPosition="bottom-right" />
+      <TanStackRouterDevtools position="bottom-left" />
     </ThemeProvider>
   );
 }
 
 function AppSidebar() {
   return (
-    <Sidebar
-      variant="floating"
-      // collapsible="icon"
-    >
+    <Sidebar variant="floating">
       <SidebarHeader>
         <LogoAction />
-        {/* TODO: install pwa button */}
       </SidebarHeader>
       <SidebarContent>
         <AppLinks />
@@ -197,6 +208,84 @@ function LogoAction() {
         </Button>
       </SidebarMenuItem>
     </SidebarMenu>
+  );
+}
+
+function InstallButton() {
+  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent>();
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  const isDisplayStandalone = useMediaQuery("(display-mode: standalone)");
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    // Check if the app is already installed
+    const isNavigatorStandalone =
+      "standalone" in window.navigator &&
+      Boolean(window.navigator["standalone"]);
+
+    setIsInstalled(isDisplayStandalone || isNavigatorStandalone);
+
+    window.addEventListener(
+      "beforeinstallprompt",
+      (e) => {
+        e.preventDefault();
+        setDeferred(e);
+      },
+      { signal: controller.signal },
+    );
+
+    window.addEventListener(
+      "appinstalled",
+      () => {
+        setIsInstalled(true);
+      },
+      { signal: controller.signal },
+    );
+
+    return () => {
+      controller.abort();
+    };
+  }, [isDisplayStandalone]);
+
+  const handleInstallClick = async () => {
+    if (!deferred) return;
+
+    deferred.prompt();
+
+    const { outcome } = await deferred.userChoice;
+
+    if (outcome === "accepted") {
+      console.log("User accepted the install prompt");
+    }
+
+    if (outcome === "dismissed") {
+      console.log("User dismissed the install prompt");
+    }
+
+    setDeferred(undefined);
+  };
+
+  console.log("SHOW", { deferred, isInstalled, isDisplayStandalone });
+
+  if (!deferred || isInstalled) return null;
+
+  if (isDisplayStandalone) return null;
+
+  return (
+    <Button
+      variant="secondary"
+      className={cn(
+        "fixed bottom-4 left-1/2 -translate-x-1/2",
+        "max-w-[calc(100%_-_2rem)]",
+        "z-50",
+      )}
+      onClick={handleInstallClick}
+    >
+      <AppWindowMacIcon aria-hidden />
+      <span>Install the App</span>
+    </Button>
   );
 }
 

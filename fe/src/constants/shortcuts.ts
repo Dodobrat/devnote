@@ -1,11 +1,5 @@
 import { getAltKey, getIsAppleDevice, getMetaKey } from "~/lib/utils";
 
-export const toggleSidebarShortcut = `${getMetaKey()} + B`;
-export function getIsToggleSidebarKeyCombo(e: KeyboardEvent) {
-  const isMac = getIsAppleDevice();
-  return (isMac ? e.metaKey : e.ctrlKey) && e.code === "KeyB";
-}
-
 export const openCommandPaletteVSCodeShortcut = `${getMetaKey()} + Shift + P`;
 export function getIsOpenCommandPaletteVSCodeKeyCombo(e: KeyboardEvent) {
   const isMac = getIsAppleDevice();
@@ -28,12 +22,6 @@ export const createNewNoteShortcut = `${getMetaKey()} + Enter`;
 export function getIsCreateNewNoteKeyCombo(e: KeyboardEvent) {
   const isMac = getIsAppleDevice();
   return (isMac ? e.metaKey : e.ctrlKey) && e.key === "Enter";
-}
-
-export const showEditorShortcut = `${getMetaKey()} + Shift + ,`;
-export function getIsShowEditorKeyCombo(e: KeyboardEvent) {
-  const isMac = getIsAppleDevice();
-  return (isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.code === "Comma";
 }
 
 export const showPreviewShortcut = `${getMetaKey()} + Shift + .`;

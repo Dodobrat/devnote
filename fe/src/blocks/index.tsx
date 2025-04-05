@@ -13,7 +13,10 @@ import {
 import { toast } from "sonner";
 import { type ZodError } from "zod";
 
-import { ResponsiveConfirmation, ResponsiveDialog } from "~/components";
+import {
+  ResponsiveConfirmation,
+  ResponsiveDialog,
+} from "~/components/ResponsiveDialog";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,

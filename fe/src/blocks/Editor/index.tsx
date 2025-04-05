@@ -2,18 +2,23 @@ import { useEffect } from "react";
 import { type EditorView } from "codemirror";
 import { ViewIcon } from "lucide-react";
 
-import { CodeMirrorInstanceProvider, useCodeMirrorInstance } from "~/context";
-import { useIsMobile } from "~/hooks";
-import { storeKeys, useShowEditorPreview } from "~/hooks/store";
-
-import { Page } from "../Page";
-import { Button } from "../ui/button";
-import { Drawer, DrawerClose, DrawerContent, DrawerFooter } from "../ui/drawer";
+import { Page } from "~/components/Page";
+import { Button } from "~/components/ui/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+} from "~/components/ui/drawer";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "../ui/resizable";
+} from "~/components/ui/resizable";
+import { CodeMirrorInstanceProvider, useCodeMirrorInstance } from "~/context";
+import { useIsMobile } from "~/hooks";
+import { storeKeys, useShowEditorPreview } from "~/hooks/store";
+
 import { CodeMirrorEditor } from "./components/CodeMirrorEditor";
 import { EditorOutput } from "./components/CodeMirrorEditorOutput";
 
@@ -99,3 +104,5 @@ function EditorFocusManager() {
 
   return null;
 }
+
+export * from "./components/SaveNoteButton";

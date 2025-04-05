@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
+import { Link } from "@tanstack/react-router";
 import githubLightTheme from "highlight.js/styles/github.min.css?inline";
 import githubDarkTheme from "highlight.js/styles/github-dark.min.css?inline";
 import Markdown from "markdown-to-jsx";
@@ -66,6 +67,7 @@ function MarkdownContent() {
           overrides: {
             code: Code,
             pre: Pre,
+            a: A,
             style: ScopedStyle,
             // script: Blank,
           },
@@ -81,14 +83,23 @@ function MarkdownContent() {
 //   return null;
 // }
 
-function ScopedStyle({
-  children,
-  ...rest
-}: React.ComponentPropsWithoutRef<"style">) {
+function A({ href, ...rest }: React.ComponentProps<"a">) {
+  if (href?.startsWith("/")) {
+    return <Link to={href} {...rest} />;
+  }
+
+  if (href?.startsWith("#")) {
+    return <a href={href} {...rest} />;
+  }
+
+  return <a href={href} target="_blank" {...rest} />;
+}
+
+function ScopedStyle({ children, ...rest }: React.ComponentProps<"style">) {
   return <style {...rest}>{`.devnote-markdown-output { ${children} }`}</style>;
 }
 
-function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
+function Pre(props: React.ComponentProps<"pre">) {
   return (
     <>
       <div className="relative bottom-3 -mb-5 flex h-0 justify-end px-4">
@@ -121,7 +132,7 @@ function Pre(props: React.ComponentPropsWithoutRef<"pre">) {
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 type HLJS = Awaited<typeof import("highlight.js")>["default"];
 
-function Code(props: React.ComponentPropsWithoutRef<"code">) {
+function Code(props: React.ComponentProps<"code">) {
   const ref = useRef<HTMLElement>(null);
   const hljsRef = useRef<HLJS | null>(null);
   const [isHljsLoaded, setIsHljsLoaded] = useState(false);

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Markdown from "markdown-to-jsx";
 
-import { Page } from "~/components";
+import { Page } from "~/components/Page";
 
 export const Route = createFileRoute("/app/changelog")({
   component: RouteComponent,

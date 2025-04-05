@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { RotateCcwIcon, SaveIcon } from "lucide-react";
 
-import { ResponsiveConfirmation } from "~/components";
-import { Editor } from "~/components/Editor";
+import { Editor } from "~/blocks/Editor";
+import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
 import { Button } from "~/components/ui/button";
 import { WELCOME_TEXT } from "~/constants";
 import { useEditorNote, useEditorWelcomeNote } from "~/hooks/store";

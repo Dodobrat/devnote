@@ -40,22 +40,6 @@ function PageHeader({ title }: { title?: string }) {
   );
 }
 
-function PageSection({
-  title,
-  description,
-  children,
-}: React.PropsWithChildren<{ title: string; description?: string }>) {
-  return (
-    <section className="flex flex-col items-start gap-2">
-      <header>
-        <h2 className="text-lg font-semibold md:text-xl">{title}</h2>
-        {description && <p className="text-muted-foreground">{description}</p>}
-      </header>
-      {children}
-    </section>
-  );
-}
-
 function PageEditorHeader({
   children,
   title,
@@ -69,14 +53,14 @@ function PageEditorHeader({
   const [autoSaveEnabled] = useEditorAutosave();
 
   return (
-    <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2 overflow-hidden">
+    <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
       <SidebarTrigger variant="outline" />
       <Separator
         orientation="vertical"
         className="data-[orientation=vertical]:h-6"
       />
       <div className="grid grow grid-cols-[1fr_auto] items-center">
-        <div className="grid">
+        <div className="grid overflow-hidden">
           <p className="truncate text-lg leading-tight font-extrabold">
             {title || "Untitled Note"}
           </p>
@@ -102,9 +86,24 @@ function PageEditorHeader({
   );
 }
 
+function PageSection({
+  title,
+  description,
+  children,
+}: React.PropsWithChildren<{ title: string; description?: string }>) {
+  return (
+    <section className="flex flex-col items-start gap-2">
+      <header>
+        <h2 className="text-lg font-semibold md:text-xl">{title}</h2>
+        {description && <p className="text-muted-foreground">{description}</p>}
+      </header>
+      {children}
+    </section>
+  );
+}
+
 export const Page = Object.assign(PageBase, {
   Header: PageHeader,
-  // Title: PageTitle,
   Section: PageSection,
   EditorHeader: PageEditorHeader,
 });

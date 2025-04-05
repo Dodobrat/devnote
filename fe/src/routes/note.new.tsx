@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 
-import { Editor } from "~/components/Editor";
-import { SaveNoteButton } from "~/components/Editor/components/SaveNoteButton";
+import { Editor, SaveNoteButton } from "~/blocks/Editor";
 import { useSaveNote } from "~/hooks/query";
 import { useEditorNote, useEditorWelcomeNote } from "~/hooks/store";
 

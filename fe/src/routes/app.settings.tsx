@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { LaptopMinimalIcon, MoonIcon, PencilIcon, SunIcon } from "lucide-react";
 
-import { Page } from "~/components";
+import { Page } from "~/components/Page";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ThemeMode, type ThemeModeKey, useTheme } from "~/context";
