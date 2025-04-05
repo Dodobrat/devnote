@@ -82,3 +82,37 @@ export function InstallButton() {
     </Button>
   );
 }
+
+// function ServiceWorkerPrompt() {
+//   const {
+//     needRefresh: [needRefresh, setNeedRefresh],
+//     offlineReady: [offlineReady, setOfflineReady],
+//     updateServiceWorker,
+//   } = useRegisterSW({
+//     onNeedRefresh: () => setNeedRefresh(true),
+//     onOfflineReady: () => setOfflineReady(true),
+//     onRegisterError() {
+//       toast.error("Failed to register service worker", { duration: Infinity });
+//     },
+//   });
+
+//   useEffect(() => {
+//     if (offlineReady) {
+//       toast.info("App is offline ready", { duration: Infinity });
+//     }
+//   }, [offlineReady]);
+
+//   useEffect(() => {
+//     if (needRefresh) {
+//       toast.info("New version available", {
+//         duration: Infinity,
+//         action: {
+//           label: "Refresh",
+//           onClick: () => updateServiceWorker(true),
+//         },
+//       });
+//     }
+//   }, [needRefresh, updateServiceWorker]);
+
+//   return null;
+// }

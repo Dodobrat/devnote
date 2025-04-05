@@ -3,20 +3,10 @@ import { toast } from "sonner";
 
 import { getCssVar } from "~/lib/utils";
 
-export function useDebounce<T>(value: T, delay = 500): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
+export function useDocumentTitle(title: string) {
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
+    document.title = `${title} | DevNote`;
+  }, [title]);
 }
 
 export function useKeyDownEvent(cb: (e: KeyboardEvent) => void) {

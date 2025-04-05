@@ -1,5 +1,6 @@
 import { useRouterState } from "@tanstack/react-router";
 
+import { useDocumentTitle } from "~/hooks";
 import {
   useEditorAutosaveAtom,
   useEditorContainedWidthAtom,
@@ -25,6 +26,8 @@ function PageBase({ children }: React.PropsWithChildren) {
 }
 
 function PageHeader({ title }: { title?: string }) {
+  useDocumentTitle(title || "Hello?");
+
   return (
     <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
       <SidebarTrigger variant="outline" />
@@ -55,6 +58,9 @@ function PageEditorHeader({
 
   const [autoSaveEnabled] = useEditorAutosaveAtom();
 
+  const resolvedTitle = title || "Untitled Note";
+  useDocumentTitle(resolvedTitle);
+
   return (
     <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
       <SidebarTrigger variant="outline" />
@@ -65,7 +71,7 @@ function PageEditorHeader({
       <div className="grid grow grid-cols-[1fr_auto] items-center">
         <div className="grid overflow-hidden">
           <p className="truncate text-lg leading-tight font-extrabold">
-            {title || "Untitled Note"}
+            {resolvedTitle}
           </p>
           {isNewNote && (
             <small className="text-muted-foreground truncate leading-tight">
