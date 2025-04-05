@@ -1,13 +1,16 @@
 import { useRouterState } from "@tanstack/react-router";
 
-import { useEditorAutosave, useEditorContainedWidth } from "~/hooks/store";
+import {
+  useEditorAutosaveAtom,
+  useEditorContainedWidthAtom,
+} from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
 import { Separator } from "../ui/separator";
 import { SidebarTrigger } from "../ui/sidebar";
 
 function PageBase({ children }: React.PropsWithChildren) {
-  const [isContainedWidth] = useEditorContainedWidth();
+  const [isContainedWidth] = useEditorContainedWidthAtom();
 
   return (
     <div
@@ -50,7 +53,7 @@ function PageEditorHeader({
     routerState.location.pathname.startsWith("/note/welcome");
   const isUserNote = !isNewNote && !isWelcomeNote;
 
-  const [autoSaveEnabled] = useEditorAutosave();
+  const [autoSaveEnabled] = useEditorAutosaveAtom();
 
   return (
     <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2">

@@ -19,9 +19,9 @@ import { getIsSaveCurrentNoteKeyCombo } from "~/constants/shortcuts";
 import { ThemeMode, useCodeMirrorInstance, useTheme } from "~/context";
 import { useKeyDownEvent } from "~/hooks";
 import {
-  useEditorAutosave,
-  useEditorContainedWidth,
-  useEditorNote,
+  useEditorAutosaveAtom,
+  useEditorContainedWidthAtom,
+  useEditorNoteAtom,
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
@@ -106,9 +106,9 @@ export function CodeMirrorEditor({
   const isEditing = Boolean(editNoteRouteMatch?.params?.noteId);
 
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const { note, setNote } = useEditorNote();
+  const { note, setNote } = useEditorNoteAtom();
 
-  const [isContainedWidth] = useEditorContainedWidth();
+  const [isContainedWidth] = useEditorContainedWidthAtom();
 
   useKeyDownEvent((e) => {
     if (getIsSaveCurrentNoteKeyCombo(e)) {
@@ -117,7 +117,7 @@ export function CodeMirrorEditor({
     }
   });
 
-  const [shouldAutoSave] = useEditorAutosave();
+  const [shouldAutoSave] = useEditorAutosaveAtom();
 
   const theme = useMemo(() => {
     return resolvedTheme === ThemeMode.Dark

@@ -11,7 +11,7 @@ import { NoteActions, NotePinAction } from "~/blocks";
 import { Editor, SaveNoteButton } from "~/blocks/Editor";
 import { LAST_VISITED_ROUTE_STATE_KEY } from "~/constants";
 import { noteByIdQueryOptions, useSaveNote } from "~/hooks/query";
-import { useEditorNote, useLastOpenedNote } from "~/hooks/store";
+import { useEditorNoteAtom, useLastOpenedNoteAtom } from "~/hooks/store";
 
 export const Route = createFileRoute("/note/$noteId")({
   loader: async ({ context: { queryClient }, params: { noteId } }) => {
@@ -33,8 +33,8 @@ function RouteComponent() {
   const noteQuery = useSuspenseQuery(noteByIdQueryOptions({ id: noteId }));
   const data = noteQuery.data!;
 
-  const [, setLastOpenedNote] = useLastOpenedNote();
-  const { setNote } = useEditorNote();
+  const [, setLastOpenedNote] = useLastOpenedNoteAtom();
+  const { setNote } = useEditorNoteAtom();
 
   const saveNote = useSaveNote({ id: noteId });
 

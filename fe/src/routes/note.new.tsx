@@ -3,16 +3,16 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { Editor, SaveNoteButton } from "~/blocks/Editor";
 import { useSaveNote } from "~/hooks/query";
-import { useEditorNote, useEditorWelcomeNote } from "~/hooks/store";
+import { useEditorNoteAtom, useEditorWelcomeNoteAtom } from "~/hooks/store";
 
 export const Route = createFileRoute("/note/new")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [welcomeNote] = useEditorWelcomeNote();
+  const [welcomeNote] = useEditorWelcomeNoteAtom();
 
-  const { setNote } = useEditorNote();
+  const { setNote } = useEditorNoteAtom();
   const saveNote = useSaveNote();
 
   useEffect(() => {

@@ -16,7 +16,7 @@ import { LocalNotesAPI } from "~/api";
 import { getCurrentCursorPosition } from "~/blocks/Editor/components/CodeMirrorEditor";
 import { type NoteSchemaType, type UpdateNoteSchemaType } from "~/types/notes";
 
-import { useEditorNotePrevState } from "../store";
+import { useEditorNotePrevStateAtom } from "../store";
 
 export const notesQueryKeys = {
   all: () => ["notes"],
@@ -251,7 +251,7 @@ export function useSaveNote(noteData?: Pick<NoteSchemaType, "id">) {
   const { mutate: update } = useUpdateNote();
   const { mutate: create } = useCreateNote();
 
-  const [, setPrevNote] = useEditorNotePrevState();
+  const [, setPrevNote] = useEditorNotePrevStateAtom();
 
   return useCallback(
     (editor: EditorView | undefined) => {

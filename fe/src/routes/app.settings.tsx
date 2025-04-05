@@ -5,7 +5,10 @@ import { Page } from "~/components/Page";
 import { Button } from "~/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { ThemeMode, type ThemeModeKey, useTheme } from "~/context";
-import { useEditorAutosave, useEditorContainedWidth } from "~/hooks/store";
+import {
+  useEditorAutosaveAtom,
+  useEditorContainedWidthAtom,
+} from "~/hooks/store";
 
 export const Route = createFileRoute("/app/settings")({
   component: RouteComponent,
@@ -79,13 +82,13 @@ function ThemeSwitch() {
 }
 
 function AutosaveToggle() {
-  const [isAutosaving, setIsAutosaving] = useEditorAutosave();
+  const [isAutosaving, setIsAutosaving] = useEditorAutosaveAtom();
 
   return <BooleanToggle value={isAutosaving} onValueChange={setIsAutosaving} />;
 }
 
 function ContainedWidthToggle() {
-  const [isContained, setIsContained] = useEditorContainedWidth();
+  const [isContained, setIsContained] = useEditorContainedWidthAtom();
 
   return <BooleanToggle value={isContained} onValueChange={setIsContained} />;
 }

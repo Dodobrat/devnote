@@ -14,9 +14,9 @@ import {
 import { saveCurrentNoteShortcut } from "~/constants/shortcuts";
 import { useCodeMirrorInstance } from "~/context";
 import {
-  useEditorNote,
-  useEditorNotePrevState,
-  useEditorWelcomeNote,
+  useEditorNoteAtom,
+  useEditorNotePrevStateAtom,
+  useEditorWelcomeNoteAtom,
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
@@ -34,10 +34,10 @@ export function SaveNoteButton({
 
   const { codeMirrorInstance } = useCodeMirrorInstance();
 
-  const { note } = useEditorNote();
+  const { note } = useEditorNoteAtom();
 
-  const [prevNote, setPrevNote] = useEditorNotePrevState();
-  const [welcomeNote] = useEditorWelcomeNote();
+  const [prevNote, setPrevNote] = useEditorNotePrevStateAtom();
+  const [welcomeNote] = useEditorWelcomeNoteAtom();
 
   useEffect(() => {
     if (!noteValue) return;

@@ -1,14 +1,14 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 import { LAST_VISITED_ROUTE_STATE_KEY } from "~/constants";
-import { useLastOpenedNote } from "~/hooks/store";
+import { useLastOpenedNoteAtom } from "~/hooks/store";
 
 export const Route = createFileRoute("/")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [lastOpenedNote] = useLastOpenedNote();
+  const [lastOpenedNote] = useLastOpenedNoteAtom();
 
   if (!lastOpenedNote) return <Navigate to="/note/new" />;
 

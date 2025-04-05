@@ -38,14 +38,25 @@ import {
   GitMergeIcon,
   HandIcon,
   MessageCircleQuestionIcon,
+  MilestoneIcon,
   PlusIcon,
   SearchIcon,
+  StickyNoteIcon,
   TerminalIcon,
   WrenchIcon,
 } from "lucide-react";
 
 import { NoteActions, NotePinAction } from "~/blocks";
 import { Button } from "~/components/ui/button";
+import {
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandShortcutSnippet,
+} from "~/components/ui/command";
 import { Separator } from "~/components/ui/separator";
 import {
   Sidebar,
@@ -65,7 +76,12 @@ import {
   useSidebar,
 } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
-import { getIsCreateNewNoteKeyCombo } from "~/constants/shortcuts";
+import {
+  getIsCreateNewNoteKeyCombo,
+  getIsOpenCommandPaletteBrowserKeyCombo,
+  getIsOpenCommandPaletteVSCodeKeyCombo,
+  openCommandPaletteBrowserShortcut,
+} from "~/constants/shortcuts";
 import { ThemeProvider } from "~/context";
 import { useKeyDownEvent, useMediaQuery, useOnlineNotification } from "~/hooks";
 import {
@@ -75,6 +91,7 @@ import {
   useReorderPinnedNotes,
   useReorderUnpinnedNotes,
 } from "~/hooks/query";
+import { useCommandPaletteOpenAtom } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 import { type NoteSchemaType } from "~/types/notes";
 
@@ -120,6 +137,8 @@ function RootComponent() {
     <ThemeProvider>
       <InstallButton />
 
+      <CommandPalette />
+
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -153,6 +172,72 @@ function AppSidebar() {
   );
 }
 
+function CommandPalette() {
+  const [commandPaletteOpen, setCommandPaletteOpen] =
+    useCommandPaletteOpenAtom();
+  const [prompt, setPrompt] = useState("");
+
+  useKeyDownEvent((e) => {
+    if (getIsOpenCommandPaletteBrowserKeyCombo(e)) {
+      e.preventDefault();
+      setCommandPaletteOpen(true);
+    }
+  });
+
+  useKeyDownEvent((e) => {
+    if (getIsOpenCommandPaletteVSCodeKeyCombo(e)) {
+      e.preventDefault();
+      setCommandPaletteOpen(true);
+      setPrompt(">");
+    }
+  });
+
+  const isPathCommand = prompt.startsWith("/");
+  const isActionCommand = prompt.startsWith(">");
+  const isNotePrompt = Boolean(prompt) && !isPathCommand && !isActionCommand;
+
+  return (
+    <CommandDialog
+      open={commandPaletteOpen}
+      onOpenChange={setCommandPaletteOpen}
+      shouldFilter={!isNotePrompt}
+    >
+      <CommandInput
+        value={prompt}
+        onValueChange={setPrompt}
+        placeholder="Type a command or search..."
+      />
+      <CommandList>
+        <CommandEmpty>No results found.</CommandEmpty>
+
+        {!prompt && (
+          <CommandGroup heading="Suggestions">
+            <CommandItem onSelect={() => setPrompt("/")}>
+              <MilestoneIcon />
+              <span>
+                Start with a <CommandShortcutSnippet>/</CommandShortcutSnippet>{" "}
+                to navigate to a page
+              </span>
+            </CommandItem>
+            <CommandItem onSelect={() => setPrompt(">")}>
+              <TerminalIcon />
+              <span>
+                Start with a{" "}
+                <CommandShortcutSnippet>&gt;</CommandShortcutSnippet> to execute
+                an action
+              </span>
+            </CommandItem>
+            <CommandItem>
+              <StickyNoteIcon />
+              <span>Start with a word to search for notes by title</span>
+            </CommandItem>
+          </CommandGroup>
+        )}
+      </CommandList>
+    </CommandDialog>
+  );
+}
+
 function NavigationSidebarToggler() {
   const routerState = useRouterState();
   const pathRef = useRef(routerState.location.pathname);
@@ -171,6 +256,8 @@ function NavigationSidebarToggler() {
 }
 
 function LogoAction() {
+  const [, setCommandPaletteOpen] = useCommandPaletteOpenAtom();
+
   return (
     <SidebarMenu>
       <SidebarMenuItem className="flex gap-2">
@@ -178,8 +265,7 @@ function LogoAction() {
           size="lg"
           className="cursor-pointer"
           tooltip="Command palette"
-          // onClick={() => setCommandPaletteOpenState(true)}
-          onClick={() => console.log("CLICKED SIDEBAR LOGO")}
+          onClick={() => setCommandPaletteOpen(true)}
         >
           <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-md">
             <TerminalIcon aria-hidden className="size-4 stroke-3" />
@@ -374,11 +460,14 @@ function NotesContent() {
             <SidebarInput
               id="search"
               placeholder="Search notes"
-              className="pl-8"
+              className="pr-21 pl-8"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
             <SearchIcon className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
+            <CommandShortcutSnippet className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 select-none">
+              {openCommandPaletteBrowserShortcut}
+            </CommandShortcutSnippet>
           </div>
         </SidebarGroupContent>
       </SidebarGroup>

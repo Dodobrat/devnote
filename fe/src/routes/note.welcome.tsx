@@ -6,16 +6,16 @@ import { Editor } from "~/blocks/Editor";
 import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
 import { Button } from "~/components/ui/button";
 import { WELCOME_TEXT } from "~/constants";
-import { useEditorNote, useEditorWelcomeNote } from "~/hooks/store";
+import { useEditorNoteAtom, useEditorWelcomeNoteAtom } from "~/hooks/store";
 
 export const Route = createFileRoute("/note/welcome")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const [welcomeNote, setWelcomeNote] = useEditorWelcomeNote();
+  const [welcomeNote, setWelcomeNote] = useEditorWelcomeNoteAtom();
 
-  const { setNote } = useEditorNote();
+  const { setNote } = useEditorNoteAtom();
 
   useEffect(() => {
     if (!welcomeNote) return;
@@ -36,8 +36,8 @@ function RouteComponent() {
 }
 
 function WelcomeMessageEditActions() {
-  const [welcomeNote, setWelcomeNote] = useEditorWelcomeNote();
-  const { note, setNote } = useEditorNote();
+  const [welcomeNote, setWelcomeNote] = useEditorWelcomeNoteAtom();
+  const { note, setNote } = useEditorNoteAtom();
 
   const [showConfirmReset, setShowConfirmReset] = useState(false);
 

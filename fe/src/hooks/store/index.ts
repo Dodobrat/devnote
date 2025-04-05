@@ -16,31 +16,47 @@ export const storeKeys = {
   editorPreviewMode: "devnote.editor.preview.mode",
 } as const;
 
-const themeAtom = atomWithStorage<ThemeModeKey>(storeKeys.theme, "system");
-const showEditorPreviewAtom = atomWithStorage(
-  storeKeys.editorShowPreview,
-  false,
-);
 const autosaveAtom = atomWithStorage(storeKeys.editorAutosave, true);
+export function useEditorAutosaveAtom() {
+  return useAtom(autosaveAtom);
+}
+
+const themeAtom = atomWithStorage<ThemeModeKey>(storeKeys.theme, "system");
+export function useThemeAtom() {
+  return useAtom(themeAtom);
+}
+
 const lastOpenedNoteAtom = atomWithStorage(storeKeys.editorLastOpenedNote, "");
-const welcomeNoteAtom = atomWithStorage(
-  storeKeys.editorWelcomeNote,
-  WELCOME_TEXT,
-);
-const containedWidthAtom = atomWithStorage(
-  storeKeys.editorContainedWidth,
-  false,
-);
-const previewModeAtom = atomWithStorage<"editor" | "preview">(
-  storeKeys.editorPreviewMode,
-  "editor",
-);
+export function useLastOpenedNoteAtom() {
+  return useAtom(lastOpenedNoteAtom);
+}
+
+// prettier-ignore
+const showEditorPreviewAtom = atomWithStorage(storeKeys.editorShowPreview, false);
+export function useShowEditorPreviewAtom() {
+  return useAtom(showEditorPreviewAtom);
+}
+
+// prettier-ignore
+const containedWidthAtom = atomWithStorage(storeKeys.editorContainedWidth, false);
+export function useEditorContainedWidthAtom() {
+  return useAtom(containedWidthAtom);
+}
+
+// prettier-ignore
+const welcomeNoteAtom = atomWithStorage(storeKeys.editorWelcomeNote, WELCOME_TEXT);
+export function useEditorWelcomeNoteAtom() {
+  return useAtom(welcomeNoteAtom);
+}
+
+// prettier-ignore
+const previewModeAtom = atomWithStorage<"editor" | "preview">(storeKeys.editorPreviewMode, "editor");
+export function useEditorPreviewModeAtom() {
+  return useAtom(previewModeAtom);
+}
 
 const noteAtom = atom("");
-const notePrevStateAtom = atom("");
-const commandPaletteOpenAtom = atom(false);
-
-export function useEditorNote() {
+export function useEditorNoteAtom() {
   const [note, setNote] = useAtom(noteAtom);
 
   const setNoteValue = useCallback(
@@ -51,38 +67,12 @@ export function useEditorNote() {
   return { note, setNote: setNoteValue };
 }
 
-export function useEditorNotePrevState() {
+const notePrevStateAtom = atom("");
+export function useEditorNotePrevStateAtom() {
   return useAtom(notePrevStateAtom);
 }
 
-export function useShowEditorPreview() {
-  return useAtom(showEditorPreviewAtom);
-}
-
-export function useEditorAutosave() {
-  return useAtom(autosaveAtom);
-}
-
-export function useLastOpenedNote() {
-  return useAtom(lastOpenedNoteAtom);
-}
-
-export function useEditorContainedWidth() {
-  return useAtom(containedWidthAtom);
-}
-
-export function useEditorWelcomeNote() {
-  return useAtom(welcomeNoteAtom);
-}
-
-export function useEditorPreviewMode() {
-  return useAtom(previewModeAtom);
-}
-
-export function useCommandPaletteOpenStore() {
+const commandPaletteOpenAtom = atom(false);
+export function useCommandPaletteOpenAtom() {
   return useAtom(commandPaletteOpenAtom);
-}
-
-export function useThemeAtom() {
-  return useAtom(themeAtom);
 }

@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
 import { ThemeMode, useTheme } from "~/context";
-import { useEditorContainedWidth, useEditorNote } from "~/hooks/store";
+import { useEditorContainedWidthAtom, useEditorNoteAtom } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
 const knownErrors: Record<string, string> = {
@@ -31,7 +31,7 @@ function fallbackRender({ error }: FallbackProps) {
 }
 
 export function EditorOutput() {
-  const { note } = useEditorNote();
+  const { note } = useEditorNoteAtom();
 
   return (
     <div className="h-full w-full overflow-auto overscroll-contain scroll-smooth p-4">
@@ -45,9 +45,9 @@ export function EditorOutput() {
 function MarkdownContent() {
   const { resolvedTheme } = useTheme();
 
-  const { note } = useEditorNote();
+  const { note } = useEditorNoteAtom();
 
-  const [isContainedWidth] = useEditorContainedWidth();
+  const [isContainedWidth] = useEditorContainedWidthAtom();
 
   return (
     <div

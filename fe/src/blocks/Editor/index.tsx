@@ -17,7 +17,7 @@ import {
 } from "~/components/ui/resizable";
 import { CodeMirrorInstanceProvider, useCodeMirrorInstance } from "~/context";
 import { useIsMobile } from "~/hooks";
-import { storeKeys, useShowEditorPreview } from "~/hooks/store";
+import { storeKeys, useShowEditorPreviewAtom } from "~/hooks/store";
 
 import { CodeMirrorEditor } from "./components/CodeMirrorEditor";
 import { EditorOutput } from "./components/CodeMirrorEditorOutput";
@@ -31,7 +31,7 @@ const MIN_RESIZE_PANEL_SIZE = 20;
 
 export function Editor({ children, title, saveNote }: EditorProps) {
   const isMobile = useIsMobile();
-  const [showEditorPreview, setShowEditorPreview] = useShowEditorPreview();
+  const [showEditorPreview, setShowEditorPreview] = useShowEditorPreviewAtom();
 
   return (
     <CodeMirrorInstanceProvider>
