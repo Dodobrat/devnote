@@ -1,15 +1,16 @@
-import { DBSchema, openDB } from "idb";
+import { type DBSchema, openDB } from "idb";
 import { ZodError } from "zod";
 
-import { deriveTitle } from "~/lib/utils";
 import {
   noteSchema,
-  NoteSchemaType,
+  type NoteSchemaType,
   paginatedNotesSchema,
-  PaginatedNotesSchemaType,
+  type PaginatedNotesSchemaType,
   updateNoteSchema,
-  UpdateNoteSchemaType,
+  type UpdateNoteSchemaType,
 } from "~/types/notes";
+
+// TODO: simplify
 
 const DEFAULT_PAGINATION_SLICE = 50;
 
@@ -65,6 +66,14 @@ const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
     store.createIndex("tags", "tags", { multiEntry: true });
   },
 });
+
+function deriveTitle(markdownContent: string) {
+  const lines = markdownContent.split("\n");
+  const firstLineWithWords = lines.find((line) => /\w+/.test(line)) || "";
+  const withoutHtmlTags = firstLineWithWords.replace(/<\/?[^>]+(>|$)/g, "");
+  const cleanTitle = withoutHtmlTags.replace(/[^\w\s]/g, "");
+  return cleanTitle.trim();
+}
 
 export const LocalNotesAPI = {
   // Create a new note
@@ -332,6 +341,55 @@ export const LocalNotesAPI = {
     } catch (error) {
       if (error instanceof ZodError) {
         throw new Error(`Validation error in delete: ${error.message}`);
+      } else {
+        throw error;
+      }
+    }
+  },
+
+  // Bulk delete multiple notes by their ids with order updates and error handling
+  async bulkDelete(ids: NoteSchemaType["id"][]): Promise<void> {
+    try {
+      const db = await dbPromise;
+      const tx = db.transaction("notes", "readwrite");
+      const store = tx.objectStore("notes");
+
+      // Record affected groups (isPinned values)
+      const affectedGroups = new Set<number>();
+
+      // Validate existence and delete each note
+      for (const id of ids) {
+        const note = await store.get(id);
+        if (!note) {
+          throw new Error(`Note with id ${id} not found`);
+        }
+        affectedGroups.add(note.isPinned);
+        await store.delete(id);
+      }
+
+      // For each affected group, update orders on the remaining notes
+      for (const group of affectedGroups) {
+        const index = store.index("isPinned");
+        const remainingNotes = await index.getAll(group);
+
+        // Sort remaining notes by their current order
+        remainingNotes.sort((a, b) => a.order - b.order);
+
+        // Reassign orders sequentially (starting from 0)
+        for (let newOrder = 0; newOrder < remainingNotes.length; newOrder++) {
+          if (remainingNotes[newOrder].order !== newOrder) {
+            remainingNotes[newOrder].order = newOrder;
+            // Validate using your noteSchema
+            const validatedNote = noteSchema.parse(remainingNotes[newOrder]);
+            await store.put(validatedNote);
+          }
+        }
+      }
+
+      await tx.done;
+    } catch (error) {
+      if (error instanceof ZodError) {
+        throw new Error(`Validation error in bulkDelete: ${error.message}`);
       } else {
         throw error;
       }

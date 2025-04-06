@@ -1,7 +1,7 @@
 import js from "@eslint/js";
 import pluginQuery from "@tanstack/eslint-plugin-query";
+import pluginRouter from "@tanstack/eslint-plugin-router";
 import reactHooks from "eslint-plugin-react-hooks";
-import reactRefresh from "eslint-plugin-react-refresh";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
@@ -13,15 +13,17 @@ export default tseslint.config(
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx,js}"],
     languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
     },
     plugins: {
       "react-hooks": reactHooks,
-      "react-refresh": reactRefresh,
       "simple-import-sort": simpleImportSort,
       "unused-imports": unusedImports,
       "@tanstack/query": pluginQuery,
+      "@tanstack/router": pluginRouter,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -39,6 +41,13 @@ export default tseslint.config(
       ],
       "simple-import-sort/exports": "error",
       "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/consistent-type-imports": [
+        "warn",
+        {
+          prefer: "type-imports",
+          fixStyle: "inline-type-imports",
+        },
+      ],
       "no-unused-vars": "off",
       "no-duplicate-imports": "error",
       "unused-imports/no-unused-imports": "error",

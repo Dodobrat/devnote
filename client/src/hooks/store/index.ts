@@ -1,75 +1,92 @@
-import { useCallback, useMemo } from "react";
-import {
-  NoInfer,
-  QueryKey,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useCallback } from "react";
+import { atom, useAtom } from "jotai";
+import { atomWithStorage } from "jotai/utils";
 
-import { webStorage } from "~/lib/utils";
+import { WELCOME_TEXT } from "~/constants";
+import { type ThemeModeKey } from "~/context";
+import { type NoteSchemaType } from "~/types/notes";
 
 export const storeKeys = {
   theme: "devnote.theme",
-  commandPaletteOpenState: "devnote.commandPaletteOpenState",
-  sidebarState: "devnote.sidebarState",
-  editorNote: "devnote.editor.note",
-  editorNotePrevState: "devnote.editor.note.prev",
-  editorWelcomeNote: "devnote.editor.note.welcome",
-  editorLastOpenedNote: "devnote.editor.lastOpenedNote",
+  editorLayout: "devnote.editor.layout",
+  editorShowPreview: "devnote.editor.showPreview",
   editorAutosave: "devnote.editor.autosave",
+  editorLastOpenedNote: "devnote.editor.lastOpenedNote",
+  editorWelcomeNote: "devnote.editor.note.welcome",
   editorContainedWidth: "devnote.editor.containedWidth",
-  editorPreviewMode: "devnote.editor.preview.mode",
 } as const;
 
-function generateQueryKey(key: string): QueryKey {
-  return key.split(".");
+const autosaveAtom = atomWithStorage(storeKeys.editorAutosave, true);
+export function useEditorAutosaveAtom() {
+  return useAtom(autosaveAtom);
 }
 
-export function useQueryStore<T>(storeKey: string, initialData: T) {
-  const queryClient = useQueryClient();
-
-  const { data } = useQuery({
-    queryKey: generateQueryKey(storeKey),
-    initialData,
-    gcTime: Infinity,
-    staleTime: Infinity,
-  });
-
-  const set = useCallback(
-    (v: T | ((prev: T) => T)) => {
-      queryClient.setQueryData<T>(generateQueryKey(storeKey), (prev) => {
-        const valueToStore = v instanceof Function ? v(prev as NoInfer<T>) : v;
-        return valueToStore;
-      });
-    },
-    [queryClient, storeKey],
-  );
-
-  return useMemo(() => [data!, set] as const, [data, set]);
+const themeAtom = atomWithStorage<ThemeModeKey>(storeKeys.theme, "system");
+export function useThemeAtom() {
+  return useAtom(themeAtom);
 }
 
-export function usePersistQueryStore<T>(storeKey: string, initialData: T) {
-  const queryClient = useQueryClient();
+const lastOpenedNoteAtom = atomWithStorage(storeKeys.editorLastOpenedNote, "");
+export function useLastOpenedNoteAtom() {
+  return useAtom(lastOpenedNoteAtom);
+}
 
-  const initial = webStorage.getItem<T>(storeKey) ?? initialData;
+// prettier-ignore
+const showEditorPreviewAtom = atomWithStorage(storeKeys.editorShowPreview, false);
+export function useShowEditorPreviewAtom() {
+  return useAtom(showEditorPreviewAtom);
+}
 
-  const { data } = useQuery({
-    queryKey: generateQueryKey(storeKey),
-    initialData: initial,
-    gcTime: Infinity,
-    staleTime: Infinity,
-  });
+// prettier-ignore
+const containedWidthAtom = atomWithStorage(storeKeys.editorContainedWidth, true);
+export function useEditorContainedWidthAtom() {
+  return useAtom(containedWidthAtom);
+}
 
-  const set = useCallback(
-    (v: T | ((prev: T) => T)) => {
-      queryClient.setQueryData<T>(generateQueryKey(storeKey), (prev) => {
-        const valueToStore = v instanceof Function ? v(prev as NoInfer<T>) : v;
-        webStorage.setItem<T>(storeKey, valueToStore);
-        return valueToStore;
-      });
-    },
-    [queryClient, storeKey],
+// prettier-ignore
+const welcomeNoteAtom = atomWithStorage(storeKeys.editorWelcomeNote, WELCOME_TEXT);
+export function useEditorWelcomeNoteAtom() {
+  return useAtom(welcomeNoteAtom);
+}
+
+// TEMPORARY ATOMS
+
+const noteAtom = atom("");
+export function useEditorNoteAtom() {
+  const [note, setNote] = useAtom(noteAtom);
+
+  const setNoteValue = useCallback(
+    (v: string | undefined) => setNote(v || ""),
+    [setNote],
   );
 
-  return useMemo(() => [data!, set] as const, [data, set]);
+  return { note, setNote: setNoteValue };
+}
+
+const notePrevStateAtom = atom("");
+export function useEditorNotePrevStateAtom() {
+  return useAtom(notePrevStateAtom);
+}
+
+const commandPaletteOpenAtom = atom(false);
+export function useCommandPaletteOpenAtom() {
+  return useAtom(commandPaletteOpenAtom);
+}
+
+const bulkDeleteNotesModeEnabledAtom = atom(false);
+export function useBulkDeleteNotesModeEnabledAtom() {
+  return useAtom(bulkDeleteNotesModeEnabledAtom);
+}
+const bulkDeleteNotesAtom = atom<Set<string>>(new Set<string>());
+export function useBulkDeleteNotesAtom() {
+  return useAtom(bulkDeleteNotesAtom);
+}
+
+const exportNotesModeEnabledAtom = atom(false);
+export function useExportNotesModeEnabledAtom() {
+  return useAtom(exportNotesModeEnabledAtom);
+}
+const toExportNotesAtom = atom<Record<string, NoteSchemaType>>({});
+export function useToExportNotesAtom() {
+  return useAtom(toExportNotesAtom);
 }

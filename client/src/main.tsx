@@ -1,101 +1,60 @@
 import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-  RouterProvider,
-} from "react-router-dom";
+import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
 
-import { ErrorBoundary, PageErrorBoundary } from "./components/ErrorBoundary";
-import { Layout } from "./components/Layout";
-import { Toaster, TooltipProvider } from "./components/ui";
-import { ThemeProvider } from "./context";
-import {
-  Changelog,
-  Help,
-  LastVisitedNavigator,
-  Note,
-  Notes,
-  NotFound,
-  Settings,
-  Welcome,
-} from "./pages";
-import { SettingsWelcomeMessage } from "./pages/SettingsWelcomeMessage";
-import { AppRoutes } from "./routes";
+import { NotFound } from "./components/NotFound";
+import { PageErrorBoundary } from "./components/PageErrorBoundary";
+import reportWebVitals from "./reportWebVitals.ts";
+// Import the generated route tree
+import { routeTree } from "./routeTree.gen";
 
-import "./index.css";
+import "./styles.css";
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 0 } },
+  defaultOptions: {
+    queries: { retry: 0 },
+  },
 });
 
-const router = createBrowserRouter(
-  createRoutesFromElements(
-    <Route
-      path={AppRoutes.Root}
-      element={<Layout />}
-      errorElement={<ErrorBoundary />}
-    >
-      <Route
-        index
-        element={<LastVisitedNavigator />}
-        errorElement={<PageErrorBoundary />}
-      />
-      <Route
-        path={AppRoutes.New}
-        element={<Welcome />}
-        errorElement={<PageErrorBoundary />}
-      />
-      <Route
-        path={AppRoutes.Notes}
-        element={<Notes />}
-        errorElement={<PageErrorBoundary />}
-      />
-      <Route
-        path={AppRoutes.NoteById}
-        element={<Note />}
-        errorElement={<PageErrorBoundary />}
-      />
+// Create a new router instance
+const router = createRouter({
+  routeTree,
+  context: { queryClient },
+  defaultPreload: "intent",
+  scrollRestoration: true,
+  defaultStructuralSharing: true,
+  defaultPreloadStaleTime: 0,
+  defaultErrorComponent: PageErrorBoundary,
+  defaultNotFoundComponent: NotFound,
+});
 
-      <Route
-        path={AppRoutes.Help}
-        element={<Help />}
-        errorElement={<PageErrorBoundary />}
-      />
-      <Route
-        path={AppRoutes.Changelog}
-        element={<Changelog />}
-        errorElement={<PageErrorBoundary />}
-      />
-      <Route
-        path={AppRoutes.Settings}
-        element={<Settings />}
-        errorElement={<PageErrorBoundary />}
-      />
-      <Route
-        path={AppRoutes.SettingsWelcomeMessage}
-        element={<SettingsWelcomeMessage />}
-        errorElement={<PageErrorBoundary />}
-      />
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
 
-      <Route path="*" element={<NotFound />} />
-    </Route>,
-  ),
-);
+  interface HistoryState {
+    cursorPosition?: number;
+    redirectedToLastSavedNote?: string;
+  }
+}
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <TooltipProvider>
-          <RouterProvider router={router} />
-        </TooltipProvider>
-        <Toaster />
-      </ThemeProvider>
-      <ReactQueryDevtools />
-    </QueryClientProvider>
-  </StrictMode>,
-);
+// Render the app
+const rootElement = document.getElementById("app");
+if (rootElement && !rootElement.innerHTML) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </StrictMode>,
+  );
+}
+
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();

@@ -1,19 +1,20 @@
 import { createContext, useContext, useEffect } from "react";
 
 import { useMediaQuery } from "~/hooks";
-import { storeKeys, usePersistQueryStore } from "~/hooks/store";
-import { getCssVar, hslToHex, hslToNumberValues } from "~/lib/utils";
+import { useThemeAtom } from "~/hooks/store";
 
-export enum ThemeMode {
-  Light = "light",
-  Dark = "dark",
-  System = "system",
-}
+export const ThemeMode = {
+  Light: "light",
+  Dark: "dark",
+  System: "system",
+} as const;
+
+export type ThemeModeKey = (typeof ThemeMode)[keyof typeof ThemeMode];
 
 type ThemeProviderState = {
-  resolvedTheme: ThemeMode.Light | ThemeMode.Dark;
-  theme: ThemeMode;
-  setTheme: (theme: ThemeMode) => void;
+  resolvedTheme: Exclude<ThemeModeKey, typeof ThemeMode.System>;
+  theme: ThemeModeKey;
+  setTheme: (theme: ThemeModeKey) => void;
 };
 
 const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
@@ -22,12 +23,9 @@ const ThemeProviderContext = createContext<ThemeProviderState | undefined>(
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const isPreferredDark = useMediaQuery("(prefers-color-scheme: dark)");
-  const [theme, setTheme] = usePersistQueryStore<ThemeMode>(
-    storeKeys.theme,
-    ThemeMode.System,
-  );
+  const [theme, setTheme] = useThemeAtom();
 
-  const resolvedTheme =
+  const resolvedTheme: ThemeProviderState["resolvedTheme"] =
     theme === ThemeMode.System
       ? isPreferredDark
         ? ThemeMode.Dark
@@ -41,13 +39,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [resolvedTheme]);
 
   useEffect(() => {
-    const getBgCssVar = () => getCssVar("--background").trim();
-    const hsl = hslToNumberValues(getBgCssVar());
-    const hex = hsl.length ? hslToHex(hsl[0], hsl[1], hsl[2]) : "#000000";
+    // const getBgCssVar = () => getCssVar("--background").trim();
+    // const hsl = hslToNumberValues(getBgCssVar());
+    // const hex = hsl.length ? hslToHex(hsl[0], hsl[1], hsl[2]) : "#000000";
 
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     if (metaThemeColor) {
-      metaThemeColor.setAttribute("content", hex);
+      // TODO: update color
+      // metaThemeColor.setAttribute("content", hex);
     }
   }, [resolvedTheme]);
 
