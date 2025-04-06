@@ -13,6 +13,9 @@ export default defineConfig({
     tailwindcss(),
 
     VitePWA({
+      devOptions: {
+        enabled: true,
+      },
       workbox: {
         maximumFileSizeToCacheInBytes: 5000000, // ~5mb
       },
@@ -56,30 +59,30 @@ export default defineConfig({
             purpose: "maskable",
           },
         ],
-        // screenshots: [
-        //   {
-        //     src: "/desktop-welcome.png",
-        //     sizes: "1280x720",
-        //     type: "image/png",
-        //     form_factor: "wide",
-        //   },
-        //   {
-        //     src: "/desktop-notes.png",
-        //     sizes: "1280x720",
-        //     type: "image/png",
-        //     form_factor: "wide",
-        //   },
-        //   {
-        //     src: "/mobile-welcome.png",
-        //     sizes: "640x1136",
-        //     type: "image/png",
-        //   },
-        //   {
-        //     src: "/mobile-notes.png",
-        //     sizes: "640x1136",
-        //     type: "image/png",
-        //   },
-        // ],
+        screenshots: [
+          {
+            src: "/desktop-welcome.png",
+            sizes: "1280x720",
+            type: "image/png",
+            form_factor: "wide",
+          },
+          {
+            src: "/desktop-note.png",
+            sizes: "1280x720",
+            type: "image/png",
+            form_factor: "wide",
+          },
+          {
+            src: "/mobile-welcome.png",
+            sizes: "640x1136",
+            type: "image/png",
+          },
+          {
+            src: "/mobile-note.png",
+            sizes: "640x1136",
+            type: "image/png",
+          },
+        ],
       },
     }),
   ],
