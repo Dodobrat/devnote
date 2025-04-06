@@ -241,12 +241,15 @@ function NotesImport({ open, onOpenChange }: NotesActionsProps) {
             {fileUploadStack.map((x, index) => (
               <div
                 key={index + x.filename}
-                className="flex items-center gap-2 overflow-hidden p-2"
+                className="flex items-start gap-2 overflow-hidden p-2"
               >
                 <Button size="icon" variant="ghost" disabled aria-hidden>
                   <StickyNoteIcon />
                 </Button>
-                <p title={x.filename} className="grow leading-tight">
+                <p
+                  title={x.filename}
+                  className="mt-2.5 grow leading-tight break-all"
+                >
                   {x.filename}
                 </p>
                 <Button
