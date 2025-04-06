@@ -45,7 +45,7 @@ import {
   pinnedNotesQueryOptions,
   unPinnedNotesQueryOptions,
 } from "~/hooks/query";
-import { useCommandPaletteOpenAtom } from "~/hooks/store";
+import { useCommandPaletteOpenAtom, useSidebarAtom } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
 // ORDERED BY PRIORITY
@@ -80,11 +80,13 @@ function RootComponent() {
     }
   });
 
+  const [open, setOpen] = useSidebarAtom();
+
   return (
     <ThemeProvider>
       <CommandPalette />
 
-      <SidebarProvider>
+      <SidebarProvider open={open} onOpenChange={setOpen}>
         <AppSidebar />
         <SidebarInset>
           <Outlet />

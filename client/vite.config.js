@@ -35,6 +35,7 @@ export default defineConfig({
         short_name: "DevNote",
         theme_color: "#000000",
         background_color: "#000000",
+        orientation: "portrait",
         icons: [
           {
             src: "/android-chrome-192x192.png",

@@ -8,6 +8,7 @@ import { type NoteSchemaType } from "~/types/notes";
 
 export const storeKeys = {
   theme: "devnote.theme",
+  sidebar: "devnote.sidebar",
   editorLayout: "devnote.editor.layout",
   editorShowPreview: "devnote.editor.showPreview",
   editorAutosave: "devnote.editor.autosave",
@@ -16,14 +17,19 @@ export const storeKeys = {
   editorContainedWidth: "devnote.editor.containedWidth",
 } as const;
 
-const autosaveAtom = atomWithStorage(storeKeys.editorAutosave, true);
-export function useEditorAutosaveAtom() {
-  return useAtom(autosaveAtom);
-}
-
 const themeAtom = atomWithStorage<ThemeModeKey>(storeKeys.theme, "system");
 export function useThemeAtom() {
   return useAtom(themeAtom);
+}
+
+const sidebarAtom = atomWithStorage(storeKeys.sidebar, true);
+export function useSidebarAtom() {
+  return useAtom(sidebarAtom);
+}
+
+const autosaveAtom = atomWithStorage(storeKeys.editorAutosave, true);
+export function useEditorAutosaveAtom() {
+  return useAtom(autosaveAtom);
 }
 
 const lastOpenedNoteAtom = atomWithStorage(storeKeys.editorLastOpenedNote, "");

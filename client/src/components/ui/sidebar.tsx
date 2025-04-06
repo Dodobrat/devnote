@@ -231,8 +231,8 @@ function Sidebar({
         className={cn(
           "inset-y-safe-offset-0 fixed z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
           side === "left"
-            ? "left-safe-offset-0 group-data-[collapsible=offcanvas]:left-safe-offset-[calc(var(--sidebar-width)*-1.5)]"
-            : "right-safe-offset-0 group-data-[collapsible=offcanvas]:right-safe-offset-[calc(var(--sidebar-width)*-1.5)]",
+            ? "left-safe-offset-0 group-data-[collapsible=offcanvas]:left-safe-offset-[calc(var(--sidebar-width)*-1)]"
+            : "right-safe-offset-0 group-data-[collapsible=offcanvas]:right-safe-offset-[calc(var(--sidebar-width)*-1)]",
           // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
