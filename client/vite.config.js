@@ -3,6 +3,7 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import { resolve } from "node:path";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,9 +13,9 @@ export default defineConfig({
     tailwindcss(),
 
     VitePWA({
-      // workbox: {
-      //   maximumFileSizeToCacheInBytes: 5000000, // ~5mb
-      // },
+      workbox: {
+        maximumFileSizeToCacheInBytes: 5000000, // ~5mb
+      },
       includeAssets: [
         "/favicon.ico",
         "/robots.txt",
