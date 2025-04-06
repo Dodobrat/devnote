@@ -5,7 +5,6 @@ import { useRegisterSW } from "virtual:pwa-register/react";
 
 import { Button } from "~/components/ui/button";
 import { useMediaQuery } from "~/hooks";
-import { cn } from "~/lib/utils";
 
 export function InstallButton() {
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent>();
@@ -63,22 +62,12 @@ export function InstallButton() {
     setDeferred(undefined);
   };
 
-  console.log("SHOW", { deferred, isInstalled, isDisplayStandalone });
-
   if (!deferred || isInstalled) return null;
 
   if (isDisplayStandalone) return null;
 
   return (
-    <Button
-      variant="secondary"
-      className={cn(
-        "bottom-safe-offset-4 fixed left-1/2 -translate-x-1/2",
-        "max-w-[calc(100%_-_2rem)]",
-        "z-50",
-      )}
-      onClick={handleInstallClick}
-    >
+    <Button onClick={handleInstallClick}>
       <AppWindowMacIcon aria-hidden />
       <span>Install the App</span>
     </Button>

@@ -82,8 +82,6 @@ function RootComponent() {
 
   return (
     <ThemeProvider>
-      <InstallButton />
-
       <CommandPalette />
 
       <SidebarProvider>
@@ -110,6 +108,7 @@ function AppSidebar() {
 
       <SidebarHeader>
         <LogoAction />
+        <InstallButton />
       </SidebarHeader>
       <SidebarContent>
         <AppLinks />
