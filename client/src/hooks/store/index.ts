@@ -4,6 +4,7 @@ import { atomWithStorage } from "jotai/utils";
 
 import { WELCOME_TEXT } from "~/constants";
 import { type ThemeModeKey } from "~/context";
+import { type NoteSchemaType } from "~/types/notes";
 
 export const storeKeys = {
   theme: "devnote.theme",
@@ -48,6 +49,8 @@ export function useEditorWelcomeNoteAtom() {
   return useAtom(welcomeNoteAtom);
 }
 
+// TEMPORARY ATOMS
+
 const noteAtom = atom("");
 export function useEditorNoteAtom() {
   const [note, setNote] = useAtom(noteAtom);
@@ -68,4 +71,22 @@ export function useEditorNotePrevStateAtom() {
 const commandPaletteOpenAtom = atom(false);
 export function useCommandPaletteOpenAtom() {
   return useAtom(commandPaletteOpenAtom);
+}
+
+const bulkDeleteNotesModeEnabledAtom = atom(false);
+export function useBulkDeleteNotesModeEnabledAtom() {
+  return useAtom(bulkDeleteNotesModeEnabledAtom);
+}
+const bulkDeleteNotesAtom = atom<Set<string>>(new Set<string>());
+export function useBulkDeleteNotesAtom() {
+  return useAtom(bulkDeleteNotesAtom);
+}
+
+const exportNotesModeEnabledAtom = atom(false);
+export function useExportNotesModeEnabledAtom() {
+  return useAtom(exportNotesModeEnabledAtom);
+}
+const toExportNotesAtom = atom<Record<string, NoteSchemaType>>({});
+export function useToExportNotesAtom() {
+  return useAtom(toExportNotesAtom);
 }

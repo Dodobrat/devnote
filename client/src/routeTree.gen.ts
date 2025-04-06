@@ -10,208 +10,208 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as R404Import } from './routes/404'
-import { Route as IndexImport } from './routes/index'
-import { Route as NoteWelcomeImport } from './routes/note.welcome'
-import { Route as NoteNewImport } from './routes/note.new'
-import { Route as NoteNoteIdImport } from './routes/note.$noteId'
-import { Route as AppSettingsImport } from './routes/app.settings'
-import { Route as AppHelpImport } from './routes/app.help'
-import { Route as AppChangelogImport } from './routes/app.changelog'
+import { Route as rootRoute } from "./routes/__root";
+import { Route as R404Import } from "./routes/404";
+import { Route as IndexImport } from "./routes/index";
+import { Route as NoteWelcomeImport } from "./routes/note.welcome";
+import { Route as NoteNewImport } from "./routes/note.new";
+import { Route as NoteNoteIdImport } from "./routes/note.$noteId";
+import { Route as AppSettingsImport } from "./routes/app.settings";
+import { Route as AppHelpImport } from "./routes/app.help";
+import { Route as AppChangelogImport } from "./routes/app.changelog";
 
 // Create/Update Routes
 
 const R404Route = R404Import.update({
-  id: '/404',
-  path: '/404',
+  id: "/404",
+  path: "/404",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const IndexRoute = IndexImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const NoteWelcomeRoute = NoteWelcomeImport.update({
-  id: '/note/welcome',
-  path: '/note/welcome',
+  id: "/note/welcome",
+  path: "/note/welcome",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const NoteNewRoute = NoteNewImport.update({
-  id: '/note/new',
-  path: '/note/new',
+  id: "/note/new",
+  path: "/note/new",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const NoteNoteIdRoute = NoteNoteIdImport.update({
-  id: '/note/$noteId',
-  path: '/note/$noteId',
+  id: "/note/$noteId",
+  path: "/note/$noteId",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const AppSettingsRoute = AppSettingsImport.update({
-  id: '/app/settings',
-  path: '/app/settings',
+  id: "/app/settings",
+  path: "/app/settings",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const AppHelpRoute = AppHelpImport.update({
-  id: '/app/help',
-  path: '/app/help',
+  id: "/app/help",
+  path: "/app/help",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const AppChangelogRoute = AppChangelogImport.update({
-  id: '/app/changelog',
-  path: '/app/changelog',
+  id: "/app/changelog",
+  path: "/app/changelog",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/404': {
-      id: '/404'
-      path: '/404'
-      fullPath: '/404'
-      preLoaderRoute: typeof R404Import
-      parentRoute: typeof rootRoute
-    }
-    '/app/changelog': {
-      id: '/app/changelog'
-      path: '/app/changelog'
-      fullPath: '/app/changelog'
-      preLoaderRoute: typeof AppChangelogImport
-      parentRoute: typeof rootRoute
-    }
-    '/app/help': {
-      id: '/app/help'
-      path: '/app/help'
-      fullPath: '/app/help'
-      preLoaderRoute: typeof AppHelpImport
-      parentRoute: typeof rootRoute
-    }
-    '/app/settings': {
-      id: '/app/settings'
-      path: '/app/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AppSettingsImport
-      parentRoute: typeof rootRoute
-    }
-    '/note/$noteId': {
-      id: '/note/$noteId'
-      path: '/note/$noteId'
-      fullPath: '/note/$noteId'
-      preLoaderRoute: typeof NoteNoteIdImport
-      parentRoute: typeof rootRoute
-    }
-    '/note/new': {
-      id: '/note/new'
-      path: '/note/new'
-      fullPath: '/note/new'
-      preLoaderRoute: typeof NoteNewImport
-      parentRoute: typeof rootRoute
-    }
-    '/note/welcome': {
-      id: '/note/welcome'
-      path: '/note/welcome'
-      fullPath: '/note/welcome'
-      preLoaderRoute: typeof NoteWelcomeImport
-      parentRoute: typeof rootRoute
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/404": {
+      id: "/404";
+      path: "/404";
+      fullPath: "/404";
+      preLoaderRoute: typeof R404Import;
+      parentRoute: typeof rootRoute;
+    };
+    "/app/changelog": {
+      id: "/app/changelog";
+      path: "/app/changelog";
+      fullPath: "/app/changelog";
+      preLoaderRoute: typeof AppChangelogImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/app/help": {
+      id: "/app/help";
+      path: "/app/help";
+      fullPath: "/app/help";
+      preLoaderRoute: typeof AppHelpImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/app/settings": {
+      id: "/app/settings";
+      path: "/app/settings";
+      fullPath: "/app/settings";
+      preLoaderRoute: typeof AppSettingsImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/note/$noteId": {
+      id: "/note/$noteId";
+      path: "/note/$noteId";
+      fullPath: "/note/$noteId";
+      preLoaderRoute: typeof NoteNoteIdImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/note/new": {
+      id: "/note/new";
+      path: "/note/new";
+      fullPath: "/note/new";
+      preLoaderRoute: typeof NoteNewImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/note/welcome": {
+      id: "/note/welcome";
+      path: "/note/welcome";
+      fullPath: "/note/welcome";
+      preLoaderRoute: typeof NoteWelcomeImport;
+      parentRoute: typeof rootRoute;
+    };
   }
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/404': typeof R404Route
-  '/app/changelog': typeof AppChangelogRoute
-  '/app/help': typeof AppHelpRoute
-  '/app/settings': typeof AppSettingsRoute
-  '/note/$noteId': typeof NoteNoteIdRoute
-  '/note/new': typeof NoteNewRoute
-  '/note/welcome': typeof NoteWelcomeRoute
+  "/": typeof IndexRoute;
+  "/404": typeof R404Route;
+  "/app/changelog": typeof AppChangelogRoute;
+  "/app/help": typeof AppHelpRoute;
+  "/app/settings": typeof AppSettingsRoute;
+  "/note/$noteId": typeof NoteNoteIdRoute;
+  "/note/new": typeof NoteNewRoute;
+  "/note/welcome": typeof NoteWelcomeRoute;
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/404': typeof R404Route
-  '/app/changelog': typeof AppChangelogRoute
-  '/app/help': typeof AppHelpRoute
-  '/app/settings': typeof AppSettingsRoute
-  '/note/$noteId': typeof NoteNoteIdRoute
-  '/note/new': typeof NoteNewRoute
-  '/note/welcome': typeof NoteWelcomeRoute
+  "/": typeof IndexRoute;
+  "/404": typeof R404Route;
+  "/app/changelog": typeof AppChangelogRoute;
+  "/app/help": typeof AppHelpRoute;
+  "/app/settings": typeof AppSettingsRoute;
+  "/note/$noteId": typeof NoteNoteIdRoute;
+  "/note/new": typeof NoteNewRoute;
+  "/note/welcome": typeof NoteWelcomeRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/404': typeof R404Route
-  '/app/changelog': typeof AppChangelogRoute
-  '/app/help': typeof AppHelpRoute
-  '/app/settings': typeof AppSettingsRoute
-  '/note/$noteId': typeof NoteNoteIdRoute
-  '/note/new': typeof NoteNewRoute
-  '/note/welcome': typeof NoteWelcomeRoute
+  __root__: typeof rootRoute;
+  "/": typeof IndexRoute;
+  "/404": typeof R404Route;
+  "/app/changelog": typeof AppChangelogRoute;
+  "/app/help": typeof AppHelpRoute;
+  "/app/settings": typeof AppSettingsRoute;
+  "/note/$noteId": typeof NoteNoteIdRoute;
+  "/note/new": typeof NoteNewRoute;
+  "/note/welcome": typeof NoteWelcomeRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/404'
-    | '/app/changelog'
-    | '/app/help'
-    | '/app/settings'
-    | '/note/$noteId'
-    | '/note/new'
-    | '/note/welcome'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/404"
+    | "/app/changelog"
+    | "/app/help"
+    | "/app/settings"
+    | "/note/$noteId"
+    | "/note/new"
+    | "/note/welcome";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/404'
-    | '/app/changelog'
-    | '/app/help'
-    | '/app/settings'
-    | '/note/$noteId'
-    | '/note/new'
-    | '/note/welcome'
+    | "/"
+    | "/404"
+    | "/app/changelog"
+    | "/app/help"
+    | "/app/settings"
+    | "/note/$noteId"
+    | "/note/new"
+    | "/note/welcome";
   id:
-    | '__root__'
-    | '/'
-    | '/404'
-    | '/app/changelog'
-    | '/app/help'
-    | '/app/settings'
-    | '/note/$noteId'
-    | '/note/new'
-    | '/note/welcome'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/404"
+    | "/app/changelog"
+    | "/app/help"
+    | "/app/settings"
+    | "/note/$noteId"
+    | "/note/new"
+    | "/note/welcome";
+  fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  R404Route: typeof R404Route
-  AppChangelogRoute: typeof AppChangelogRoute
-  AppHelpRoute: typeof AppHelpRoute
-  AppSettingsRoute: typeof AppSettingsRoute
-  NoteNoteIdRoute: typeof NoteNoteIdRoute
-  NoteNewRoute: typeof NoteNewRoute
-  NoteWelcomeRoute: typeof NoteWelcomeRoute
+  IndexRoute: typeof IndexRoute;
+  R404Route: typeof R404Route;
+  AppChangelogRoute: typeof AppChangelogRoute;
+  AppHelpRoute: typeof AppHelpRoute;
+  AppSettingsRoute: typeof AppSettingsRoute;
+  NoteNoteIdRoute: typeof NoteNoteIdRoute;
+  NoteNewRoute: typeof NoteNewRoute;
+  NoteWelcomeRoute: typeof NoteWelcomeRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -223,11 +223,11 @@ const rootRouteChildren: RootRouteChildren = {
   NoteNoteIdRoute: NoteNoteIdRoute,
   NoteNewRoute: NoteNewRoute,
   NoteWelcomeRoute: NoteWelcomeRoute,
-}
+};
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {

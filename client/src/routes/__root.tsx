@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { CommandPalette } from "~/blocks/CommandPalette";
-import { Notes } from "~/blocks/Notes";
+import { Notes, NotesActionModeSidebarFooter } from "~/blocks/Notes";
 import { InstallButton } from "~/blocks/PWA";
 import { Button } from "~/components/ui/button";
 import {
@@ -50,8 +50,8 @@ import { cn } from "~/lib/utils";
 
 // ORDERED BY PRIORITY
 // TODO: PWA correct spacing
-// TODO: add workspace suggestions
 // TODO: translations
+// TODO: add workspace suggestions
 // TODO: general styling of the whole app to be more vibrant / coder like. Maybe add some custom fonts
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
@@ -97,7 +97,7 @@ function RootComponent() {
 
       {/* DEV TOOLS */}
       <ReactQueryDevtools buttonPosition="bottom-right" />
-      <TanStackRouterDevtools position="bottom-left" />
+      <TanStackRouterDevtools position="bottom-right" />
     </ThemeProvider>
   );
 }
@@ -116,6 +116,7 @@ function AppSidebar() {
         <SidebarSeparator className="mx-0" />
         <Notes />
       </SidebarContent>
+      <NotesActionModeSidebarFooter />
       <SidebarRail />
       <NavigationSidebarToggler />
 

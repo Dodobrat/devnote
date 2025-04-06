@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { type EditorView } from "codemirror";
+import JSZip from "jszip";
 import { toast } from "sonner";
 
 import { LocalNotesAPI } from "~/api";
@@ -201,7 +202,43 @@ export function useDeleteNote() {
         queryKey: notesQueryKeys.list(),
       });
       if (routerState.location.pathname.startsWith(`/note/${payload}`)) {
-        navigate({ to: "/note/new", replace: true });
+        navigate({ to: "/note/new", replace: true, ignoreBlocker: true });
+      }
+    },
+  });
+}
+
+export function useBulkDeleteNotes() {
+  const queryClient = useQueryClient();
+  const routerState = useRouterState();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: (ids: NoteSchemaType["id"][]) => {
+      console.log("DELETE: bulk delete notes", { ids });
+
+      // logic when to switch to actual api
+      return LocalNotesAPI.bulkDelete(ids);
+    },
+    onSuccess: (_, payload) => {
+      toast.success(
+        `${payload.length} Note${payload.length > 1 ? "s" : ""} deleted`,
+      );
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.list(),
+      });
+
+      const isNoteByIdRoute = Boolean(
+        routerState.matches.find((v) => v.routeId === "/note/$noteId"),
+      );
+      if (!isNoteByIdRoute) return;
+
+      const currentPathNoteId = routerState.location.pathname.replace(
+        "/note/",
+        "",
+      );
+      if (payload.includes(currentPathNoteId)) {
+        navigate({ to: "/note/new", replace: true, ignoreBlocker: true });
       }
     },
   });
@@ -291,4 +328,38 @@ export function useSaveNote(noteData?: Pick<NoteSchemaType, "id">) {
     },
     [noteData?.id, create, update, setPrevNote, queryClient, navigate],
   );
+}
+
+export function useExportNotes() {
+  return useMutation({
+    mutationFn: async (data: Record<string, NoteSchemaType>) => {
+      console.log("ACTION: export notes in .zip");
+
+      const zip = new JSZip();
+
+      const notes = Object.values(data);
+      // Add each note to the ZIP archive as a separate Markdown file
+      notes.forEach((note, index) => {
+        const parsedTitle = toSnakeCase(note.title);
+        // Create a file with a .md extension
+        zip.file(`${parsedTitle || `note_${index + 1}`}.md`, note.note);
+      });
+
+      try {
+        // Generate the ZIP file as a Blob
+        const blob = await zip.generateAsync({ type: "blob" });
+        return blob;
+      } catch (error) {
+        console.error("Error generating ZIP file:", error);
+      }
+    },
+  });
+}
+
+export function toSnakeCase(title: string): string {
+  return title
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_") // Replace one or more spaces with an underscore
+    .replace(/[^a-z0-9_]/g, ""); // Remove any characters that are not letters, numbers, or underscores
 }
