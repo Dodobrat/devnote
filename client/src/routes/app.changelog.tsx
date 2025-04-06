@@ -23,6 +23,27 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
+## v0.2.0 ( 6 Apr 2025 )
+
+### Refactor
+
+- **CORE**: Upgraded to React 19.
+- **CORE**: Migrated to Tanstack Router.
+- **CORE**: Upgraded to Tailwindcss 4 with all shadcn components.
+- **CORE**: Moved all notes functionality to the sidebar.
+
+### Added
+
+- **CORE**: Import notes ( .md files or .zip archive ).
+- **CORE**: Export notes ( .zip archive ).
+- **CORE**: Download single note ( .md file ).
+- **CORE**: Bulk Delete notes.
+- **CORE**: Note preview side by side with resize and reset.
+
+_Overall complete re-write of the app with backwards compatible api for the data layer_
+
+---
+
 ## v0.1.1 ( 5 Dec 2024 )
 
 ### Added
@@ -38,6 +59,8 @@ const CHANGELOG = `
 - Derived title from the first line of the note content breaks create request when it is invalid.
 - When switching between Editor and Preview modes, the editor history and focus were not preserved.
 
+---
+
 ## v0.1.0 ( 2 Dec 2024 )
 
 ### Refactor
@@ -50,6 +73,7 @@ const CHANGELOG = `
 
 - Fixed wrong colors for toast close button.
 
+---
 
 ## v0.0.6 ( 12 Oct 2024 )
 
@@ -61,6 +85,7 @@ const CHANGELOG = `
 
 - Improved accessibility with more screen reader labels.
 
+---
 
 ## v0.0.5 ( 29 Sep 2024 )
 
@@ -73,6 +98,7 @@ const CHANGELOG = `
 - **Error Handling**: Added Error boundaries on multiple levels in order to catch errors and still have a usable UI.
 - **Customization**: When adding html to a note, \`<style>\` elements are now scoped to the markdown preview panel only.
 
+---
 
 ## v0.0.4 ( 29 Sep 2024 )
 
@@ -81,6 +107,7 @@ const CHANGELOG = `
 - Fixed server 404 page when hard refreshing with cleared cache.
 - Fixed blank editor but populated preview when loading a note by id.
 
+---
 
 ## v0.0.3 ( 28 Sep 2024 )
 
@@ -96,6 +123,7 @@ const CHANGELOG = `
 - **Editor**: Animating the resize handle toolbar on collapsing panels.
 - **Editor**: Bold headings in the editor.
 
+---
 
 ## v0.0.2 ( 24 Sep 2024 )
 
@@ -109,6 +137,7 @@ const CHANGELOG = `
 - **Mobile**: Show a lack of mobile optimization info toast in order to manage expectations :)
 - **Selection**: Style the text selection for more unique feel and look.
 
+---
 
 ## v0.0.1 ( 23 Sep 2024 )
 

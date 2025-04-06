@@ -14,7 +14,7 @@ export default defineConfig({
 
     VitePWA({
       devOptions: {
-        enabled: true,
+        enabled: false,
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 5000000, // ~5mb
