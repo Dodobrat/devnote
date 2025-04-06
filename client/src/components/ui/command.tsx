@@ -55,8 +55,8 @@ function CommandDialog({
         className={cn(
           "overflow-hidden",
           "p-0",
-          "md:top-[20vh]",
-          "top-4",
+          "md:top-safe-offset-[20vh]",
+          "top-safe-offset-4",
           "translate-y-0",
         )}
       >

@@ -30,7 +30,7 @@ function PageHeader({ title }: { title?: string }) {
   useDocumentTitle(title || "Hello?");
 
   return (
-    <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
+    <header className="bg-background top-safe-offset-0 sticky-header-mask sticky z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
       <Tooltip>
         <TooltipTrigger asChild>
           <SidebarTrigger variant="outline" />
@@ -70,7 +70,7 @@ function PageEditorHeader({
   useDocumentTitle(resolvedTitle);
 
   return (
-    <header className="bg-background sticky top-0 z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
+    <header className="bg-background top-safe-offset-0 sticky-header-mask sticky z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
       <Tooltip>
         <TooltipTrigger asChild>
           <SidebarTrigger variant="outline" />

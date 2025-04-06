@@ -21,6 +21,12 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-border": "var(--border)",
         } as React.CSSProperties
       }
+      gap={8}
+      toastOptions={{
+        className: isMobile
+          ? "top-safe-offset-0!"
+          : "bottom-safe-offset-0! left-safe-offset-0!",
+      }}
       {...props}
     />
   );

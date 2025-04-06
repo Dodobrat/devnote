@@ -49,7 +49,6 @@ import { useCommandPaletteOpenAtom } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
 // ORDERED BY PRIORITY
-// TODO: PWA correct spacing
 // TODO: translations
 // TODO: add workspace suggestions
 // TODO: general styling of the whole app to be more vibrant / coder like. Maybe add some custom fonts

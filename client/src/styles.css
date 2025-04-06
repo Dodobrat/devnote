@@ -2,6 +2,7 @@
 
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
+@plugin "tailwindcss-safe-area";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -138,5 +139,11 @@ code {
   }
   .dark {
     color-scheme: dark;
+  }
+}
+
+@layer utilities {
+  .sticky-header-mask {
+    box-shadow: 0 calc(env(safe-area-inset-top) * -1) 0 0 var(--background);
   }
 }

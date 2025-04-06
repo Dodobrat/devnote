@@ -73,7 +73,7 @@ export function InstallButton() {
     <Button
       variant="secondary"
       className={cn(
-        "fixed bottom-4 left-1/2 -translate-x-1/2",
+        "bottom-safe-offset-4 fixed left-1/2 -translate-x-1/2",
         "max-w-[calc(100%_-_2rem)]",
         "z-50",
       )}
