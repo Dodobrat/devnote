@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppWindowMacIcon } from "lucide-react";
+import { toast } from "sonner";
+import { useRegisterSW } from "virtual:pwa-register/react";
 
 import { Button } from "~/components/ui/button";
 import { useMediaQuery } from "~/hooks";
@@ -83,36 +85,34 @@ export function InstallButton() {
   );
 }
 
-// function ServiceWorkerPrompt() {
-//   const {
-//     needRefresh: [needRefresh, setNeedRefresh],
-//     offlineReady: [offlineReady, setOfflineReady],
-//     updateServiceWorker,
-//   } = useRegisterSW({
-//     onNeedRefresh: () => setNeedRefresh(true),
-//     onOfflineReady: () => setOfflineReady(true),
-//     onRegisterError() {
-//       toast.error("Failed to register service worker", { duration: Infinity });
-//     },
-//   });
+export function useServiceWorkerPrompt() {
+  const {
+    needRefresh: [needRefresh, setNeedRefresh],
+    offlineReady: [offlineReady, setOfflineReady],
+    updateServiceWorker,
+  } = useRegisterSW({
+    onNeedRefresh: () => setNeedRefresh(true),
+    onOfflineReady: () => setOfflineReady(true),
+    onRegisterError() {
+      toast.error("Failed to register service worker", { duration: Infinity });
+    },
+  });
 
-//   useEffect(() => {
-//     if (offlineReady) {
-//       toast.info("App is offline ready", { duration: Infinity });
-//     }
-//   }, [offlineReady]);
+  useEffect(() => {
+    if (offlineReady) {
+      toast.info("App is offline ready");
+    }
+  }, [offlineReady]);
 
-//   useEffect(() => {
-//     if (needRefresh) {
-//       toast.info("New version available", {
-//         duration: Infinity,
-//         action: {
-//           label: "Refresh",
-//           onClick: () => updateServiceWorker(true),
-//         },
-//       });
-//     }
-//   }, [needRefresh, updateServiceWorker]);
-
-//   return null;
-// }
+  useEffect(() => {
+    if (needRefresh) {
+      toast.info("New version available", {
+        duration: Infinity,
+        action: {
+          label: "Refresh",
+          onClick: () => updateServiceWorker(true),
+        },
+      });
+    }
+  }, [needRefresh, updateServiceWorker]);
+}

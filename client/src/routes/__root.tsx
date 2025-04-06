@@ -20,7 +20,7 @@ import {
 
 import { CommandPalette } from "~/blocks/CommandPalette";
 import { Notes, NotesActionModeSidebarFooter } from "~/blocks/Notes";
-import { InstallButton } from "~/blocks/PWA";
+import { InstallButton, useServiceWorkerPrompt } from "~/blocks/PWA";
 import { Button } from "~/components/ui/button";
 import {
   Sidebar,
@@ -71,6 +71,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
   useOnlineNotification();
+  useServiceWorkerPrompt();
 
   const navigate = Route.useNavigate();
   useKeyDownEvent((e) => {
