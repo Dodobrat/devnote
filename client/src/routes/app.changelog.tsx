@@ -23,6 +23,21 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
+## v0.2.1 ( 7 Apr 2025 )
+
+### Fixes
+
+- Dialog content wasn't scrollable and could go out of screen.
+- Importing notes had a couple white spaces after the filename comment.
+- While editing a note if you tried to create a new note with the Ctrl / Cmd + Enter key combo, a new line appeared triggering the dirty note navigation blocker.
+- Due to excessive refetching, performance while typing and autosaving could sometimes cause the cursor to move to the beginning of the note.
+
+### Miscellaneous
+
+- Improved performance by implementing optimistic updates in a couple places.
+
+---
+
 ## v0.2.0 ( 6 Apr 2025 )
 
 ### Refactor

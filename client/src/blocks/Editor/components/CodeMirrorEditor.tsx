@@ -12,7 +12,7 @@ import {
   hyperLinkStyle,
 } from "@uiw/codemirror-extensions-hyper-link";
 import { vscodeDarkInit, vscodeLightInit } from "@uiw/codemirror-theme-vscode";
-import CodeMirror, { type Extension } from "@uiw/react-codemirror";
+import CodeMirror, { type Extension, Prec } from "@uiw/react-codemirror";
 import { EditorView } from "codemirror";
 
 import { getIsSaveCurrentNoteKeyCombo } from "~/constants/shortcuts";
@@ -228,6 +228,16 @@ export function CodeMirrorEditor({
             preventDefault: true,
           },
         ]),
+        // Forces the key-combo to execute before adding a new line with Enter
+        Prec.high(
+          keymap.of([
+            {
+              key: "Mod-Enter",
+              run: () => true,
+              preventDefault: true,
+            },
+          ]),
+        ),
       ]}
     />
   );

@@ -1,8 +1,10 @@
 import { useCallback } from "react";
 import {
+  type InfiniteData,
   infiniteQueryOptions,
   keepPreviousData,
   queryOptions,
+  type Updater,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -15,7 +17,11 @@ import { toast } from "sonner";
 
 import { LocalNotesAPI } from "~/api";
 import { getCurrentCursorPosition } from "~/blocks/Editor/components/CodeMirrorEditor";
-import { type NoteSchemaType, type UpdateNoteSchemaType } from "~/types/notes";
+import {
+  type NoteSchemaType,
+  type PaginatedNotesSchemaType,
+  type UpdateNoteSchemaType,
+} from "~/types/notes";
 
 import { useEditorNotePrevStateAtom } from "../store";
 
@@ -122,22 +128,12 @@ export function useCreateNote() {
 }
 
 export function useUpdateNote() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (body: UpdateNoteSchemaType) => {
       console.log("PUT: update note", { body });
 
       // logic when to switch to actual api
       return LocalNotesAPI.update(body);
-    },
-    onSuccess: (_, payload) => {
-      queryClient.refetchQueries({
-        queryKey: notesQueryKeys.list(),
-      });
-      queryClient.refetchQueries({
-        queryKey: notesQueryKeys.byId(payload.id),
-      });
     },
   });
 }
@@ -280,7 +276,7 @@ export function useReorderUnpinnedNotes() {
   });
 }
 
-export function useSaveNote(noteData?: Pick<NoteSchemaType, "id">) {
+export function useSaveNote(note?: NoteSchemaType) {
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
@@ -295,12 +291,24 @@ export function useSaveNote(noteData?: Pick<NoteSchemaType, "id">) {
       if (!editor) return;
       const cursorPosition = getCurrentCursorPosition(editor);
 
-      if (noteData?.id) {
+      if (note?.id) {
         return update(
-          { id: noteData.id, note: editor.state.doc.toString() },
+          { id: note.id, note: editor.state.doc.toString() },
           {
             onSuccess: (_, variables) => {
               setPrevNote(variables.note || "");
+
+              if (note.isPinned) {
+                queryClient.setQueryData(
+                  notesQueryKeys.pinnedList(),
+                  updateNoteListCache(variables),
+                );
+              } else {
+                queryClient.setQueryData(
+                  notesQueryKeys.unpinnedList(),
+                  updateNoteListCache(variables),
+                );
+              }
             },
           },
         );
@@ -326,8 +334,40 @@ export function useSaveNote(noteData?: Pick<NoteSchemaType, "id">) {
         },
       );
     },
-    [noteData?.id, create, update, setPrevNote, queryClient, navigate],
+    [
+      note?.id,
+      note?.isPinned,
+      create,
+      update,
+      setPrevNote,
+      queryClient,
+      navigate,
+    ],
   );
+}
+
+function updateNoteListCache(
+  variables: UpdateNoteSchemaType,
+): Updater<
+  InfiniteData<PaginatedNotesSchemaType>,
+  InfiniteData<PaginatedNotesSchemaType>
+> {
+  return (data) => {
+    if (!data) return data;
+
+    const updatedPages = data.pages.map((n) => ({
+      ...n,
+      data: n.data.map((x) => {
+        if (x.id !== variables.id) return x;
+        return { ...x, note: variables.note || "" };
+      }),
+    }));
+
+    return {
+      pages: updatedPages,
+      pageParams: data.pageParams,
+    };
+  };
 }
 
 export function useExportNotes() {

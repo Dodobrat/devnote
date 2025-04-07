@@ -87,6 +87,8 @@ function DialogContent({
           "shadow-lg",
           "duration-200",
           "sm:max-w-lg",
+          "max-h-[100vh-2rem]",
+          "overflow-hidden",
           className,
         )}
         {...props}

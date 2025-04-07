@@ -110,7 +110,7 @@ function NotesImport({ open, onOpenChange }: NotesActionsProps) {
   const addToStack = (importedNote: ImportedNote) => {
     const note = `<!-- ${importedNote.filename} -->
 
-  ${importedNote.note}`;
+${importedNote.note}`;
 
     setFileUploadStack((prev) => {
       const matchingFilename = prev.find(

@@ -36,7 +36,7 @@ function RouteComponent() {
   const [, setLastOpenedNote] = useLastOpenedNoteAtom();
   const { setNote } = useEditorNoteAtom();
 
-  const saveNote = useSaveNote({ id: noteId });
+  const saveNote = useSaveNote(data);
 
   const navigate = Route.useNavigate();
   const routerState = useRouterState();

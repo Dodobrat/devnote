@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { type ZodError } from "zod";
 
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import { useUpdateNote } from "~/hooks/query";
+import { notesQueryKeys, useUpdateNote } from "~/hooks/query";
 import { cn } from "~/lib/utils";
 import { type NoteSchemaType, titleSchema } from "~/types/notes";
 
@@ -15,6 +16,7 @@ export function NoteEditTitleForm({
   note: NoteSchemaType;
   onSuccess?: () => void;
 }) {
+  const queryClient = useQueryClient();
   const updateNoteMutation = useUpdateNote();
 
   const [title, setTitle] = useState(note.title);
@@ -39,6 +41,12 @@ export function NoteEditTitleForm({
           {
             onSuccess: () => {
               toast.success("Note title updated");
+              queryClient.refetchQueries({
+                queryKey: notesQueryKeys.list(),
+              });
+              queryClient.refetchQueries({
+                queryKey: notesQueryKeys.byId(note.id),
+              });
               onSuccess?.();
             },
             onError: () => toast.error("Failed to update note title"),

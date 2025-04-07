@@ -118,8 +118,9 @@ export function ResponsiveDialog({
             <DialogTitle>{labels.title}</DialogTitle>
             <DialogDescription>{labels.desc}</DialogDescription>
           </DialogHeader>
-
-          {children}
+          <div className="-mx-6 -mb-6 max-h-[50vh] overflow-auto px-6 pb-6">
+            {children}
+          </div>
         </DialogContent>
       </Dialog>
     );
