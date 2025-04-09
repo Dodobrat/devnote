@@ -40,7 +40,7 @@ function TooltipContent({
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
         data-slot="tooltip-content"
-        collisionPadding={16}
+        collisionPadding={{ top: 48, bottom: 48, left: 16, right: 16 }}
         className={cn(
           "bg-primary",
           "text-primary-foreground",
