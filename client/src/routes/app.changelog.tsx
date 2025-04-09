@@ -23,6 +23,18 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
+## v0.2.2 ( 9 Apr 2025 )
+
+### Fixes
+
+- Installed app safe area padding in drawers + sidebar bottom cropping on short pages.
+
+### Added
+
+- Splash screen for less layout shift on initial page load.
+
+---
+
 ## v0.2.1 ( 7 Apr 2025 )
 
 ### Fixes

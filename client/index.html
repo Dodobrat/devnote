@@ -41,6 +41,41 @@
     <link rel="canonical" href="https://devnote-nine.vercel.app" />
   </head>
   <body>
+    <style>
+      :root { --splash-bg: #fff; --splash-text: #000 }
+      @media (prefers-color-scheme: dark) {
+        :root { --splash-bg: #000; --splash-text: #fff }
+      }
+      .loaded { opacity: 0; pointer-events: none }
+      body:not(:has([data-splash].loaded)) { overflow: hidden }
+    </style>
+    <div
+      data-splash
+      style="
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        padding: 1rem;
+        background-color: var(--splash-bg);
+        color: var(--splash-text);
+        transition: all 200ms ease;
+        z-index:100"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        style="width:min(10rem,80vw)"
+        viewBox="0 0 24 24"
+      >
+        <path d="m4 17 6-6-6-6m8 14h8"/>
+      </svg>
+    </div>
+
     <div id="app"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

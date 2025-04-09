@@ -68,7 +68,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   },
 );
 
+function useSplashScreen() {
+  useEffect(() => {
+    const splashEl = document.querySelector("[data-splash]");
+    if (!splashEl) return;
+
+    setTimeout(() => {
+      splashEl.classList.add("loaded");
+    }, 250);
+  }, []);
+}
+
 function RootComponent() {
+  useSplashScreen();
   useOnlineNotification();
   useServiceWorkerPrompt();
 
