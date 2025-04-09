@@ -14,29 +14,6 @@ import {
 
 const DEFAULT_PAGINATION_SLICE = 50;
 
-export const NotesApi = {
-  // async getById(id: NoteSchemaType["id"]) {
-  //   // if locked, require password
-  //   return instance
-  //     .get<NoteSchemaType>(`/notes/${id}`)
-  //     .then(({ data }) => data);
-  // },
-  // async create(body: Pick<NoteSchemaType, "note">) {
-  //   return instance
-  //     .post<void, AxiosResponse<NoteSchemaType>>("/notes", body)
-  //     .then(({ data }) => data);
-  // },
-  // async update(body: UpdateNoteSchemaType) {
-  //   // update specific fields of a note by id
-  //   return instance
-  //     .put<boolean>(`/notes/${body.id}`, body)
-  //     .then(({ data }) => data);
-  // },
-  // async delete(id: NoteSchemaType["id"]) {
-  //   return instance.delete<boolean>(`/notes/${id}`).then(({ data }) => data);
-  // },
-};
-
 /**
  * LocalNotesAPI is a mock API that uses IndexedDB as the data store.
  */

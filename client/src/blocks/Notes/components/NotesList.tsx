@@ -210,7 +210,7 @@ function NoteItem({
     <SidebarMenuItem
       className={cn(
         "border-border bg-card grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto_auto] gap-1 gap-y-2 rounded-md border p-2",
-        isNotePage && "ring-offset-sidebar ring-primary ring ring-offset-2",
+        isNotePage && "ring-primary ring",
         isOverlay && "cursor-grabbing *:pointer-events-none",
         isDragged && "bg-secondary ring-0 ring-offset-0 *:opacity-0",
       )}

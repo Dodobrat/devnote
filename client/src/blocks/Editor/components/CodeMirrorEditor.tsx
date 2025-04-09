@@ -33,7 +33,7 @@ const bold = { fontWeight: "bold" };
 const normal = { fontWeight: "normal" };
 
 const elementStyles: TagStyle[] = [
-  { tag: tags.heading1, fontSize: "2.25em", lineHeight: 1.1, ...bold },
+  { tag: tags.heading1, fontSize: "2.25em", lineHeight: 1.17, ...bold }, // 1.1 initial line-height
   { tag: tags.heading2, fontSize: "1.5em", lineHeight: 1.3, ...bold },
   { tag: tags.heading3, fontSize: "1.25em", lineHeight: 1.6, ...bold },
   { tag: tags.heading4, fontSize: "1em", lineHeight: 1.5, ...bold },
@@ -160,23 +160,30 @@ export function CodeMirrorEditor({
       }}
       className={cn(
         "isolate h-full text-base",
+        //
         "**:[.cm-editor]:h-full",
         "**:[.cm-editor]:outline-none!",
         "**:[.cm-editor]:bg-transparent!",
         //
         "**:[.cm-scroller]:font-mono!",
         "**:[.cm-scroller]:p-4!",
-        // "**:[.cm-scroller]:pb-16",
         //
         "**:[.cm-content]:py-0!",
+        //
         "**:[.cm-line]:px-0!",
-        "**:[.cm-activeLine]:bg-secondary/50!",
+        //
+        "**:[.cm-activeLine]:bg-foreground/10!",
         //
         "**:[.cm-cursor]:border-l-2!",
         "**:[.cm-cursor]:-ml-px!",
         "**:[.cm-cursor]:border-foreground!",
         //
-        "**:[.cm-selectionLayer]:*:[.cm-selectionBackground]:bg-foreground!",
+        "**:[.cm-selectionLayer]:**:[.cm-selectionBackground]:bg-muted!",
+        "**:[.cm-focused_.cm-selectionLayer]:**:[.cm-selectionBackground]:bg-foreground!",
+        //
+        "**:[.cm-selectionMatch:has(*)]:bg-transparent!",
+        "**:[.cm-selectionMatch:has(*)]:**:bg-foreground/30!",
+        "**:[.cm-selectionMatch:not(:has(*))]:bg-foreground/30!",
         //
         isContainedWidth && "**:[.cm-scroller]:*:mx-auto!",
         isContainedWidth && "**:[.cm-scroller]:*:max-w-[calc(65ch_+_1.85rem)]",
