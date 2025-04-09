@@ -201,7 +201,6 @@ export function CodeMirrorEditor({
 
             // clear after navigate
             window.history.replaceState(null, "");
-            routerState.location.state.cursorPosition = undefined;
           }
         } else {
           setCurrentCursorPosition(editor, 0);
