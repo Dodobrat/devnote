@@ -71,7 +71,7 @@ export function Editor({ children, title, saveNote }: EditorProps) {
   return (
     <CodeMirrorInstanceProvider>
       <Page.EditorHeader title={title}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           {isMobile && (
             <Tooltip>
               <TooltipTrigger asChild>

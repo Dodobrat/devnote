@@ -140,6 +140,12 @@ code {
   .dark {
     color-scheme: dark;
   }
+  html,
+  body,
+  #app {
+    height: -webkit-fill-available;
+    min-height: 100vh;
+  }
 }
 
 @layer utilities {

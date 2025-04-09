@@ -6,7 +6,13 @@ import { cn } from "~/lib/utils";
 function TooltipProvider(
   props: React.ComponentProps<typeof TooltipPrimitive.Provider>,
 ) {
-  return <TooltipPrimitive.Provider data-slot="tooltip-provider" {...props} />;
+  return (
+    <TooltipPrimitive.Provider
+      data-slot="tooltip-provider"
+      delayDuration={300}
+      {...props}
+    />
+  );
 }
 
 function Tooltip({
@@ -27,7 +33,6 @@ function TooltipTrigger({
 
 function TooltipContent({
   className,
-  sideOffset = 0,
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
@@ -35,7 +40,7 @@ function TooltipContent({
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
         data-slot="tooltip-content"
-        sideOffset={sideOffset}
+        collisionPadding={16}
         className={cn(
           "bg-primary",
           "text-primary-foreground",
