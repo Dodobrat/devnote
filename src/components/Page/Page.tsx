@@ -9,7 +9,7 @@ import { cn } from "~/lib/utils";
 
 import { Separator, Sidebar, Tooltip } from "../ui";
 
-function PageBase({ children }: React.PropsWithChildren) {
+function PageRoot({ children }: React.PropsWithChildren) {
   const [isContainedWidth] = useEditorContainedWidthAtom();
 
   return (
@@ -124,7 +124,7 @@ function PageSection({
   );
 }
 
-export const Page = Object.assign(PageBase, {
+export const Page = Object.assign(PageRoot, {
   Header: PageHeader,
   Section: PageSection,
   EditorHeader: PageEditorHeader,

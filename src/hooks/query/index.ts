@@ -25,6 +25,8 @@ import {
 
 import { useEditorNotePrevStateAtom } from "../store";
 
+// MARK: Notes Query keys
+
 export const notesQueryKeys = {
   all: () => ["notes"],
   list: () => [...notesQueryKeys.all(), "list"],
@@ -34,6 +36,8 @@ export const notesQueryKeys = {
   byIdRoot: () => [...notesQueryKeys.all(), "byId"],
   byId: (id: NoteSchemaType["id"]) => [...notesQueryKeys.byIdRoot(), id],
 };
+
+// MARK: List Notes
 
 export function pinnedNotesQueryOptions() {
   return infiniteQueryOptions({
@@ -81,23 +85,6 @@ export function useUnPinnedNotes() {
   return useInfiniteQuery(unPinnedNotesQueryOptions());
 }
 
-export function noteByIdQueryOptions({ id }: Pick<NoteSchemaType, "id">) {
-  return queryOptions({
-    queryKey: notesQueryKeys.byId(id),
-    queryFn: () => {
-      console.log("GET: note by id", { id });
-
-      // logic when to switch to actual api
-      return LocalNotesAPI.getById(id);
-    },
-    enabled: Boolean(id),
-  });
-}
-
-export function useNote(id: NoteSchemaType["id"]) {
-  return useQuery(noteByIdQueryOptions({ id }));
-}
-
 export function searchNotesQueryOptions({ query }: { query: string }) {
   return queryOptions({
     queryKey: notesQueryKeys.byQuery(query),
@@ -115,6 +102,27 @@ export function searchNotesQueryOptions({ query }: { query: string }) {
 export function useSearchNotes(query: string) {
   return useQuery(searchNotesQueryOptions({ query }));
 }
+
+// MARK: Note by id
+
+export function noteByIdQueryOptions({ id }: Pick<NoteSchemaType, "id">) {
+  return queryOptions({
+    queryKey: notesQueryKeys.byId(id),
+    queryFn: () => {
+      console.log("GET: note by id", { id });
+
+      // logic when to switch to actual api
+      return LocalNotesAPI.getById(id);
+    },
+    enabled: Boolean(id),
+  });
+}
+
+export function useNote(id: NoteSchemaType["id"]) {
+  return useQuery(noteByIdQueryOptions({ id }));
+}
+
+// MARK: Note operations
 
 export function useCreateNote() {
   return useMutation({

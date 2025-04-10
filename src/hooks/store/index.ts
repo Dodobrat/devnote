@@ -6,6 +6,8 @@ import { WELCOME_TEXT } from "~/constants";
 import { type ThemeModeKey } from "~/context";
 import { type NoteSchemaType } from "~/types/notes";
 
+// MARK: Store keys
+
 export const storeKeys = {
   theme: "devnote.theme",
   sidebar: "devnote.sidebar",
@@ -16,6 +18,8 @@ export const storeKeys = {
   editorWelcomeNote: "devnote.editor.note.welcome",
   editorContainedWidth: "devnote.editor.containedWidth",
 } as const;
+
+// MARK: Persisting Atoms
 
 const themeAtom = atomWithStorage<ThemeModeKey>(storeKeys.theme, "system");
 export function useThemeAtom() {
@@ -55,7 +59,7 @@ export function useEditorWelcomeNoteAtom() {
   return useAtom(welcomeNoteAtom);
 }
 
-// TEMPORARY ATOMS
+// MARK: Temporary Atoms
 
 const noteAtom = atom("");
 export function useEditorNoteAtom() {
