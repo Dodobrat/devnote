@@ -173,6 +173,7 @@ dist
 
 # Finder (MacOS) folder config
 .DS_Store
-
-# Client sw
-client/dev-dist
+dist
+dist-ssr
+dev-dist
+*.local
