@@ -71,4 +71,7 @@ function ResizableHandle({
   );
 }
 
-export { ResizableHandle, ResizablePanel, ResizablePanelGroup };
+export const Resizable = Object.assign(ResizablePanelGroup, {
+  Handle: ResizableHandle,
+  Panel: ResizablePanel,
+});

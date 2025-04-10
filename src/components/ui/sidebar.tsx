@@ -6,20 +6,9 @@ import { PanelLeftIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Separator } from "~/components/ui/separator";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "~/components/ui/sheet";
+import { Sheet } from "~/components/ui/sheet";
 import { Skeleton } from "~/components/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+import { Tooltip } from "~/components/ui/tooltip";
 import { useIsMobile } from "~/hooks";
 import { cn } from "~/lib/utils";
 
@@ -128,7 +117,7 @@ function SidebarProvider({
 
   return (
     <SidebarContext.Provider value={contextValue}>
-      <TooltipProvider delayDuration={0}>
+      <Tooltip.Provider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"
           style={
@@ -146,12 +135,12 @@ function SidebarProvider({
         >
           {children}
         </div>
-      </TooltipProvider>
+      </Tooltip.Provider>
     </SidebarContext.Provider>
   );
 }
 
-function Sidebar({
+function SidebarRoot({
   side = "left",
   variant = "sidebar",
   collapsible = "offcanvas",
@@ -183,7 +172,7 @@ function Sidebar({
   if (isMobile) {
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-        <SheetContent
+        <Sheet.Content
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
@@ -195,12 +184,12 @@ function Sidebar({
           }
           side={side}
         >
-          <SheetHeader className="sr-only">
-            <SheetTitle>Sidebar</SheetTitle>
-            <SheetDescription>Displays the mobile sidebar.</SheetDescription>
-          </SheetHeader>
+          <Sheet.Header className="sr-only">
+            <Sheet.Title>Sidebar</Sheet.Title>
+            <Sheet.Description>Displays the mobile sidebar.</Sheet.Description>
+          </Sheet.Header>
           <div className="py-safe flex h-full w-full flex-col">{children}</div>
-        </SheetContent>
+        </Sheet.Content>
       </Sheet>
     );
   }
@@ -244,7 +233,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border py-safe flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
+          className="bg-sidebar group-data-[variant=floating]:border-sidebar-border md:py-safe flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm"
         >
           {children}
         </div>
@@ -507,7 +496,7 @@ function SidebarMenuButton({
 }: React.ComponentProps<"button"> & {
   asChild?: boolean;
   isActive?: boolean;
-  tooltip?: string | React.ComponentProps<typeof TooltipContent>;
+  tooltip?: string | React.ComponentProps<typeof Tooltip.Content>;
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
   const Comp = asChild ? Slot : "button";
   const { isMobile, state } = useSidebar();
@@ -535,8 +524,8 @@ function SidebarMenuButton({
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{button}</TooltipTrigger>
-      <TooltipContent
+      <Tooltip.Trigger asChild>{button}</Tooltip.Trigger>
+      <Tooltip.Content
         side="right"
         align="center"
         hidden={state !== "collapsed" || isMobile}
@@ -699,29 +688,29 @@ function SidebarMenuSubButton({
   );
 }
 
-export {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupAction,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarInput,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSkeleton,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarProvider,
-  SidebarRail,
-  SidebarSeparator,
-  SidebarTrigger,
-  useSidebar,
-};
+export { useSidebar };
+
+export const Sidebar = Object.assign(SidebarRoot, {
+  Content: SidebarContent,
+  Footer: SidebarFooter,
+  Group: SidebarGroup,
+  GroupAction: SidebarGroupAction,
+  GroupContent: SidebarGroupContent,
+  GroupLabel: SidebarGroupLabel,
+  Header: SidebarHeader,
+  Input: SidebarInput,
+  Inset: SidebarInset,
+  Menu: SidebarMenu,
+  MenuAction: SidebarMenuAction,
+  MenuBadge: SidebarMenuBadge,
+  MenuButton: SidebarMenuButton,
+  MenuItem: SidebarMenuItem,
+  MenuSkeleton: SidebarMenuSkeleton,
+  MenuSub: SidebarMenuSub,
+  MenuSubButton: SidebarMenuSubButton,
+  MenuSubItem: SidebarMenuSubItem,
+  Provider: SidebarProvider,
+  Rail: SidebarRail,
+  Separator: SidebarSeparator,
+  Trigger: SidebarTrigger,
+});

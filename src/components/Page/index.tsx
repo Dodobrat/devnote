@@ -7,9 +7,7 @@ import {
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
-import { Separator } from "../ui/separator";
-import { SidebarTrigger } from "../ui/sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Separator, Sidebar, Tooltip } from "../ui";
 
 function PageBase({ children }: React.PropsWithChildren) {
   const [isContainedWidth] = useEditorContainedWidthAtom();
@@ -32,12 +30,12 @@ function PageHeader({ title }: { title?: string }) {
   return (
     <header className="bg-background top-safe-offset-0 sticky-header-mask sticky z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
       <Tooltip>
-        <TooltipTrigger asChild>
-          <SidebarTrigger variant="outline" />
-        </TooltipTrigger>
-        <TooltipContent>
+        <Tooltip.Trigger asChild>
+          <Sidebar.Trigger variant="outline" />
+        </Tooltip.Trigger>
+        <Tooltip.Content>
           <p>Toggle sidebar</p>
-        </TooltipContent>
+        </Tooltip.Content>
       </Tooltip>
       <Separator
         orientation="vertical"
@@ -72,12 +70,12 @@ function PageEditorHeader({
   return (
     <header className="bg-background top-safe-offset-0 sticky-header-mask sticky z-40 mx-4 flex h-16 shrink-0 items-center gap-2">
       <Tooltip>
-        <TooltipTrigger asChild>
-          <SidebarTrigger variant="outline" />
-        </TooltipTrigger>
-        <TooltipContent>
+        <Tooltip.Trigger asChild>
+          <Sidebar.Trigger variant="outline" />
+        </Tooltip.Trigger>
+        <Tooltip.Content>
           <p>Toggle sidebar</p>
-        </TooltipContent>
+        </Tooltip.Content>
       </Tooltip>
       <Separator
         orientation="vertical"

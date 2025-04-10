@@ -7,16 +7,7 @@ import {
   TerminalIcon,
 } from "lucide-react";
 
-import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandShortcut,
-  CommandShortcutSnippet,
-} from "~/components/ui/command";
+import { Command } from "~/components/ui";
 import {
   createNewNoteShortcut,
   getIsOpenCommandPaletteBrowserKeyCombo,
@@ -58,41 +49,42 @@ export function CommandPalette() {
   const close = () => setCommandPaletteOpen(false);
 
   return (
-    <CommandDialog
+    <Command.Dialog
       open={commandPaletteOpen}
       onOpenChange={setCommandPaletteOpen}
       shouldFilter={!isNotePrompt}
     >
-      <CommandInput
+      <Command.Input
         value={prompt}
         onValueChange={setPrompt}
         placeholder="Type a command or search..."
       />
-      <CommandList>
-        <CommandEmpty>No results found.</CommandEmpty>
+      <Command.List>
+        <Command.Empty>No results found.</Command.Empty>
 
         {!prompt && (
-          <CommandGroup heading="Suggestions">
-            <CommandItem onSelect={() => setPrompt("/")}>
+          <Command.Group heading="Suggestions">
+            <Command.Item onSelect={() => setPrompt("/")}>
               <MilestoneIcon />
               <span>
-                Start with a <CommandShortcutSnippet>/</CommandShortcutSnippet>{" "}
-                to navigate to a page
+                Start with a{" "}
+                <Command.ShortcutSnippet>/</Command.ShortcutSnippet> to navigate
+                to a page
               </span>
-            </CommandItem>
-            <CommandItem onSelect={() => setPrompt(">")}>
+            </Command.Item>
+            <Command.Item onSelect={() => setPrompt(">")}>
               <TerminalIcon />
               <span>
                 Start with a{" "}
-                <CommandShortcutSnippet>&gt;</CommandShortcutSnippet> to execute
-                an action
+                <Command.ShortcutSnippet>&gt;</Command.ShortcutSnippet> to
+                execute an action
               </span>
-            </CommandItem>
-            <CommandItem>
+            </Command.Item>
+            <Command.Item>
               <StickyNoteIcon />
               <span>Start with a word to search for notes by title</span>
-            </CommandItem>
-          </CommandGroup>
+            </Command.Item>
+          </Command.Group>
         )}
 
         <PageCommandGroup show={isPathCommand} prompt={prompt} close={close} />
@@ -102,8 +94,8 @@ export function CommandPalette() {
           close={close}
         />
         <NotesCommandGroup show={isNotePrompt} prompt={prompt} close={close} />
-      </CommandList>
-    </CommandDialog>
+      </Command.List>
+    </Command.Dialog>
   );
 }
 
@@ -138,9 +130,9 @@ function PageCommandGroup({ show, prompt, close }: CommandGroupProps) {
 
   return (
     <>
-      <CommandGroup heading="Pages">
+      <Command.Group heading="Pages">
         {pages.map(({ to, label, shortcut }) => (
-          <CommandItem
+          <Command.Item
             key={to}
             onSelect={() => {
               navigate({ to });
@@ -150,12 +142,14 @@ function PageCommandGroup({ show, prompt, close }: CommandGroupProps) {
           >
             <MilestoneIcon />
             <span className="grow">{label}</span>
-            {Boolean(shortcut) && <CommandShortcut>{shortcut}</CommandShortcut>}
-          </CommandItem>
+            {Boolean(shortcut) && (
+              <Command.Shortcut>{shortcut}</Command.Shortcut>
+            )}
+          </Command.Item>
         ))}
-      </CommandGroup>
-      <CommandGroup heading="">
-        <CommandItem
+      </Command.Group>
+      <Command.Group heading="">
+        <Command.Item
           onSelect={() => {
             navigate({ to: prompt });
             close();
@@ -163,8 +157,8 @@ function PageCommandGroup({ show, prompt, close }: CommandGroupProps) {
         >
           <MilestoneIcon />
           <span>Go to {prompt}</span>
-        </CommandItem>
-      </CommandGroup>
+        </Command.Item>
+      </Command.Group>
     </>
   );
 }
@@ -178,9 +172,9 @@ function NotesCommandGroup({ show, prompt, close }: CommandGroupProps) {
   if (!data?.length) return null;
 
   return (
-    <CommandGroup heading="Notes">
+    <Command.Group heading="Notes">
       {data.map((note) => (
-        <CommandItem
+        <Command.Item
           key={note.id}
           onSelect={() => {
             navigate({ to: "/note/$noteId", params: { noteId: note.id } });
@@ -189,9 +183,9 @@ function NotesCommandGroup({ show, prompt, close }: CommandGroupProps) {
         >
           <StickyNoteIcon />
           <span>{note.title}</span>
-        </CommandItem>
+        </Command.Item>
       ))}
-    </CommandGroup>
+    </Command.Group>
   );
 }
 
@@ -237,9 +231,9 @@ function ActionsCommandGroup({ show, close }: CommandGroupProps) {
   if (!show) return null;
 
   return (
-    <CommandGroup heading="Actions">
+    <Command.Group heading="Actions">
       {commandActions.map(({ label, action, shortcut, checked }) => (
-        <CommandItem
+        <Command.Item
           key={label}
           onSelect={() => {
             action();
@@ -250,9 +244,9 @@ function ActionsCommandGroup({ show, close }: CommandGroupProps) {
           <TerminalIcon />
           <span className="mr-auto grow">{label}</span>
           {checked && <CheckIcon />}
-          {Boolean(shortcut) && <CommandShortcut>{shortcut}</CommandShortcut>}
-        </CommandItem>
+          {Boolean(shortcut) && <Command.Shortcut>{shortcut}</Command.Shortcut>}
+        </Command.Item>
       ))}
-    </CommandGroup>
+    </Command.Group>
   );
 }

@@ -4,12 +4,7 @@ import { RotateCcwIcon, SaveIcon } from "lucide-react";
 
 import { Editor } from "~/blocks/Editor";
 import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
-import { Button } from "~/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+import { Button, Tooltip } from "~/components/ui";
 import { WELCOME_TEXT } from "~/constants";
 import { useEditorNoteAtom, useEditorWelcomeNoteAtom } from "~/hooks/store";
 
@@ -59,7 +54,7 @@ function WelcomeMessageEditActions() {
     <>
       <div className="flex gap-2">
         <Tooltip>
-          <TooltipTrigger asChild>
+          <Tooltip.Trigger asChild>
             <Button
               variant="ghost"
               size="icon"
@@ -69,13 +64,13 @@ function WelcomeMessageEditActions() {
               <RotateCcwIcon />
               <span className="sr-only">Reset to default</span>
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
+          </Tooltip.Trigger>
+          <Tooltip.Content>
             <p>Reset to default</p>
-          </TooltipContent>
+          </Tooltip.Content>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger asChild>
+          <Tooltip.Trigger asChild>
             <Button
               variant="ghost"
               size="icon"
@@ -85,10 +80,10 @@ function WelcomeMessageEditActions() {
               <SaveIcon />
               <span className="sr-only">Save note</span>
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>
+          </Tooltip.Trigger>
+          <Tooltip.Content>
             <p>Save note</p>
-          </TooltipContent>
+          </Tooltip.Content>
         </Tooltip>
       </div>
 

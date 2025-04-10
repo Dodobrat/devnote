@@ -4,7 +4,7 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 
 import { cn } from "~/lib/utils";
 
-function DropdownMenu({
+function DropdownMenuRoot({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -235,20 +235,19 @@ function DropdownMenuSubContent({
   );
 }
 
-export {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-};
+export const DropdownMenu = Object.assign(DropdownMenuRoot, {
+  CheckboxItem: DropdownMenuCheckboxItem,
+  Content: DropdownMenuContent,
+  Group: DropdownMenuGroup,
+  Item: DropdownMenuItem,
+  Label: DropdownMenuLabel,
+  Portal: DropdownMenuPortal,
+  RadioGroup: DropdownMenuRadioGroup,
+  RadioItem: DropdownMenuRadioItem,
+  Separator: DropdownMenuSeparator,
+  Shortcut: DropdownMenuShortcut,
+  Sub: DropdownMenuSub,
+  SubContent: DropdownMenuSubContent,
+  SubTrigger: DropdownMenuSubTrigger,
+  Trigger: DropdownMenuTrigger,
+});

@@ -12,20 +12,7 @@ import {
 import { toast } from "sonner";
 
 import { ResponsiveDialog } from "~/components/ResponsiveDialog";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import { Input } from "~/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+import { Button, DropdownMenu, Input, Tabs, Tooltip } from "~/components/ui";
 import { useIsMobile } from "~/hooks";
 import { notesQueryKeys, useCreateNote } from "~/hooks/query";
 import {
@@ -47,43 +34,43 @@ export function NotesBulkActions() {
     <>
       <DropdownMenu>
         <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
+          <Tooltip.Trigger asChild>
+            <DropdownMenu.Trigger asChild>
               <Button size="icon" variant="outline">
                 <EllipsisVerticalIcon />
                 <span className="sr-only">Notes actions</span>
               </Button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent>
+            </DropdownMenu.Trigger>
+          </Tooltip.Trigger>
+          <Tooltip.Content>
             <p>Notes actions</p>
-          </TooltipContent>
+          </Tooltip.Content>
         </Tooltip>
 
-        <DropdownMenuContent
+        <DropdownMenu.Content
           side={isMobile ? "bottom" : "right"}
           align={isMobile ? "end" : "start"}
           className="min-w-56"
         >
-          <DropdownMenuItem onClick={() => setShowImportNotes(true)}>
+          <DropdownMenu.Item onClick={() => setShowImportNotes(true)}>
             <DownloadIcon />
             <span>Import</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
             disabled={isDeleteMode || isExportMode}
             onClick={() => setIsExportMode(true)}
           >
             <UploadIcon />
             <span>Export</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
             disabled={isDeleteMode || isExportMode}
             onClick={() => setIsDeleteMode(true)}
           >
             <Trash2Icon className="text-destructive" />
             <span>Bulk Delete</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
       </DropdownMenu>
 
       <NotesImport open={showImportNotes} onOpenChange={closeAction} />
@@ -218,11 +205,11 @@ ${importedNote.note}`;
     >
       <div className={cn("flex flex-col gap-4", "px-4 md:px-0")}>
         <Tabs defaultValue="files" className="grow">
-          <TabsList className="w-full">
-            <TabsTrigger value="files">Files</TabsTrigger>
-            <TabsTrigger value="zip">Zip</TabsTrigger>
-          </TabsList>
-          <TabsContent value="files">
+          <Tabs.List className="w-full">
+            <Tabs.Trigger value="files">Files</Tabs.Trigger>
+            <Tabs.Trigger value="zip">Zip</Tabs.Trigger>
+          </Tabs.List>
+          <Tabs.Content value="files">
             <Input
               type="file"
               accept=".md"
@@ -230,10 +217,10 @@ ${importedNote.note}`;
               multiple
               onChange={onFilesChange}
             />
-          </TabsContent>
-          <TabsContent value="zip">
+          </Tabs.Content>
+          <Tabs.Content value="zip">
             <Input type="file" accept=".zip" value="" onChange={onZipChange} />
-          </TabsContent>
+          </Tabs.Content>
         </Tabs>
 
         {Boolean(fileUploadStack.length) && (

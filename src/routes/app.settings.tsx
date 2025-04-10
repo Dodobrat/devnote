@@ -2,8 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { LaptopMinimalIcon, MoonIcon, PencilIcon, SunIcon } from "lucide-react";
 
 import { Page } from "~/components/Page";
-import { Button } from "~/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Button, Tabs } from "~/components/ui";
 import { ThemeMode, type ThemeModeKey, useTheme } from "~/context";
 import {
   useEditorAutosaveAtom,
@@ -63,20 +62,20 @@ function ThemeSwitch() {
 
   return (
     <Tabs value={theme} onValueChange={(v) => setTheme(v as ThemeModeKey)}>
-      <TabsList className="h-auto">
-        <TabsTrigger value={ThemeMode.Light} className="min-h-10 md:px-4">
+      <Tabs.List className="h-auto">
+        <Tabs.Trigger value={ThemeMode.Light} className="min-h-10 md:px-4">
           <SunIcon className="md:mr-2 md:size-5" aria-hidden />
           <span className="hidden md:block">Light</span>
-        </TabsTrigger>
-        <TabsTrigger value={ThemeMode.Dark} className="min-h-10 md:px-4">
+        </Tabs.Trigger>
+        <Tabs.Trigger value={ThemeMode.Dark} className="min-h-10 md:px-4">
           <MoonIcon className="md:mr-2 md:size-5" aria-hidden />
           <span className="hidden md:block">Dark</span>
-        </TabsTrigger>
-        <TabsTrigger value={ThemeMode.System} className="min-h-10 md:px-4">
+        </Tabs.Trigger>
+        <Tabs.Trigger value={ThemeMode.System} className="min-h-10 md:px-4">
           <LaptopMinimalIcon className="md:mr-2 md:size-5" aria-hidden />
           <span className="hidden md:block">System</span>
-        </TabsTrigger>
-      </TabsList>
+        </Tabs.Trigger>
+      </Tabs.List>
     </Tabs>
   );
 }
@@ -109,14 +108,14 @@ function BooleanToggle({
       value={value ? "1" : ""}
       onValueChange={(v) => onValueChange(Boolean(v))}
     >
-      <TabsList className="h-auto">
-        <TabsTrigger value="1" className="min-h-10 md:px-4">
+      <Tabs.List className="h-auto">
+        <Tabs.Trigger value="1" className="min-h-10 md:px-4">
           {truthyLabel}
-        </TabsTrigger>
-        <TabsTrigger value="" className="min-h-10 md:px-4">
+        </Tabs.Trigger>
+        <Tabs.Trigger value="" className="min-h-10 md:px-4">
           {falsyLabel}
-        </TabsTrigger>
-      </TabsList>
+        </Tabs.Trigger>
+      </Tabs.List>
     </Tabs>
   );
 }

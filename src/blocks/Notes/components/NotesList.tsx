@@ -23,21 +23,13 @@ import { CSS } from "@dnd-kit/utilities";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { HandIcon } from "lucide-react";
 
-import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
 import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuItem,
-  useSidebar,
-} from "~/components/ui/sidebar";
-import {
+  Button,
+  Separator,
+  Sidebar,
   Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+  useSidebar,
+} from "~/components/ui";
 import { useReorderPinnedNotes, useReorderUnpinnedNotes } from "~/hooks/query";
 import {
   useBulkDeleteNotesAtom,
@@ -108,9 +100,9 @@ export function NotesList({
   const isDisabledReorder = disableReorder || items.length < 2;
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupContent>
-        <SidebarGroupLabel>{getNoteLabel()}</SidebarGroupLabel>
+    <Sidebar.Group className="group-data-[collapsible=icon]:hidden">
+      <Sidebar.GroupContent>
+        <Sidebar.GroupLabel>{getNoteLabel()}</Sidebar.GroupLabel>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -123,7 +115,7 @@ export function NotesList({
             strategy={verticalListSortingStrategy}
             disabled={isDisabledReorder}
           >
-            <SidebarMenu>
+            <Sidebar.Menu>
               {items.map((note) => (
                 <DraggableNoteItem
                   key={note.id}
@@ -131,14 +123,14 @@ export function NotesList({
                   isDisabledReorder={isDisabledReorder}
                 />
               ))}
-            </SidebarMenu>
+            </Sidebar.Menu>
           </SortableContext>
           <DragOverlay>
             {activeNote ? <NoteItem note={activeNote} isOverlay /> : null}
           </DragOverlay>
         </DndContext>
-      </SidebarGroupContent>
-    </SidebarGroup>
+      </Sidebar.GroupContent>
+    </Sidebar.Group>
   );
 }
 
@@ -187,7 +179,7 @@ function NoteItem({
   isOverlay,
   isDisabledReorder,
   ...rest
-}: React.ComponentProps<typeof SidebarMenuItem> & {
+}: React.ComponentProps<typeof Sidebar.MenuItem> & {
   note: NoteSchemaType;
   listeners?: ReturnType<typeof useSortable>["listeners"];
   isDragged?: boolean;
@@ -207,7 +199,7 @@ function NoteItem({
   const isInNotesActionMode = bulkDeleteMode || exportMode;
 
   return (
-    <SidebarMenuItem
+    <Sidebar.MenuItem
       className={cn(
         "border-border bg-card grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto_auto] gap-1 gap-y-2 rounded-md border p-2",
         isNotePage && "ring-primary ring",
@@ -222,7 +214,7 @@ function NoteItem({
       {!isInNotesActionMode && (
         <>
           <Tooltip>
-            <TooltipTrigger asChild>
+            <Tooltip.Trigger asChild>
               <Button
                 size="icon"
                 variant={isDisabledReorder ? "secondary" : "ghost"}
@@ -233,10 +225,10 @@ function NoteItem({
                 <HandIcon />
                 <span className="sr-only">Reorder</span>
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
               <p>Reorder</p>
-            </TooltipContent>
+            </Tooltip.Content>
           </Tooltip>
 
           <NotePinAction note={note} />
@@ -263,7 +255,7 @@ function NoteItem({
           </p>
         </Link>
       </Button>
-    </SidebarMenuItem>
+    </Sidebar.MenuItem>
   );
 }
 

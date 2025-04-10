@@ -4,26 +4,7 @@ import { type EditorView } from "codemirror";
 import { Columns2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
 
 import { Page } from "~/components/Page";
-import { Button } from "~/components/ui/button";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "~/components/ui/drawer";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "~/components/ui/resizable";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+import { Button, Drawer, Resizable, Tooltip } from "~/components/ui";
 import {
   getIsResetEditorPreviewSizeKeyCombo,
   getIsShowEditorPreviewKeyCombo,
@@ -74,7 +55,7 @@ export function Editor({ children, title, saveNote }: EditorProps) {
         <div className="flex items-center">
           {isMobile && (
             <Tooltip>
-              <TooltipTrigger asChild>
+              <Tooltip.Trigger asChild>
                 <Button
                   size="icon"
                   variant="ghost"
@@ -83,16 +64,16 @@ export function Editor({ children, title, saveNote }: EditorProps) {
                   {showEditorPreview ? <EyeOffIcon /> : <EyeIcon />}
                   <span className="sr-only">Toggle editor preview</span>
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>
+              </Tooltip.Trigger>
+              <Tooltip.Content>
                 <p>Toggle editor preview</p>
-              </TooltipContent>
+              </Tooltip.Content>
             </Tooltip>
           )}
 
           {!isMobile && !showEditorPreview && (
             <Tooltip>
-              <TooltipTrigger asChild>
+              <Tooltip.Trigger asChild>
                 <Button
                   size="icon"
                   variant="ghost"
@@ -101,17 +82,17 @@ export function Editor({ children, title, saveNote }: EditorProps) {
                   <EyeIcon />
                   <span className="sr-only">Toggle editor preview</span>
                 </Button>
-              </TooltipTrigger>
-              <TooltipContent>
+              </Tooltip.Trigger>
+              <Tooltip.Content>
                 <p>Toggle editor preview</p>
-              </TooltipContent>
+              </Tooltip.Content>
             </Tooltip>
           )}
 
           {!isMobile && showEditorPreview && (
             <div className="inline-flex items-center gap-1 rounded-lg border">
               <Tooltip>
-                <TooltipTrigger asChild>
+                <Tooltip.Trigger asChild>
                   <Button
                     size="icon"
                     variant="ghost"
@@ -121,14 +102,14 @@ export function Editor({ children, title, saveNote }: EditorProps) {
                     <Columns2Icon />
                     <span className="sr-only">Reset preview size</span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
+                </Tooltip.Trigger>
+                <Tooltip.Content>
                   <p>Reset preview size</p>
-                </TooltipContent>
+                </Tooltip.Content>
               </Tooltip>
               <div className="bg-border h-6 w-px" />
               <Tooltip>
-                <TooltipTrigger asChild>
+                <Tooltip.Trigger asChild>
                   <Button
                     size="icon"
                     variant="ghost"
@@ -137,10 +118,10 @@ export function Editor({ children, title, saveNote }: EditorProps) {
                     <EyeOffIcon />
                     <span className="sr-only">Toggle editor preview</span>
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
+                </Tooltip.Trigger>
+                <Tooltip.Content>
                   <p>Toggle editor preview</p>
-                </TooltipContent>
+                </Tooltip.Content>
               </Tooltip>
             </div>
           )}
@@ -155,24 +136,24 @@ export function Editor({ children, title, saveNote }: EditorProps) {
           <EditorFocusManager />
 
           <Drawer open={showEditorPreview} onOpenChange={setShowEditorPreview}>
-            <DrawerHeader>
-              <DrawerTitle></DrawerTitle>
-              <DrawerDescription></DrawerDescription>
-            </DrawerHeader>
-            <DrawerContent>
+            <Drawer.Header>
+              <Drawer.Title></Drawer.Title>
+              <Drawer.Description></Drawer.Description>
+            </Drawer.Header>
+            <Drawer.Content>
               <EditorOutput />
-              <DrawerFooter>
-                <DrawerClose asChild>
+              <Drawer.Footer>
+                <Drawer.Close asChild>
                   <Button variant="outline">Cancel</Button>
-                </DrawerClose>
-              </DrawerFooter>
-            </DrawerContent>
+                </Drawer.Close>
+              </Drawer.Footer>
+            </Drawer.Content>
           </Drawer>
         </>
       )}
 
       {!isMobile && (
-        <ResizablePanelGroup
+        <Resizable
           direction="horizontal"
           autoSaveId={storeKeys.editorLayout}
           onLayout={([left, right]) => {
@@ -180,7 +161,7 @@ export function Editor({ children, title, saveNote }: EditorProps) {
             setIsEvenPanels(isEven);
           }}
         >
-          <ResizablePanel
+          <Resizable.Panel
             id="editor"
             order={0}
             minSize={MIN_RESIZE_PANEL_SIZE}
@@ -188,20 +169,20 @@ export function Editor({ children, title, saveNote }: EditorProps) {
           >
             <CodeMirrorEditor saveNote={saveNote} />
             <EditorFocusManager />
-          </ResizablePanel>
+          </Resizable.Panel>
           {showEditorPreview && (
             <>
-              <ResizableHandle withHandle />
-              <ResizablePanel
+              <Resizable.Handle withHandle />
+              <Resizable.Panel
                 id="preview"
                 order={1}
                 minSize={MIN_RESIZE_PANEL_SIZE}
               >
                 <EditorOutput />
-              </ResizablePanel>
+              </Resizable.Panel>
             </>
           )}
-        </ResizablePanelGroup>
+        </Resizable>
       )}
     </CodeMirrorInstanceProvider>
   );

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { Page } from "~/components/Page";
-import { CommandShortcutSnippet } from "~/components/ui/command";
+import { Command } from "~/components/ui";
 import {
   addCursorAboveShortcut,
   addCursorBelowShortcut,
@@ -131,14 +131,14 @@ function ShortcutSnippet({
       <p className="flex w-56 shrink-0 flex-col items-start gap-1">
         {Array.isArray(shortcut) ? (
           shortcut.map((s) => (
-            <CommandShortcutSnippet key={s} className="ml-0">
+            <Command.ShortcutSnippet key={s} className="ml-0">
               {s}
-            </CommandShortcutSnippet>
+            </Command.ShortcutSnippet>
           ))
         ) : (
-          <CommandShortcutSnippet className="ml-0">
+          <Command.ShortcutSnippet className="ml-0">
             {shortcut}
-          </CommandShortcutSnippet>
+          </Command.ShortcutSnippet>
         )}
       </p>
       <p>{children}</p>

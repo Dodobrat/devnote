@@ -6,7 +6,7 @@ import githubDarkTheme from "highlight.js/styles/github-dark.min.css?inline";
 import Markdown from "markdown-to-jsx";
 import { toast } from "sonner";
 
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components/ui";
 import { ThemeMode, useTheme } from "~/context";
 import { useEditorContainedWidthAtom, useEditorNoteAtom } from "~/hooks/store";
 import { cn } from "~/lib/utils";

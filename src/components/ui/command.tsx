@@ -2,16 +2,10 @@ import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import { SearchIcon } from "lucide-react";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
+import { Dialog } from "~/components/ui/dialog";
 import { cn } from "~/lib/utils";
 
-function Command({
+function CommandRoot({
   className,
   ...props
 }: React.ComponentProps<typeof CommandPrimitive>) {
@@ -47,11 +41,11 @@ function CommandDialog({
 }) {
   return (
     <Dialog {...props}>
-      <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
-      </DialogHeader>
-      <DialogContent
+      <Dialog.Header className="sr-only">
+        <Dialog.Title>{title}</Dialog.Title>
+        <Dialog.Description>{description}</Dialog.Description>
+      </Dialog.Header>
+      <Dialog.Content
         className={cn(
           "overflow-hidden",
           "p-0",
@@ -78,7 +72,7 @@ function CommandDialog({
         >
           {children}
         </Command>
-      </DialogContent>
+      </Dialog.Content>
     </Dialog>
   );
 }
@@ -206,15 +200,14 @@ function CommandShortcutSnippet({
   );
 }
 
-export {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-  CommandShortcutSnippet,
-};
+export const Command = Object.assign(CommandRoot, {
+  Dialog: CommandDialog,
+  Empty: CommandEmpty,
+  Group: CommandGroup,
+  Input: CommandInput,
+  Item: CommandItem,
+  List: CommandList,
+  Separator: CommandSeparator,
+  Shortcut: CommandShortcut,
+  ShortcutSnippet: CommandShortcutSnippet,
+});

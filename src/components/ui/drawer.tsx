@@ -3,7 +3,7 @@ import { Drawer as DrawerPrimitive } from "vaul";
 
 import { cn } from "~/lib/utils";
 
-function Drawer({
+function DrawerRoot({
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />;
@@ -123,16 +123,15 @@ function DrawerDescription({
   );
 }
 
-export {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerNested,
-  DrawerOverlay,
-  DrawerPortal,
-  DrawerTitle,
-  DrawerTrigger,
-};
+export const Drawer = Object.assign(DrawerRoot, {
+  Close: DrawerClose,
+  Content: DrawerContent,
+  Description: DrawerDescription,
+  Footer: DrawerFooter,
+  Header: DrawerHeader,
+  Nested: DrawerNested,
+  Overlay: DrawerOverlay,
+  Portal: DrawerPortal,
+  Title: DrawerTitle,
+  Trigger: DrawerTrigger,
+});

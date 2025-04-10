@@ -3,7 +3,7 @@ import { AppWindowMacIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useRegisterSW } from "virtual:pwa-register/react";
 
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components/ui";
 import { useMediaQuery } from "~/hooks";
 
 export function InstallButton() {

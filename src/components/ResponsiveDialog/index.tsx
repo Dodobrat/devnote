@@ -1,32 +1,6 @@
 import { useIsMobile } from "~/hooks";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
-import { Button } from "../ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "../ui/dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "../ui/drawer";
+import { AlertDialog, Button, Dialog, Drawer } from "../ui";
 
 type ResponsiveConfirmationProps = {
   open: boolean;
@@ -53,41 +27,41 @@ export function ResponsiveConfirmation({
   if (!isMobile) {
     return (
       <AlertDialog open={open} onOpenChange={onOpenChange}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{labels.title}</AlertDialogTitle>
-            <AlertDialogDescription>{labels.desc}</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={onCancel}>
+        <AlertDialog.Content>
+          <AlertDialog.Header>
+            <AlertDialog.Title>{labels.title}</AlertDialog.Title>
+            <AlertDialog.Description>{labels.desc}</AlertDialog.Description>
+          </AlertDialog.Header>
+          <AlertDialog.Footer>
+            <AlertDialog.Cancel onClick={onCancel}>
               {labels.cancel}
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={onContinue}>
+            </AlertDialog.Cancel>
+            <AlertDialog.Action onClick={onContinue}>
               {labels.continue}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
+            </AlertDialog.Action>
+          </AlertDialog.Footer>
+        </AlertDialog.Content>
       </AlertDialog>
     );
   }
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>{labels.title}</DrawerTitle>
-          <DrawerDescription>{labels.desc}</DrawerDescription>
-        </DrawerHeader>
+      <Drawer.Content>
+        <Drawer.Header className="text-left">
+          <Drawer.Title>{labels.title}</Drawer.Title>
+          <Drawer.Description>{labels.desc}</Drawer.Description>
+        </Drawer.Header>
 
-        <DrawerFooter className="pt-2">
+        <Drawer.Footer className="pt-2">
           <Button onClick={onContinue}>{labels.continue}</Button>
-          <DrawerClose asChild>
+          <Drawer.Close asChild>
             <Button variant="ghost" onClick={onCancel}>
               {labels.cancel}
             </Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
+          </Drawer.Close>
+        </Drawer.Footer>
+      </Drawer.Content>
     </Drawer>
   );
 }
@@ -113,35 +87,35 @@ export function ResponsiveDialog({
   if (!isMobile) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{labels.title}</DialogTitle>
-            <DialogDescription>{labels.desc}</DialogDescription>
-          </DialogHeader>
+        <Dialog.Content className="sm:max-w-md">
+          <Dialog.Header>
+            <Dialog.Title>{labels.title}</Dialog.Title>
+            <Dialog.Description>{labels.desc}</Dialog.Description>
+          </Dialog.Header>
           <div className="-mx-6 -mb-6 max-h-[50vh] overflow-auto px-6 pb-6">
             {children}
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog>
     );
   }
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        <DrawerHeader className="text-left">
-          <DrawerTitle>{labels.title}</DrawerTitle>
-          <DrawerDescription>{labels.desc}</DrawerDescription>
-        </DrawerHeader>
+      <Drawer.Content>
+        <Drawer.Header className="text-left">
+          <Drawer.Title>{labels.title}</Drawer.Title>
+          <Drawer.Description>{labels.desc}</Drawer.Description>
+        </Drawer.Header>
 
         {children}
 
-        <DrawerFooter className="pt-2">
-          <DrawerClose asChild>
+        <Drawer.Footer className="pt-2">
+          <Drawer.Close asChild>
             <Button variant="ghost">{labels.cancel}</Button>
-          </DrawerClose>
-        </DrawerFooter>
-      </DrawerContent>
+          </Drawer.Close>
+        </Drawer.Footer>
+      </Drawer.Content>
     </Drawer>
   );
 }

@@ -1,7 +1,7 @@
 import { type ErrorComponentProps, Link } from "@tanstack/react-router";
 
 import { Page } from "../Page";
-import { Button } from "../ui/button";
+import { Button } from "../ui";
 
 export function PageErrorBoundary(props: ErrorComponentProps) {
   console.log(props.error);

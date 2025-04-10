@@ -3,13 +3,7 @@ import { FileUpIcon, ListRestartIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
-import { Button } from "~/components/ui/button";
-import { SidebarFooter } from "~/components/ui/sidebar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+import { Button, Sidebar, Tooltip } from "~/components/ui";
 import { useBulkDeleteNotes, useExportNotes } from "~/hooks/query";
 import {
   useBulkDeleteNotesAtom,
@@ -48,7 +42,7 @@ function NoteBulkDeleteMode() {
   const queueSize = notesToDelete.size;
 
   return (
-    <SidebarFooter>
+    <Sidebar.Footer>
       <div className="flex w-full items-center justify-between gap-2">
         <div className="grid gap-1">
           <small className="text-muted-foreground text-xs leading-tight">
@@ -59,7 +53,7 @@ function NoteBulkDeleteMode() {
 
         <div className="flex items-center gap-2">
           <Tooltip>
-            <TooltipTrigger asChild>
+            <Tooltip.Trigger asChild>
               <Button
                 size="icon"
                 variant="ghost"
@@ -68,14 +62,14 @@ function NoteBulkDeleteMode() {
                 <ListRestartIcon />
                 <span className="sr-only">Disable bulk delete mode</span>
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
               <p>Disable bulk delete mode</p>
-            </TooltipContent>
+            </Tooltip.Content>
           </Tooltip>
 
           <Tooltip>
-            <TooltipTrigger asChild>
+            <Tooltip.Trigger asChild>
               <Button
                 size="icon"
                 disabled={!queueSize}
@@ -84,10 +78,10 @@ function NoteBulkDeleteMode() {
                 <Trash2Icon />
                 <span className="sr-only">Delete selected notes</span>
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
               <p>Delete selected notes</p>
-            </TooltipContent>
+            </Tooltip.Content>
           </Tooltip>
         </div>
 
@@ -107,7 +101,7 @@ function NoteBulkDeleteMode() {
           }}
         />
       </div>
-    </SidebarFooter>
+    </Sidebar.Footer>
   );
 }
 
@@ -126,7 +120,7 @@ function NoteExportMode() {
   const queueSize = Object.keys(notesToExport).length;
 
   return (
-    <SidebarFooter>
+    <Sidebar.Footer>
       <div className="flex w-full items-center justify-between gap-2">
         <div className="grid gap-1">
           <small className="text-muted-foreground text-xs leading-tight">
@@ -137,19 +131,19 @@ function NoteExportMode() {
 
         <div className="flex items-center gap-2">
           <Tooltip>
-            <TooltipTrigger asChild>
+            <Tooltip.Trigger asChild>
               <Button size="icon" variant="ghost" onClick={resetExportQueue}>
                 <ListRestartIcon />
                 <span className="sr-only">Disable export mode</span>
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
               <p>Disable export mode</p>
-            </TooltipContent>
+            </Tooltip.Content>
           </Tooltip>
 
           <Tooltip>
-            <TooltipTrigger asChild>
+            <Tooltip.Trigger asChild>
               <Button
                 size="icon"
                 disabled={!queueSize}
@@ -158,10 +152,10 @@ function NoteExportMode() {
                 <FileUpIcon />
                 <span className="sr-only">Export selected notes</span>
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
               <p>Export selected notes</p>
-            </TooltipContent>
+            </Tooltip.Content>
           </Tooltip>
         </div>
 
@@ -198,6 +192,6 @@ function NoteExportMode() {
           }}
         />
       </div>
-    </SidebarFooter>
+    </Sidebar.Footer>
   );
 }

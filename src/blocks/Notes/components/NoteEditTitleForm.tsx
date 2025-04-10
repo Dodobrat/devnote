@@ -3,8 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { type ZodError } from "zod";
 
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { Button, Input } from "~/components/ui";
 import { notesQueryKeys, useUpdateNote } from "~/hooks/query";
 import { cn } from "~/lib/utils";
 import { type NoteSchemaType, titleSchema } from "~/types/notes";

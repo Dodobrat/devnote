@@ -20,26 +20,13 @@ import {
   ResponsiveConfirmation,
   ResponsiveDialog,
 } from "~/components/ResponsiveDialog";
-import { Button } from "~/components/ui/button";
-import { CommandShortcutSnippet } from "~/components/ui/command";
 import {
+  Button,
+  Command,
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
-import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarInput,
-} from "~/components/ui/sidebar";
-import {
+  Sidebar,
   Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+} from "~/components/ui";
 import { openCommandPaletteBrowserShortcut } from "~/constants/shortcuts";
 import {
   pinnedNotesQueryOptions,
@@ -76,15 +63,15 @@ export function Notes() {
 
   return (
     <>
-      <SidebarGroup className="py-0 group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel>Notes</SidebarGroupLabel>
-        <SidebarGroupContent>
+      <Sidebar.Group className="py-0 group-data-[collapsible=icon]:hidden">
+        <Sidebar.GroupLabel>Notes</Sidebar.GroupLabel>
+        <Sidebar.GroupContent>
           <div className="flex items-center gap-2">
             <div className="relative">
               <label htmlFor="search" className="sr-only">
                 Search
               </label>
-              <SidebarInput
+              <Sidebar.Input
                 id="search"
                 placeholder="Search notes"
                 className="pr-21 pl-8"
@@ -92,25 +79,25 @@ export function Notes() {
                 onChange={(e) => setQuery(e.target.value)}
               />
               <SearchIcon className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 opacity-50 select-none" />
-              <CommandShortcutSnippet className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 select-none">
+              <Command.ShortcutSnippet className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 select-none">
                 {openCommandPaletteBrowserShortcut}
-              </CommandShortcutSnippet>
+              </Command.ShortcutSnippet>
             </div>
 
             <NotesBulkActions />
           </div>
-        </SidebarGroupContent>
-      </SidebarGroup>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
 
       {Boolean(query) && (
         <>
           {!searchedNotesQuery.isFetching &&
             !searchedNotesQuery.data?.length && (
-              <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-                <SidebarGroupContent>
-                  <SidebarGroupLabel>No notes found</SidebarGroupLabel>
-                </SidebarGroupContent>
-              </SidebarGroup>
+              <Sidebar.Group className="group-data-[collapsible=icon]:hidden">
+                <Sidebar.GroupContent>
+                  <Sidebar.GroupLabel>No notes found</Sidebar.GroupLabel>
+                </Sidebar.GroupContent>
+              </Sidebar.Group>
             )}
 
           {Boolean(searchedNotesQuery.data?.length) && (
@@ -152,11 +139,11 @@ export function Notes() {
       )}
 
       {!query && hasNoNotesYet && (
-        <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-          <SidebarGroupContent>
-            <SidebarGroupLabel>No notes</SidebarGroupLabel>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <Sidebar.Group className="group-data-[collapsible=icon]:hidden">
+          <Sidebar.GroupContent>
+            <Sidebar.GroupLabel>No notes</Sidebar.GroupLabel>
+          </Sidebar.GroupContent>
+        </Sidebar.Group>
       )}
     </>
   );
@@ -169,7 +156,7 @@ export function NotePinAction({ note }: { note: NoteSchemaType }) {
   if (note.isPinned) {
     return (
       <Tooltip>
-        <TooltipTrigger asChild>
+        <Tooltip.Trigger asChild>
           <Button
             size="icon"
             variant="ghost"
@@ -178,17 +165,17 @@ export function NotePinAction({ note }: { note: NoteSchemaType }) {
             <PinOffIcon />
             <span className="sr-only">Unpin</span>
           </Button>
-        </TooltipTrigger>
-        <TooltipContent>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
           <p>Unpin</p>
-        </TooltipContent>
+        </Tooltip.Content>
       </Tooltip>
     );
   }
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>
+      <Tooltip.Trigger asChild>
         <Button
           size="icon"
           variant="ghost"
@@ -197,10 +184,10 @@ export function NotePinAction({ note }: { note: NoteSchemaType }) {
           <PinIcon />
           <span className="sr-only">Pin</span>
         </Button>
-      </TooltipTrigger>
-      <TooltipContent>
+      </Tooltip.Trigger>
+      <Tooltip.Content>
         <p>Pin</p>
-      </TooltipContent>
+      </Tooltip.Content>
     </Tooltip>
   );
 }
@@ -211,8 +198,8 @@ export function NoteActions({
   align,
 }: {
   note: NoteSchemaType;
-  side?: React.ComponentProps<typeof DropdownMenuContent>["side"];
-  align?: React.ComponentProps<typeof DropdownMenuContent>["align"];
+  side?: React.ComponentProps<typeof DropdownMenu.Content>["side"];
+  align?: React.ComponentProps<typeof DropdownMenu.Content>["align"];
 }) {
   const deleteNoteMutation = useDeleteNote();
 
@@ -223,19 +210,19 @@ export function NoteActions({
     <>
       <DropdownMenu>
         <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
+          <Tooltip.Trigger asChild>
+            <DropdownMenu.Trigger asChild>
               <Button size="icon" variant="ghost">
                 <EllipsisVerticalIcon />
                 <span className="sr-only">Note actions</span>
               </Button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
-          <TooltipContent>
+            </DropdownMenu.Trigger>
+          </Tooltip.Trigger>
+          <Tooltip.Content>
             <p>Note actions</p>
-          </TooltipContent>
+          </Tooltip.Content>
         </Tooltip>
-        <DropdownMenuContent side={side} align={align} className="min-w-56">
+        <DropdownMenu.Content side={side} align={align} className="min-w-56">
           <div className="flex flex-col text-sm">
             <div className="space-y-0.5 p-2">
               <p className="text-muted-foreground flex items-center gap-2 leading-tight">
@@ -261,30 +248,30 @@ export function NoteActions({
               <p className="leading-tight">{note.note.length}</p>
             </div>
           </div>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setEditTitleDialog(true)}>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item onClick={() => setEditTitleDialog(true)}>
             <PencilIcon className="text-muted-foreground" />
             <span>Edit Title</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={copyNoteLink(note)}>
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item onClick={copyNoteLink(note)}>
             <LinkIcon className="text-muted-foreground" />
             <span>Copy Link</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={openNoteInNewTab(note)}>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item onClick={openNoteInNewTab(note)}>
             <ArrowUpRightIcon className="text-muted-foreground" />
             <span>Open in New Tab</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={downloadNote(note)}>
+          </DropdownMenu.Item>
+          <DropdownMenu.Item onClick={downloadNote(note)}>
             <DownloadIcon className="text-muted-foreground" />
             <span>Download .md file</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setDeleteConfirmDialog(true)}>
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item onClick={() => setDeleteConfirmDialog(true)}>
             <Trash2Icon className="text-destructive" />
             <span>Delete</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
       </DropdownMenu>
 
       <ResponsiveDialog

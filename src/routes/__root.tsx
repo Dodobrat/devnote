@@ -21,23 +21,7 @@ import {
 import { CommandPalette } from "~/blocks/CommandPalette";
 import { Notes, NotesActionModeSidebarFooter } from "~/blocks/Notes";
 import { InstallButton, useServiceWorkerPrompt } from "~/blocks/PWA";
-import { Button } from "~/components/ui/button";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarRail,
-  SidebarSeparator,
-  useSidebar,
-} from "~/components/ui/sidebar";
-import { Toaster } from "~/components/ui/sonner";
+import { Button, Sidebar, Toaster, useSidebar } from "~/components/ui";
 import { getIsCreateNewNoteKeyCombo } from "~/constants/shortcuts";
 import { ThemeProvider } from "~/context";
 import { useKeyDownEvent, useOnlineNotification } from "~/hooks";
@@ -98,12 +82,12 @@ function RootComponent() {
     <ThemeProvider>
       <CommandPalette />
 
-      <SidebarProvider open={open} onOpenChange={setOpen}>
+      <Sidebar.Provider open={open} onOpenChange={setOpen}>
         <AppSidebar />
-        <SidebarInset>
+        <Sidebar.Inset>
           <Outlet />
-        </SidebarInset>
-      </SidebarProvider>
+        </Sidebar.Inset>
+      </Sidebar.Provider>
 
       <Toaster />
 
@@ -120,17 +104,17 @@ function AppSidebar() {
       <HiddenSkipLink href="#sidebar-end">Go to content</HiddenSkipLink>
       <div id="sidebar-start" />
 
-      <SidebarHeader>
+      <Sidebar.Header>
         <LogoAction />
         <InstallButton />
-      </SidebarHeader>
-      <SidebarContent>
+      </Sidebar.Header>
+      <Sidebar.Content>
         <AppLinks />
-        <SidebarSeparator className="mx-0" />
+        <Sidebar.Separator className="mx-0" />
         <Notes />
-      </SidebarContent>
+      </Sidebar.Content>
       <NotesActionModeSidebarFooter />
-      <SidebarRail />
+      <Sidebar.Rail />
       <NavigationSidebarToggler />
 
       <HiddenSkipLink href="#sidebar-start" className="bottom-2">
@@ -182,9 +166,9 @@ function LogoAction() {
   const [, setCommandPaletteOpen] = useCommandPaletteOpenAtom();
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem className="flex gap-2">
-        <SidebarMenuButton
+    <Sidebar.Menu>
+      <Sidebar.MenuItem className="flex gap-2">
+        <Sidebar.MenuButton
           size="lg"
           className="cursor-pointer"
           onClick={() => setCommandPaletteOpen(true)}
@@ -196,7 +180,7 @@ function LogoAction() {
             <span className="truncate font-bold">DevNote</span>
           </div>
           <span className="sr-only">Open command palette</span>
-        </SidebarMenuButton>
+        </Sidebar.MenuButton>
         <Button asChild variant="ghost" className="size-12">
           {/* "https://github.com/Dodobrat/devnote" */}
           <a href="https://github.com/Dodobrat" target="_blank">
@@ -215,8 +199,8 @@ function LogoAction() {
             <span className="sr-only">GitHub Repository</span>
           </a>
         </Button>
-      </SidebarMenuItem>
-    </SidebarMenu>
+      </Sidebar.MenuItem>
+    </Sidebar.Menu>
   );
 }
 
@@ -236,12 +220,12 @@ function AppLinks() {
   const routerState = useRouterState();
 
   return (
-    <SidebarGroup>
-      <SidebarGroupContent>
-        <SidebarMenu>
+    <Sidebar.Group>
+      <Sidebar.GroupContent>
+        <Sidebar.Menu>
           {pages.map(({ to, label, icon: Icon }) => (
-            <SidebarMenuItem key={to}>
-              <SidebarMenuButton
+            <Sidebar.MenuItem key={to}>
+              <Sidebar.MenuButton
                 asChild
                 isActive={routerState.location.pathname.includes(to)}
               >
@@ -249,11 +233,11 @@ function AppLinks() {
                   <Icon />
                   <span>{label}</span>
                 </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+              </Sidebar.MenuButton>
+            </Sidebar.MenuItem>
           ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+        </Sidebar.Menu>
+      </Sidebar.GroupContent>
+    </Sidebar.Group>
   );
 }

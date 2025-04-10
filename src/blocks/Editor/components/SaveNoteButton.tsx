@@ -4,12 +4,7 @@ import { type EditorView } from "codemirror";
 import { SaveIcon } from "lucide-react";
 
 import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
-import { Button } from "~/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+import { Button, Tooltip } from "~/components/ui";
 import {
   useEditorNoteAtom,
   useEditorNotePrevStateAtom,
@@ -55,7 +50,7 @@ export function SaveNoteButton({
   return (
     <>
       <Tooltip>
-        <TooltipTrigger asChild>
+        <Tooltip.Trigger asChild>
           <Button
             size="icon"
             variant="ghost"
@@ -72,10 +67,10 @@ export function SaveNoteButton({
             />
             <span className="sr-only">Save note</span>
           </Button>
-        </TooltipTrigger>
-        <TooltipContent>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
           <p>Save note</p>
-        </TooltipContent>
+        </Tooltip.Content>
       </Tooltip>
 
       <ResponsiveConfirmation

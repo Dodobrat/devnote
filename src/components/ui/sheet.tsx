@@ -4,7 +4,9 @@ import { XIcon } from "lucide-react";
 
 import { cn } from "~/lib/utils";
 
-function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
+function SheetRoot({
+  ...props
+}: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
 }
 
@@ -125,13 +127,12 @@ function SheetDescription({
   );
 }
 
-export {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-};
+export const Sheet = Object.assign(SheetRoot, {
+  Close: SheetClose,
+  Content: SheetContent,
+  Description: SheetDescription,
+  Footer: SheetFooter,
+  Header: SheetHeader,
+  Title: SheetTitle,
+  Trigger: SheetTrigger,
+});
