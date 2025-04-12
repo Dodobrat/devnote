@@ -18,12 +18,9 @@ export const Route = createFileRoute("/note/$noteId")({
     const note = await queryClient.ensureQueryData(
       noteByIdQueryOptions({ id: noteId }),
     );
-    // TODO: throw 404 if note not found
     if (!note) {
       throw redirect({ to: "/404", replace: true });
     }
-
-    return note;
   },
   component: RouteComponent,
 });
