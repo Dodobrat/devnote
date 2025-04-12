@@ -351,7 +351,7 @@ function MarkNoteForDeletion({
 
   return (
     <Button
-      className={cn(!isSizeIcon && "col-span-full")}
+      className={cn(isSizeIcon ? "h-auto" : "col-span-full")}
       size={isSizeIcon ? "icon" : undefined}
       variant={isSizeIcon ? "ghost" : isSelected ? "outline" : "default"}
       onClick={() =>
@@ -391,7 +391,7 @@ function MarkNoteForExport({
 
   return (
     <Button
-      className={cn(!isSizeIcon && "col-span-full")}
+      className={cn(isSizeIcon ? "h-auto" : "col-span-full")}
       size={isSizeIcon ? "icon" : undefined}
       variant={isSizeIcon ? "ghost" : isSelected ? "outline" : "default"}
       onClick={() =>
