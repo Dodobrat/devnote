@@ -10,8 +10,6 @@ import {
   type UpdateNoteSchemaType,
 } from "~/types/notes";
 
-// TODO: simplify
-
 const DEFAULT_PAGINATION_SLICE = 50;
 
 /**
@@ -44,18 +42,10 @@ const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
   },
 });
 
-function deriveTitle(markdownContent: string) {
-  const lines = markdownContent.split("\n");
-  const firstLineWithWords = lines.find((line) => /\w+/.test(line)) || "";
-  const withoutHtmlTags = firstLineWithWords.replace(/<\/?[^>]+(>|$)/g, "");
-  const cleanTitle = withoutHtmlTags.replace(/[^\w\s]/g, "");
-  return cleanTitle.trim();
-}
-
 export const LocalNotesAPI = {
   // Create a new note
   async create(body: Pick<NoteSchemaType, "note">): Promise<NoteSchemaType> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
       const store = tx.objectStore("notes");
@@ -100,40 +90,26 @@ export const LocalNotesAPI = {
       await store.add(validatedNewNote);
       await tx.done;
       return validatedNewNote;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        // Handle validation errors
-        throw new Error(`Validation error in create: ${error.message}`);
-      } else {
-        // Handle other errors
-        throw error;
-      }
-    }
+    });
   },
 
   // Get note by ID
   async getById(id: NoteSchemaType["id"]): Promise<NoteSchemaType | null> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const note = await db.get("notes", id);
-      if (note) {
-        // Validate the retrieved note
-        const validatedNote = noteSchema.parse(note);
-        return validatedNote;
-      }
-      return null;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in getById: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+
+      if (!note) return null;
+
+      // Validate the retrieved note
+      const validatedNote = noteSchema.parse(note);
+      return validatedNote;
+    });
   },
 
   // Update a note
   async update(body: UpdateNoteSchemaType): Promise<void> {
-    try {
+    return handleDBQuery(async () => {
       // Validate input data
       const validatedNoteUpdate = updateNoteSchema.parse(body);
 
@@ -167,18 +143,12 @@ export const LocalNotesAPI = {
 
       await store.put(validatedNote);
       await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in update: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
   // Pin a note
   async pin(id: NoteSchemaType["id"]): Promise<void> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
       const store = tx.objectStore("notes");
@@ -222,18 +192,12 @@ export const LocalNotesAPI = {
       const validatedNote = noteSchema.parse(note);
       await store.put(validatedNote);
       await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in pin: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
   // Unpin a note
   async unpin(id: NoteSchemaType["id"]): Promise<void> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
       const store = tx.objectStore("notes");
@@ -276,18 +240,12 @@ export const LocalNotesAPI = {
       const validatedNote = noteSchema.parse(note);
       await store.put(validatedNote);
       await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in unpin: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
   // Delete a note
   async delete(id: NoteSchemaType["id"]): Promise<void> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
       const store = tx.objectStore("notes");
@@ -315,18 +273,12 @@ export const LocalNotesAPI = {
       }
 
       await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in delete: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
   // Bulk delete multiple notes by their ids with order updates and error handling
   async bulkDelete(ids: NoteSchemaType["id"][]): Promise<void> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
       const store = tx.objectStore("notes");
@@ -364,13 +316,7 @@ export const LocalNotesAPI = {
       }
 
       await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in bulkDelete: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
   // Get paginated pinned notes
@@ -378,7 +324,7 @@ export const LocalNotesAPI = {
     slice: number = DEFAULT_PAGINATION_SLICE,
     cursor: number = 0,
   ): Promise<PaginatedNotesSchemaType> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const store = db.transaction("notes", "readonly").objectStore("notes");
       const index = store.index("isPinned");
@@ -414,15 +360,7 @@ export const LocalNotesAPI = {
       const validatedResult = paginatedNotesSchema.parse(paginatedResult);
 
       return validatedResult;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(
-          `Validation error in getPaginatedPinned: ${error.message}`,
-        );
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
   // Get paginated unpinned notes
@@ -430,7 +368,7 @@ export const LocalNotesAPI = {
     slice: number = DEFAULT_PAGINATION_SLICE,
     cursor: number = 0,
   ): Promise<PaginatedNotesSchemaType> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const store = db.transaction("notes", "readonly").objectStore("notes");
       const index = store.index("isPinned");
@@ -466,18 +404,12 @@ export const LocalNotesAPI = {
       const validatedResult = paginatedNotesSchema.parse(paginatedResult);
 
       return validatedResult;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in getPaginated: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
   // Reorder pinned notes
   async reorderPinned(ids: NoteSchemaType["id"][]): Promise<void> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
       const store = tx.objectStore("notes");
@@ -495,18 +427,12 @@ export const LocalNotesAPI = {
       }
 
       await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in reorderPinned: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
   // Reorder unpinned notes
   async reorder(ids: NoteSchemaType["id"][]): Promise<void> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
       const store = tx.objectStore("notes");
@@ -524,18 +450,12 @@ export const LocalNotesAPI = {
       }
 
       await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in reorder: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
   // Search notes by title or tags
   async search(query: string): Promise<NoteSchemaType[]> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const store = db.transaction("notes", "readonly").objectStore("notes");
 
@@ -561,12 +481,28 @@ export const LocalNotesAPI = {
       );
 
       return validatedNotes;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in search: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 };
+
+async function handleDBQuery<TData>(
+  query: () => Promise<TData>,
+): Promise<TData> {
+  try {
+    return await query();
+  } catch (error) {
+    if (error instanceof ZodError) {
+      throw new Error(`Validation error: ${error.message}`);
+    } else {
+      throw error;
+    }
+  }
+}
+
+function deriveTitle(markdownContent: string) {
+  const lines = markdownContent.split("\n");
+  const firstLineWithWords = lines.find((line) => /\w+/.test(line)) || "";
+  const withoutHtmlTags = firstLineWithWords.replace(/<\/?[^>]+(>|$)/g, "");
+  const cleanTitle = withoutHtmlTags.replace(/[^\w\s]/g, "");
+  return cleanTitle.trim();
+}
