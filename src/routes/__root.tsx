@@ -11,6 +11,7 @@ import {
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import {
   GitMergeIcon,
+  ListIcon,
   type LucideIcon,
   MessageCircleQuestionIcon,
   PlusIcon,
@@ -21,15 +22,26 @@ import {
 import { CommandPalette } from "~/blocks/CommandPalette";
 import { Notes, NotesActionModeSidebarFooter } from "~/blocks/Notes";
 import { InstallButton, useServiceWorkerPrompt } from "~/blocks/PWA";
-import { Button, Sidebar, Toaster, useSidebar } from "~/components/ui";
+import {
+  Button,
+  DropdownMenu,
+  Sidebar,
+  Toaster,
+  Tooltip,
+  useSidebar,
+} from "~/components/ui";
 import { getIsCreateNewNoteKeyCombo } from "~/constants/shortcuts";
 import { ThemeProvider } from "~/context";
-import { useKeyDownEvent, useOnlineNotification } from "~/hooks";
+import { useIsMobile, useKeyDownEvent, useOnlineNotification } from "~/hooks";
 import {
   pinnedNotesQueryOptions,
   unPinnedNotesQueryOptions,
 } from "~/hooks/query";
-import { useCommandPaletteOpenAtom, useSidebarAtom } from "~/hooks/store";
+import {
+  useCommandPaletteOpenAtom,
+  useSidebarAtom,
+  useSidebarVariantAtom,
+} from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
@@ -207,6 +219,81 @@ const pages: SidebarPage[] = [
 
 function AppLinks() {
   const routerState = useRouterState();
+  const [sidebarVariant] = useSidebarVariantAtom();
+
+  const isMobile = useIsMobile();
+
+  if (sidebarVariant === "minimal") {
+    const createNewOption = pages[0];
+    const otherOptions = pages.slice(1);
+
+    const isCreateNewActive = routerState.location.pathname.includes(
+      createNewOption.to,
+    );
+    const isOtherOptionsActive = otherOptions.some((option) =>
+      routerState.location.pathname.includes(option.to),
+    );
+
+    return (
+      <Sidebar.Group>
+        <Sidebar.GroupContent>
+          <Sidebar.Menu>
+            <Sidebar.MenuItem className="flex gap-2">
+              <Sidebar.MenuButton asChild isActive={isCreateNewActive}>
+                <Link to={createNewOption.to}>
+                  <createNewOption.icon />
+                  <span>{createNewOption.label}</span>
+                </Link>
+              </Sidebar.MenuButton>
+              <DropdownMenu>
+                <Tooltip>
+                  <Tooltip.Trigger asChild>
+                    <DropdownMenu.Trigger asChild>
+                      <Button
+                        size="icon"
+                        variant={isOtherOptionsActive ? "outline" : "ghost"}
+                      >
+                        <ListIcon />
+                        <span className="sr-only">More pages</span>
+                        {isOtherOptionsActive && (
+                          <span className="bg-foreground absolute -top-1 -right-1 size-4 rounded-full" />
+                        )}
+                      </Button>
+                    </DropdownMenu.Trigger>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <p>More pages</p>
+                  </Tooltip.Content>
+                </Tooltip>
+
+                <DropdownMenu.Content
+                  side={isMobile ? "bottom" : "right"}
+                  align={isMobile ? "end" : "start"}
+                  className="min-w-56"
+                >
+                  {otherOptions.map(({ to, label, icon: Icon }) => (
+                    <DropdownMenu.Item
+                      key={to}
+                      asChild
+                      className={cn(
+                        routerState.location.pathname.includes(to) &&
+                          "font-semibold",
+                      )}
+                    >
+                      <Link to={to}>
+                        <Icon />
+                        <span>{label}</span>
+                      </Link>
+                    </DropdownMenu.Item>
+                  ))}
+                </DropdownMenu.Content>
+              </DropdownMenu>
+            </Sidebar.MenuItem>
+          </Sidebar.Menu>
+        </Sidebar.GroupContent>
+      </Sidebar.Group>
+    );
+  }
 
   return (
     <Sidebar.Group>

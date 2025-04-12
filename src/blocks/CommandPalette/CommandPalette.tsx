@@ -20,6 +20,7 @@ import {
   useCommandPaletteOpenAtom,
   useEditorAutosaveAtom,
   useEditorContainedWidthAtom,
+  useSidebarVariantAtom,
 } from "~/hooks/store";
 
 export function CommandPalette() {
@@ -196,6 +197,7 @@ type ActionCommandEntry = CommandEntry & {
 
 function ActionsCommandGroup({ show, close }: CommandGroupProps) {
   const { theme, setTheme } = useTheme();
+  const [sidebarVariant, setSidebarVariant] = useSidebarVariantAtom();
   const [editorAutosave, setEditorAutosave] = useEditorAutosaveAtom();
   const [editorContained, setEditorContainedWidth] =
     useEditorContainedWidthAtom();
@@ -215,6 +217,16 @@ function ActionsCommandGroup({ show, close }: CommandGroupProps) {
       label: "Change to the system theme",
       action: () => setTheme("system"),
       checked: theme === "system",
+    },
+    {
+      label: "Change to default sidebar variant",
+      action: () => setSidebarVariant("default"),
+      checked: sidebarVariant === "default",
+    },
+    {
+      label: "Change to minimal sidebar variant",
+      action: () => setSidebarVariant("minimal"),
+      checked: sidebarVariant === "minimal",
     },
     {
       label: "Toggle note autosave",

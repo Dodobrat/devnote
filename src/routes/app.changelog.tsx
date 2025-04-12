@@ -23,6 +23,18 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
+## v0.2.3 ( 12 Apr 2025 )
+
+### Added
+
+- Minimal sidebar variant for better usability on small screens and more focused writing experience.
+
+### Miscellaneous
+
+- Improved performance by adding react-compiler.
+
+---
+
 ## v0.2.2 ( 9 Apr 2025 )
 
 ### Fixes

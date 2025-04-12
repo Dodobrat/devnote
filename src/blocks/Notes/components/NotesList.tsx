@@ -21,7 +21,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { HandIcon } from "lucide-react";
+import {
+  CheckIcon,
+  GripVerticalIcon,
+  HandIcon,
+  SquareIcon,
+} from "lucide-react";
 
 import {
   Button,
@@ -35,6 +40,7 @@ import {
   useBulkDeleteNotesAtom,
   useBulkDeleteNotesModeEnabledAtom,
   useExportNotesModeEnabledAtom,
+  useSidebarVariantAtom,
   useToExportNotesAtom,
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
@@ -193,10 +199,78 @@ function NoteItem({
     `/note/${note.id}`,
   );
 
+  const [sidebarVariant] = useSidebarVariantAtom();
   const [exportMode] = useExportNotesModeEnabledAtom();
   const [bulkDeleteMode] = useBulkDeleteNotesModeEnabledAtom();
 
   const isInNotesActionMode = bulkDeleteMode || exportMode;
+
+  if (sidebarVariant === "minimal") {
+    return (
+      <Sidebar.MenuItem
+        className={cn(
+          "bg-sidebar border-border grid grid-cols-[auto_1fr_auto] gap-1 rounded-lg border p-1",
+          isNotePage && "bg-card",
+          isOverlay && "cursor-grabbing *:pointer-events-none",
+          isDragged && "bg-secondary *:opacity-0",
+        )}
+        {...rest}
+      >
+        {bulkDeleteMode && <MarkNoteForDeletion note={note} isSizeIcon />}
+        {exportMode && <MarkNoteForExport note={note} isSizeIcon />}
+
+        {!isInNotesActionMode && (
+          <Tooltip>
+            <Tooltip.Trigger asChild>
+              <Button
+                size="icon"
+                variant={isDisabledReorder ? "secondary" : "ghost"}
+                className="h-auto cursor-grab"
+                {...listeners}
+                disabled={isDisabledReorder}
+              >
+                <GripVerticalIcon />
+                <span className="sr-only">Reorder</span>
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>
+              <p>Reorder</p>
+            </Tooltip.Content>
+          </Tooltip>
+        )}
+
+        <Button
+          asChild
+          variant="ghost"
+          className={cn(
+            "inline-grid h-auto justify-start gap-0 overflow-hidden px-2 whitespace-normal",
+            isInNotesActionMode && "col-span-2",
+            isNotePage && "font-bold",
+          )}
+        >
+          <Link
+            to="/note/$noteId"
+            params={{ noteId: note.id }}
+            title={note.title}
+          >
+            <p className="truncate leading-tight">{note.title}</p>
+            <p className="text-muted-foreground truncate text-sm break-words">
+              {note.note}
+            </p>
+          </Link>
+        </Button>
+
+        {!isInNotesActionMode && (
+          <NoteActions
+            note={note}
+            side={isMobile ? "bottom" : "right"}
+            align={isMobile ? "end" : "start"}
+            className="h-auto"
+          />
+        )}
+      </Sidebar.MenuItem>
+    );
+  }
 
   return (
     <Sidebar.MenuItem
@@ -237,6 +311,7 @@ function NoteItem({
             note={note}
             side={isMobile ? "bottom" : "right"}
             align={isMobile ? "end" : "start"}
+            includePinAction={false}
           />
         </>
       )}
@@ -248,7 +323,11 @@ function NoteItem({
         variant="ghost"
         className="col-span-full inline-grid h-auto justify-start gap-0 overflow-hidden px-2 whitespace-normal"
       >
-        <Link to="/note/$noteId" params={{ noteId: note.id }}>
+        <Link
+          to="/note/$noteId"
+          params={{ noteId: note.id }}
+          title={note.title}
+        >
           <p className="truncate text-lg font-semibold">{note.title}</p>
           <p className="text-muted-foreground line-clamp-2 break-words">
             {note.note}
@@ -259,13 +338,22 @@ function NoteItem({
   );
 }
 
-function MarkNoteForDeletion({ note }: { note: NoteSchemaType }) {
+function MarkNoteForDeletion({
+  note,
+  isSizeIcon,
+}: {
+  note: NoteSchemaType;
+  isSizeIcon?: boolean;
+}) {
   const [notesToDelete, setNotesToDelete] = useBulkDeleteNotesAtom();
+
+  const isSelected = notesToDelete.has(note.id);
 
   return (
     <Button
-      className="col-span-full"
-      variant={notesToDelete.has(note.id) ? "outline" : "default"}
+      className={cn(!isSizeIcon && "col-span-full")}
+      size={isSizeIcon ? "icon" : undefined}
+      variant={isSizeIcon ? "ghost" : isSelected ? "outline" : "default"}
       onClick={() =>
         setNotesToDelete((prev) => {
           const updated = new Set<string>();
@@ -282,18 +370,30 @@ function MarkNoteForDeletion({ note }: { note: NoteSchemaType }) {
         })
       }
     >
-      {notesToDelete.has(note.id) ? "Remove from queue" : "Add to queue"}
+      {isSizeIcon && !isSelected && <SquareIcon />}
+      {isSizeIcon && isSelected && <CheckIcon />}
+      {!isSizeIcon && !isSelected && "Add to queue"}
+      {!isSizeIcon && isSelected && "Remove from queue"}
     </Button>
   );
 }
 
-function MarkNoteForExport({ note }: { note: NoteSchemaType }) {
+function MarkNoteForExport({
+  note,
+  isSizeIcon,
+}: {
+  note: NoteSchemaType;
+  isSizeIcon?: boolean;
+}) {
   const [notesToExport, setNotesToExport] = useToExportNotesAtom();
+
+  const isSelected = notesToExport[note.id];
 
   return (
     <Button
-      className="col-span-full"
-      variant={notesToExport[note.id] ? "outline" : "default"}
+      className={cn(!isSizeIcon && "col-span-full")}
+      size={isSizeIcon ? "icon" : undefined}
+      variant={isSizeIcon ? "ghost" : isSelected ? "outline" : "default"}
       onClick={() =>
         setNotesToExport((prev) => {
           if (prev[note.id]) {
@@ -306,7 +406,10 @@ function MarkNoteForExport({ note }: { note: NoteSchemaType }) {
         })
       }
     >
-      {notesToExport[note.id] ? "Remove from queue" : "Add to queue"}
+      {isSizeIcon && !isSelected && <SquareIcon />}
+      {isSizeIcon && isSelected && <CheckIcon />}
+      {!isSizeIcon && !isSelected && "Add to queue"}
+      {!isSizeIcon && isSelected && "Remove from queue"}
     </Button>
   );
 }

@@ -7,6 +7,7 @@ import { ThemeMode, type ThemeModeKey, useTheme } from "~/context";
 import {
   useEditorAutosaveAtom,
   useEditorContainedWidthAtom,
+  useSidebarVariantAtom,
 } from "~/hooks/store";
 
 export const Route = createFileRoute("/app/settings")({
@@ -24,6 +25,13 @@ function RouteComponent() {
             description="Choose a theme that suits your preference"
           >
             <ThemeSwitch />
+          </Page.Section>
+
+          <Page.Section
+            title="Sidebar variant"
+            description="Choose a sidebar variant that suits your preference"
+          >
+            <SidebarVariantSwitch />
           </Page.Section>
 
           <Page.Section
@@ -78,6 +86,22 @@ function ThemeSwitch() {
           <LaptopMinimalIcon aria-hidden />
           <span className="hidden md:block">System</span>
         </Tabs.Trigger>
+      </Tabs.List>
+    </Tabs>
+  );
+}
+
+function SidebarVariantSwitch() {
+  const [sidebarVariant, setSidebarVariant] = useSidebarVariantAtom();
+
+  return (
+    <Tabs
+      value={sidebarVariant}
+      onValueChange={(v) => setSidebarVariant(v as typeof sidebarVariant)}
+    >
+      <Tabs.List>
+        <Tabs.Trigger value="default">Default</Tabs.Trigger>
+        <Tabs.Trigger value="minimal">Minimal</Tabs.Trigger>
       </Tabs.List>
     </Tabs>
   );

@@ -26,16 +26,23 @@ import {
   openNoteInNewTab,
 } from "../utils";
 import { NoteEditTitleForm } from "./NoteEditTitleForm";
+import { NotPinActionDropdownItem } from "./NotePinAction";
+
+type NoteActionsProps = {
+  note: NoteSchemaType;
+  side?: React.ComponentProps<typeof DropdownMenu.Content>["side"];
+  align?: React.ComponentProps<typeof DropdownMenu.Content>["align"];
+  includePinAction?: boolean;
+  className?: string;
+};
 
 export function NoteActions({
   note,
   side,
   align,
-}: {
-  note: NoteSchemaType;
-  side?: React.ComponentProps<typeof DropdownMenu.Content>["side"];
-  align?: React.ComponentProps<typeof DropdownMenu.Content>["align"];
-}) {
+  includePinAction = true,
+  className,
+}: NoteActionsProps) {
   const deleteNoteMutation = useDeleteNote();
 
   const [editTitleDialog, setEditTitleDialog] = useState(false);
@@ -47,7 +54,7 @@ export function NoteActions({
         <Tooltip>
           <Tooltip.Trigger asChild>
             <DropdownMenu.Trigger asChild>
-              <Button size="icon" variant="ghost">
+              <Button size="icon" variant="ghost" className={className}>
                 <EllipsisVerticalIcon />
                 <span className="sr-only">Note actions</span>
               </Button>
@@ -88,6 +95,7 @@ export function NoteActions({
             <PencilIcon className="text-muted-foreground" />
             <span>Edit Title</span>
           </DropdownMenu.Item>
+          {includePinAction && <NotPinActionDropdownItem note={note} />}
           <DropdownMenu.Separator />
           <DropdownMenu.Item onClick={copyNoteLink(note)}>
             <LinkIcon className="text-muted-foreground" />

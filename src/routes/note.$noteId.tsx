@@ -8,7 +8,7 @@ import {
 import { toast } from "sonner";
 
 import { Editor, SaveNoteButton } from "~/blocks/Editor";
-import { NoteActions, NotePinAction } from "~/blocks/Notes";
+import { NoteActions } from "~/blocks/Notes";
 import { LAST_VISITED_ROUTE_STATE_KEY } from "~/constants";
 import { noteByIdQueryOptions, useSaveNote } from "~/hooks/query";
 import { useEditorNoteAtom, useLastOpenedNoteAtom } from "~/hooks/store";
@@ -65,7 +65,6 @@ function RouteComponent() {
   return (
     <Editor saveNote={saveNote} title={data.title}>
       <SaveNoteButton noteValue={data.note} saveNote={saveNote} />
-      <NotePinAction note={data} />
       <NoteActions note={data} align="end" />
     </Editor>
   );
