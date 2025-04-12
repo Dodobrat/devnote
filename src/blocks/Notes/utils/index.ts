@@ -40,17 +40,17 @@ export function downloadNote(note: NoteSchemaType) {
   };
 }
 
-export function getPrettyDate(date: Date) {
-  const formatter = new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  });
+const formatter = new Intl.DateTimeFormat("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
 
+export function getPrettyDate(date: Date) {
   const parts = formatter.formatToParts(date);
 
   const getPartValue = (type: string) => {

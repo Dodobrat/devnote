@@ -41,9 +41,14 @@ export default defineConfig({
       manifest: {
         name: "DevNote",
         short_name: "DevNote",
+        description:
+          "DevNote is a powerful and intuitive note-taking app designed for developers to organize code snippets, ideas, and project notes efficiently.",
+        id: "/",
+        start_url: "/",
+        orientation: "portrait",
         theme_color: "#000000",
         background_color: "#000000",
-        orientation: "portrait",
+        display_override: ["standalone"],
         icons: [
           {
             src: "/android-chrome-192x192.png",
