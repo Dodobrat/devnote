@@ -11,6 +11,7 @@ import { type NoteSchemaType } from "~/types/notes";
 export const storeKeys = {
   theme: "devnote.theme",
   sidebar: "devnote.sidebar",
+  sidebarVariant: "devnote.sidebar.variant",
   editorLayout: "devnote.editor.layout",
   editorShowPreview: "devnote.editor.showPreview",
   editorAutosave: "devnote.editor.autosave",
@@ -29,6 +30,12 @@ export function useThemeAtom() {
 const sidebarAtom = atomWithStorage(storeKeys.sidebar, true);
 export function useSidebarAtom() {
   return useAtom(sidebarAtom);
+}
+
+// prettier-ignore
+const sidebarVariantAtom = atomWithStorage<"default" | "minimal">(storeKeys.sidebarVariant, "default");
+export function useSidebarVariantAtom() {
+  return useAtom(sidebarVariantAtom);
 }
 
 const autosaveAtom = atomWithStorage(storeKeys.editorAutosave, true);

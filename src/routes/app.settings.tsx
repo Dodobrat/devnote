@@ -44,7 +44,10 @@ function RouteComponent() {
             title="Welcome message"
             description="Edit the message that appears when creating a new note"
           >
-            <Button asChild>
+            <Button
+              asChild
+              className="h-auto min-h-10 leading-tight whitespace-normal"
+            >
               <Link to="/note/welcome">
                 <PencilIcon aria-hidden />
                 Edit Welcome Message
@@ -62,17 +65,17 @@ function ThemeSwitch() {
 
   return (
     <Tabs value={theme} onValueChange={(v) => setTheme(v as ThemeModeKey)}>
-      <Tabs.List className="h-auto">
-        <Tabs.Trigger value={ThemeMode.Light} className="min-h-10 md:px-4">
-          <SunIcon className="md:mr-2 md:size-5" aria-hidden />
+      <Tabs.List>
+        <Tabs.Trigger value={ThemeMode.Light}>
+          <SunIcon aria-hidden />
           <span className="hidden md:block">Light</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value={ThemeMode.Dark} className="min-h-10 md:px-4">
-          <MoonIcon className="md:mr-2 md:size-5" aria-hidden />
+        <Tabs.Trigger value={ThemeMode.Dark}>
+          <MoonIcon aria-hidden />
           <span className="hidden md:block">Dark</span>
         </Tabs.Trigger>
-        <Tabs.Trigger value={ThemeMode.System} className="min-h-10 md:px-4">
-          <LaptopMinimalIcon className="md:mr-2 md:size-5" aria-hidden />
+        <Tabs.Trigger value={ThemeMode.System}>
+          <LaptopMinimalIcon aria-hidden />
           <span className="hidden md:block">System</span>
         </Tabs.Trigger>
       </Tabs.List>
@@ -92,29 +95,20 @@ function ContainedWidthToggle() {
   return <BooleanToggle value={isContained} onValueChange={setIsContained} />;
 }
 
-function BooleanToggle({
-  value,
-  onValueChange,
-  truthyLabel = "Enabled",
-  falsyLabel = "Disabled",
-}: {
+type BooleanToggleProps = {
   value: boolean;
   onValueChange: (v: boolean) => void;
-  truthyLabel?: string;
-  falsyLabel?: string;
-}) {
+};
+
+function BooleanToggle({ value, onValueChange }: BooleanToggleProps) {
   return (
     <Tabs
       value={value ? "1" : ""}
       onValueChange={(v) => onValueChange(Boolean(v))}
     >
-      <Tabs.List className="h-auto">
-        <Tabs.Trigger value="1" className="min-h-10 md:px-4">
-          {truthyLabel}
-        </Tabs.Trigger>
-        <Tabs.Trigger value="" className="min-h-10 md:px-4">
-          {falsyLabel}
-        </Tabs.Trigger>
+      <Tabs.List>
+        <Tabs.Trigger value="1">Enabled</Tabs.Trigger>
+        <Tabs.Trigger value="">Disabled</Tabs.Trigger>
       </Tabs.List>
     </Tabs>
   );

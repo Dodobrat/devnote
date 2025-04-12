@@ -1,4 +1,3 @@
-import * as React from "react";
 import * as ResizablePrimitive from "react-resizable-panels";
 
 import { cn } from "~/lib/utils";
@@ -65,7 +64,21 @@ function ResizableHandle({
       {...props}
     >
       {withHandle && (
-        <div className="bg-background fixed top-1/2 z-10 flex h-16 w-3 items-center justify-center rounded-lg border-3" />
+        <div
+          className={cn(
+            "bg-background",
+            "fixed",
+            "top-1/2",
+            "z-10",
+            "flex",
+            "h-16",
+            "w-3",
+            "items-center",
+            "justify-center",
+            "rounded-lg",
+            "border-3",
+          )}
+        />
       )}
     </ResizablePrimitive.PanelResizeHandle>
   );

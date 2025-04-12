@@ -32,22 +32,14 @@ import {
 import { useCommandPaletteOpenAtom, useSidebarAtom } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
-// ORDERED BY PRIORITY
-// TODO: translations
-// TODO: add workspace suggestions
-// TODO: general styling of the whole app to be more vibrant / coder like. Maybe add some custom fonts
-
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
     component: RootComponent,
     loader: async ({ context: { queryClient } }) => {
-      const pinnedNotes = await queryClient.ensureInfiniteQueryData(
-        pinnedNotesQueryOptions(),
-      );
-      const unPinnedNotes = await queryClient.ensureInfiniteQueryData(
-        unPinnedNotesQueryOptions(),
-      );
-      return { pinnedNotes, unPinnedNotes };
+      await Promise.all([
+        queryClient.ensureInfiniteQueryData(pinnedNotesQueryOptions()),
+        queryClient.ensureInfiniteQueryData(unPinnedNotesQueryOptions()),
+      ]);
     },
   },
 );

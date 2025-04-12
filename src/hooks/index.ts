@@ -48,7 +48,11 @@ export function useMediaQuery(query: string) {
 }
 
 export function useIsMobile() {
-  return !useMediaQuery(`(min-width:${getCssVar("--breakpoint-md")})`);
+  const isLargerThanMd = useMediaQuery(
+    `(min-width:${getCssVar("--breakpoint-md")})`,
+  );
+
+  return !isLargerThanMd;
 }
 
 export function useOnlineNotification() {
