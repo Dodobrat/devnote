@@ -52,7 +52,7 @@ function WelcomeMessageEditActions() {
 
   return (
     <>
-      <div className="flex gap-2">
+      <div className="flex">
         <Tooltip>
           <Tooltip.Trigger asChild>
             <Button
