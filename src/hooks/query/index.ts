@@ -198,7 +198,7 @@ export function useDeleteNote() {
       console.log("DELETE: delete note", { id });
 
       // logic when to switch to actual api
-      return LocalNotesAPI.delete(id);
+      return LocalNotesAPI.bulkDelete([id]);
     },
     onSuccess: (_, payload) => {
       toast.success("Note deleted");

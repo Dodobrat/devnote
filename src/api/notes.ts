@@ -10,11 +10,8 @@ import {
   type UpdateNoteSchemaType,
 } from "~/types/notes";
 
-const DEFAULT_PAGINATION_SLICE = 50;
+const DEFAULT_PAGE_SLICE = 50;
 
-/**
- * LocalNotesAPI is a mock API that uses IndexedDB as the data store.
- */
 interface NotesDB extends DBSchema {
   notes: {
     key: string;
@@ -31,7 +28,7 @@ interface NotesDB extends DBSchema {
 const NOTES_DB_NAME = "devnotes-db";
 const NOTES_DB_VERSION = 1;
 
-// Initialize the IndexedDB database
+// MARK: Initialize IndexedDB
 const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
   upgrade(db) {
     const store = db.createObjectStore("notes", { keyPath: "id" });
@@ -43,7 +40,7 @@ const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
 });
 
 export const LocalNotesAPI = {
-  // Create a new note
+  // MARK: Create note
   async create(body: Pick<NoteSchemaType, "note">): Promise<NoteSchemaType> {
     return handleDBQuery(async () => {
       const db = await dbPromise;
@@ -93,7 +90,7 @@ export const LocalNotesAPI = {
     });
   },
 
-  // Get note by ID
+  // MARK: Get note by ID
   async getById(id: NoteSchemaType["id"]): Promise<NoteSchemaType | null> {
     return handleDBQuery(async () => {
       const db = await dbPromise;
@@ -107,7 +104,7 @@ export const LocalNotesAPI = {
     });
   },
 
-  // Update a note
+  // MARK: Update note
   async update(body: UpdateNoteSchemaType): Promise<void> {
     return handleDBQuery(async () => {
       // Validate input data
@@ -123,19 +120,10 @@ export const LocalNotesAPI = {
       }
 
       // Update fields
-      if (validatedNoteUpdate.title !== undefined) {
-        note.title = validatedNoteUpdate.title;
-      }
-      if (validatedNoteUpdate.isProtected !== undefined) {
-        note.isProtected = validatedNoteUpdate.isProtected;
-      }
-      if (validatedNoteUpdate.note !== undefined) {
-        note.note = validatedNoteUpdate.note;
-      }
-      if (validatedNoteUpdate.tags !== undefined) {
-        note.tags = validatedNoteUpdate.tags;
-      }
-
+      note.title = validatedNoteUpdate.title ?? note.title;
+      note.isProtected = validatedNoteUpdate.isProtected ?? note.isProtected;
+      note.note = validatedNoteUpdate.note ?? note.note;
+      note.tags = validatedNoteUpdate.tags ?? note.tags;
       note.updatedAt = new Date();
 
       // Validate the updated note
@@ -146,137 +134,17 @@ export const LocalNotesAPI = {
     });
   },
 
-  // Pin a note
+  // MARK: Pin note
   async pin(id: NoteSchemaType["id"]): Promise<void> {
-    return handleDBQuery(async () => {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      const note = await store.get(id);
-      if (!note) {
-        throw new Error("Note not found");
-      }
-
-      if (note.isPinned) {
-        // Note is already pinned
-        return;
-      }
-
-      // Update orders of unpinned notes
-      const unpinnedIndex = store.index("isPinned");
-      const unpinnedNotes = await unpinnedIndex.getAll(0);
-
-      for (const unpinnedNote of unpinnedNotes) {
-        if (unpinnedNote.order > note.order) {
-          unpinnedNote.order -= 1;
-          const validatedUnpinnedNote = noteSchema.parse(unpinnedNote);
-          await store.put(validatedUnpinnedNote);
-        }
-      }
-
-      // Get max order in pinned notes
-      const pinnedIndex = store.index("isPinned");
-      const pinnedNotes = await pinnedIndex.getAll(1);
-      let maxOrder = -1;
-      for (const pinnedNote of pinnedNotes) {
-        if (pinnedNote.order > maxOrder) {
-          maxOrder = pinnedNote.order;
-        }
-      }
-
-      // Update note
-      note.isPinned = 1;
-      note.order = maxOrder + 1;
-
-      const validatedNote = noteSchema.parse(note);
-      await store.put(validatedNote);
-      await tx.done;
-    });
+    return handleDBQuery(() => updatePinState(id, 1));
   },
 
-  // Unpin a note
+  // MARK: Unpin note
   async unpin(id: NoteSchemaType["id"]): Promise<void> {
-    return handleDBQuery(async () => {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      const note = await store.get(id);
-      if (!note) {
-        throw new Error("Note not found");
-      }
-
-      if (!note.isPinned) {
-        // Note is already unpinned
-        return;
-      }
-
-      // Update orders of pinned notes
-      const pinnedIndex = store.index("isPinned");
-      const pinnedNotes = await pinnedIndex.getAll(1);
-
-      for (const pinnedNote of pinnedNotes) {
-        if (pinnedNote.order > note.order) {
-          pinnedNote.order -= 1;
-          const validatedPinnedNote = noteSchema.parse(pinnedNote);
-          await store.put(validatedPinnedNote);
-        }
-      }
-
-      // Update orders of unpinned notes
-      const unpinnedIndex = store.index("isPinned");
-      const unpinnedNotes = await unpinnedIndex.getAll(0);
-      for (const unpinnedNote of unpinnedNotes) {
-        unpinnedNote.order += 1;
-        const validatedUnpinnedNote = noteSchema.parse(unpinnedNote);
-        await store.put(validatedUnpinnedNote);
-      }
-
-      // Update note
-      note.isPinned = 0;
-      note.order = 0;
-
-      const validatedNote = noteSchema.parse(note);
-      await store.put(validatedNote);
-      await tx.done;
-    });
+    return handleDBQuery(() => updatePinState(id, 0));
   },
 
-  // Delete a note
-  async delete(id: NoteSchemaType["id"]): Promise<void> {
-    return handleDBQuery(async () => {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      const note = await store.get(id);
-      if (!note) {
-        throw new Error("Note not found");
-      }
-
-      const isPinned = note.isPinned;
-      const order = note.order;
-
-      await store.delete(id);
-
-      // Update orders of other notes in the same group
-      const index = store.index("isPinned");
-      const notesInGroup = await index.getAll(isPinned);
-
-      for (const otherNote of notesInGroup) {
-        if (otherNote.order > order) {
-          otherNote.order -= 1;
-          const validatedNote = noteSchema.parse(otherNote);
-          await store.put(validatedNote);
-        }
-      }
-
-      await tx.done;
-    });
-  },
-
-  // Bulk delete multiple notes by their ids with order updates and error handling
+  // MARK: Delete notes
   async bulkDelete(ids: NoteSchemaType["id"][]): Promise<void> {
     return handleDBQuery(async () => {
       const db = await dbPromise;
@@ -319,141 +187,33 @@ export const LocalNotesAPI = {
     });
   },
 
-  // Get paginated pinned notes
+  // MARK: Get pinned notes
   async getPaginatedPinned(
-    slice: number = DEFAULT_PAGINATION_SLICE,
-    cursor: number = 0,
+    slice = DEFAULT_PAGE_SLICE,
+    cursor = 0,
   ): Promise<PaginatedNotesSchemaType> {
-    return handleDBQuery(async () => {
-      const db = await dbPromise;
-      const store = db.transaction("notes", "readonly").objectStore("notes");
-      const index = store.index("isPinned");
-
-      // Get pinned notes
-      const pinnedNotes = await index.getAll(1);
-
-      // Sort by 'order'
-      pinnedNotes.sort((a, b) => a.order - b.order);
-
-      // Implement pagination
-      const data = pinnedNotes.slice(cursor, cursor + slice);
-
-      // Validate each note
-      const validatedData = data.map((note) => noteSchema.parse(note));
-
-      const hasMore = cursor + slice < pinnedNotes.length;
-      const count = validatedData.length;
-
-      const meta = {
-        hasMore,
-        count,
-        cursor: cursor + count,
-        slice,
-      };
-
-      const paginatedResult = {
-        data: validatedData,
-        meta,
-      };
-
-      // Validate the paginated result
-      const validatedResult = paginatedNotesSchema.parse(paginatedResult);
-
-      return validatedResult;
-    });
+    return handleDBQuery(() => getPaginatedNotesByPinState(slice, cursor, 1));
   },
 
-  // Get paginated unpinned notes
+  // MARK: Get unpinned notes
   async getPaginated(
-    slice: number = DEFAULT_PAGINATION_SLICE,
-    cursor: number = 0,
+    slice = DEFAULT_PAGE_SLICE,
+    cursor = 0,
   ): Promise<PaginatedNotesSchemaType> {
-    return handleDBQuery(async () => {
-      const db = await dbPromise;
-      const store = db.transaction("notes", "readonly").objectStore("notes");
-      const index = store.index("isPinned");
-
-      // Get unpinned notes
-      const unpinnedNotes = await index.getAll(0);
-
-      // Sort by 'order'
-      unpinnedNotes.sort((a, b) => a.order - b.order);
-
-      // Implement pagination
-      const data = unpinnedNotes.slice(cursor, cursor + slice);
-
-      // Validate each note
-      const validatedData = data.map((note) => noteSchema.parse(note));
-
-      const hasMore = cursor + slice < unpinnedNotes.length;
-      const count = validatedData.length;
-
-      const meta = {
-        hasMore,
-        count,
-        cursor: cursor + count,
-        slice,
-      };
-
-      const paginatedResult = {
-        data: validatedData,
-        meta,
-      };
-
-      // Validate the paginated result
-      const validatedResult = paginatedNotesSchema.parse(paginatedResult);
-
-      return validatedResult;
-    });
+    return handleDBQuery(() => getPaginatedNotesByPinState(slice, cursor, 0));
   },
 
-  // Reorder pinned notes
+  // MARK: Reorder pinned notes
   async reorderPinned(ids: NoteSchemaType["id"][]): Promise<void> {
-    return handleDBQuery(async () => {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
-        const note = await store.get(id);
-        if (note && note.isPinned === 1) {
-          note.order = i;
-          const validatedNote = noteSchema.parse(note);
-          await store.put(validatedNote);
-        } else {
-          throw new Error(`Note with id ${id} is not pinned or does not exist`);
-        }
-      }
-
-      await tx.done;
-    });
+    return handleDBQuery(() => reorderNotesByPinState(ids, 1));
   },
 
-  // Reorder unpinned notes
+  // MARK: Reorder unpinned notes
   async reorder(ids: NoteSchemaType["id"][]): Promise<void> {
-    return handleDBQuery(async () => {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
-        const note = await store.get(id);
-        if (note && note.isPinned === 0) {
-          note.order = i;
-          const validatedNote = noteSchema.parse(note);
-          await store.put(validatedNote);
-        } else {
-          throw new Error(`Note with id ${id} is pinned or does not exist`);
-        }
-      }
-
-      await tx.done;
-    });
+    return handleDBQuery(() => reorderNotesByPinState(ids, 0));
   },
 
-  // Search notes by title or tags
+  // MARK: Search notes by title or tags
   async search(query: string): Promise<NoteSchemaType[]> {
     return handleDBQuery(async () => {
       const db = await dbPromise;
@@ -484,6 +244,136 @@ export const LocalNotesAPI = {
     });
   },
 };
+
+// MARK: Helper functions
+
+async function reorderNotesByPinState(
+  ids: NoteSchemaType["id"][],
+  pinState: 1 | 0,
+): Promise<void> {
+  const db = await dbPromise;
+  const tx = db.transaction("notes", "readwrite");
+  const store = tx.objectStore("notes");
+
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i];
+    const note = await store.get(id);
+
+    if (!note) {
+      throw new Error(`Note with id ${id} does not exist`);
+    }
+
+    if (note.isPinned !== pinState) continue;
+
+    note.order = i;
+    const validatedNote = noteSchema.parse(note);
+    await store.put(validatedNote);
+  }
+
+  await tx.done;
+}
+
+async function updatePinState(
+  id: NoteSchemaType["id"],
+  pinState: 1 | 0,
+): Promise<void> {
+  const db = await dbPromise;
+  const tx = db.transaction("notes", "readwrite");
+  const store = tx.objectStore("notes");
+
+  const note = await store.get(id);
+  if (!note) {
+    throw new Error("Note not found");
+  }
+
+  if (note.isPinned === pinState) {
+    // Note is already same state
+    return;
+  }
+
+  // Update orders of unpinned notes
+  const oppositePinStateIndex = store.index("isPinned");
+  const oppositePinStateNotes = await oppositePinStateIndex.getAll(
+    pinState ? 0 : 1,
+  );
+
+  for (const oppositePinStateNote of oppositePinStateNotes) {
+    if (oppositePinStateNote.order > note.order) {
+      oppositePinStateNote.order -= 1;
+      const validatedOppositePinStateNote =
+        noteSchema.parse(oppositePinStateNote);
+      await store.put(validatedOppositePinStateNote);
+    }
+  }
+
+  // Get max order in pinned notes
+  const targetPinStateIndex = store.index("isPinned");
+  const targetPinStateNotes = await targetPinStateIndex.getAll(pinState);
+
+  // Update note
+  note.isPinned = pinState;
+
+  // TODO diff order strategy depending on pin state target
+  if (pinState === 1) {
+    note.order = targetPinStateNotes.length;
+  }
+
+  if (pinState === 0) {
+    for (const targetPinStateNote of targetPinStateNotes) {
+      targetPinStateNote.order += 1;
+      const validatedTargetPinStateNote = noteSchema.parse(targetPinStateNote);
+      await store.put(validatedTargetPinStateNote);
+    }
+
+    note.order = 0;
+  }
+
+  const validatedNote = noteSchema.parse(note);
+  await store.put(validatedNote);
+  await tx.done;
+}
+
+async function getPaginatedNotesByPinState(
+  slice: number,
+  cursor: number,
+  pinState: 1 | 0,
+): Promise<PaginatedNotesSchemaType> {
+  const db = await dbPromise;
+  const store = db.transaction("notes", "readonly").objectStore("notes");
+  const index = store.index("isPinned");
+
+  // Get pinned notes
+  const pinnedNotes = await index.getAll(pinState);
+
+  // Sort by 'order'
+  pinnedNotes.sort((a, b) => a.order - b.order);
+
+  // Implement pagination
+  const data = pinnedNotes.slice(cursor, cursor + slice);
+
+  // Validate each note
+  const validatedData = data.map((note) => noteSchema.parse(note));
+
+  const hasMore = cursor + slice < pinnedNotes.length;
+  const count = validatedData.length;
+
+  const meta = {
+    hasMore,
+    count,
+    cursor: cursor + count,
+    slice,
+  };
+
+  const paginatedResult = {
+    data: validatedData,
+    meta,
+  };
+
+  // Validate the paginated result
+  const validatedResult = paginatedNotesSchema.parse(paginatedResult);
+
+  return validatedResult;
+}
 
 async function handleDBQuery<TData>(
   query: () => Promise<TData>,
