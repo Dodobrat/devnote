@@ -9,14 +9,6 @@ import {
   updateNoteSchema,
   type UpdateNoteSchemaType,
 } from "~/types/notes";
-
-// TODO: simplify
-
-const DEFAULT_PAGINATION_SLICE = 50;
-
-/**
- * LocalNotesAPI is a mock API that uses IndexedDB as the data store.
- */
 interface NotesDB extends DBSchema {
   notes: {
     key: string;
@@ -28,34 +20,39 @@ interface NotesDB extends DBSchema {
       tags: string;
     };
   };
+  tags: {
+    key: string;
+    value: { name: string };
+  };
 }
 
-const NOTES_DB_NAME = "devnotes-db";
-const NOTES_DB_VERSION = 1;
+const DEFAULT_PAGE_SLICE = 50;
 
-// Initialize the IndexedDB database
+const NOTES_DB_NAME = "devnotes-db";
+const NOTES_DB_VERSION = 2;
+
+// MARK: Initialize IndexedDB
 const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
   upgrade(db) {
-    const store = db.createObjectStore("notes", { keyPath: "id" });
-    store.createIndex("order", "order");
-    store.createIndex("isPinned", "isPinned");
-    store.createIndex("title", "title");
-    store.createIndex("tags", "tags", { multiEntry: true });
+    // If the "notes" store doesn't exist, create it (this is just a safety check)
+    if (!db.objectStoreNames.contains("notes")) {
+      const notesStore = db.createObjectStore("notes", { keyPath: "id" });
+      notesStore.createIndex("order", "order");
+      notesStore.createIndex("isPinned", "isPinned");
+      notesStore.createIndex("title", "title");
+      notesStore.createIndex("tags", "tags", { multiEntry: true });
+    }
+    // Only create the "tags" store if it does not exist already.
+    if (!db.objectStoreNames.contains("tags")) {
+      db.createObjectStore("tags", { keyPath: "name" });
+    }
   },
 });
 
-function deriveTitle(markdownContent: string) {
-  const lines = markdownContent.split("\n");
-  const firstLineWithWords = lines.find((line) => /\w+/.test(line)) || "";
-  const withoutHtmlTags = firstLineWithWords.replace(/<\/?[^>]+(>|$)/g, "");
-  const cleanTitle = withoutHtmlTags.replace(/[^\w\s]/g, "");
-  return cleanTitle.trim();
-}
-
 export const LocalNotesAPI = {
-  // Create a new note
+  // MARK: Create note
   async create(body: Pick<NoteSchemaType, "note">): Promise<NoteSchemaType> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
       const store = tx.objectStore("notes");
@@ -100,40 +97,26 @@ export const LocalNotesAPI = {
       await store.add(validatedNewNote);
       await tx.done;
       return validatedNewNote;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        // Handle validation errors
-        throw new Error(`Validation error in create: ${error.message}`);
-      } else {
-        // Handle other errors
-        throw error;
-      }
-    }
+    });
   },
 
-  // Get note by ID
+  // MARK: Get note by ID
   async getById(id: NoteSchemaType["id"]): Promise<NoteSchemaType | null> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const note = await db.get("notes", id);
-      if (note) {
-        // Validate the retrieved note
-        const validatedNote = noteSchema.parse(note);
-        return validatedNote;
-      }
-      return null;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in getById: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+
+      if (!note) return null;
+
+      // Validate the retrieved note
+      const validatedNote = noteSchema.parse(note);
+      return validatedNote;
+    });
   },
 
-  // Update a note
+  // MARK: Update note
   async update(body: UpdateNoteSchemaType): Promise<void> {
-    try {
+    return handleDBQuery(async () => {
       // Validate input data
       const validatedNoteUpdate = updateNoteSchema.parse(body);
 
@@ -147,19 +130,10 @@ export const LocalNotesAPI = {
       }
 
       // Update fields
-      if (validatedNoteUpdate.title !== undefined) {
-        note.title = validatedNoteUpdate.title;
-      }
-      if (validatedNoteUpdate.isProtected !== undefined) {
-        note.isProtected = validatedNoteUpdate.isProtected;
-      }
-      if (validatedNoteUpdate.note !== undefined) {
-        note.note = validatedNoteUpdate.note;
-      }
-      if (validatedNoteUpdate.tags !== undefined) {
-        note.tags = validatedNoteUpdate.tags;
-      }
-
+      note.title = validatedNoteUpdate.title ?? note.title;
+      note.isProtected = validatedNoteUpdate.isProtected ?? note.isProtected;
+      note.note = validatedNoteUpdate.note ?? note.note;
+      note.tags = validatedNoteUpdate.tags ?? note.tags;
       note.updatedAt = new Date();
 
       // Validate the updated note
@@ -167,166 +141,22 @@ export const LocalNotesAPI = {
 
       await store.put(validatedNote);
       await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in update: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
-  // Pin a note
+  // MARK: Pin note
   async pin(id: NoteSchemaType["id"]): Promise<void> {
-    try {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      const note = await store.get(id);
-      if (!note) {
-        throw new Error("Note not found");
-      }
-
-      if (note.isPinned) {
-        // Note is already pinned
-        return;
-      }
-
-      // Update orders of unpinned notes
-      const unpinnedIndex = store.index("isPinned");
-      const unpinnedNotes = await unpinnedIndex.getAll(0);
-
-      for (const unpinnedNote of unpinnedNotes) {
-        if (unpinnedNote.order > note.order) {
-          unpinnedNote.order -= 1;
-          const validatedUnpinnedNote = noteSchema.parse(unpinnedNote);
-          await store.put(validatedUnpinnedNote);
-        }
-      }
-
-      // Get max order in pinned notes
-      const pinnedIndex = store.index("isPinned");
-      const pinnedNotes = await pinnedIndex.getAll(1);
-      let maxOrder = -1;
-      for (const pinnedNote of pinnedNotes) {
-        if (pinnedNote.order > maxOrder) {
-          maxOrder = pinnedNote.order;
-        }
-      }
-
-      // Update note
-      note.isPinned = 1;
-      note.order = maxOrder + 1;
-
-      const validatedNote = noteSchema.parse(note);
-      await store.put(validatedNote);
-      await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in pin: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    return handleDBQuery(() => updatePinState(id, 1));
   },
 
-  // Unpin a note
+  // MARK: Unpin note
   async unpin(id: NoteSchemaType["id"]): Promise<void> {
-    try {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      const note = await store.get(id);
-      if (!note) {
-        throw new Error("Note not found");
-      }
-
-      if (!note.isPinned) {
-        // Note is already unpinned
-        return;
-      }
-
-      // Update orders of pinned notes
-      const pinnedIndex = store.index("isPinned");
-      const pinnedNotes = await pinnedIndex.getAll(1);
-
-      for (const pinnedNote of pinnedNotes) {
-        if (pinnedNote.order > note.order) {
-          pinnedNote.order -= 1;
-          const validatedPinnedNote = noteSchema.parse(pinnedNote);
-          await store.put(validatedPinnedNote);
-        }
-      }
-
-      // Update orders of unpinned notes
-      const unpinnedIndex = store.index("isPinned");
-      const unpinnedNotes = await unpinnedIndex.getAll(0);
-      for (const unpinnedNote of unpinnedNotes) {
-        unpinnedNote.order += 1;
-        const validatedUnpinnedNote = noteSchema.parse(unpinnedNote);
-        await store.put(validatedUnpinnedNote);
-      }
-
-      // Update note
-      note.isPinned = 0;
-      note.order = 0;
-
-      const validatedNote = noteSchema.parse(note);
-      await store.put(validatedNote);
-      await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in unpin: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    return handleDBQuery(() => updatePinState(id, 0));
   },
 
-  // Delete a note
-  async delete(id: NoteSchemaType["id"]): Promise<void> {
-    try {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      const note = await store.get(id);
-      if (!note) {
-        throw new Error("Note not found");
-      }
-
-      const isPinned = note.isPinned;
-      const order = note.order;
-
-      await store.delete(id);
-
-      // Update orders of other notes in the same group
-      const index = store.index("isPinned");
-      const notesInGroup = await index.getAll(isPinned);
-
-      for (const otherNote of notesInGroup) {
-        if (otherNote.order > order) {
-          otherNote.order -= 1;
-          const validatedNote = noteSchema.parse(otherNote);
-          await store.put(validatedNote);
-        }
-      }
-
-      await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in delete: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
-  },
-
-  // Bulk delete multiple notes by their ids with order updates and error handling
+  // MARK: Delete notes
   async bulkDelete(ids: NoteSchemaType["id"][]): Promise<void> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const tx = db.transaction("notes", "readwrite");
       const store = tx.objectStore("notes");
@@ -364,178 +194,38 @@ export const LocalNotesAPI = {
       }
 
       await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in bulkDelete: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
   },
 
-  // Get paginated pinned notes
+  // MARK: Get pinned notes
   async getPaginatedPinned(
-    slice: number = DEFAULT_PAGINATION_SLICE,
-    cursor: number = 0,
+    slice = DEFAULT_PAGE_SLICE,
+    cursor = 0,
   ): Promise<PaginatedNotesSchemaType> {
-    try {
-      const db = await dbPromise;
-      const store = db.transaction("notes", "readonly").objectStore("notes");
-      const index = store.index("isPinned");
-
-      // Get pinned notes
-      const pinnedNotes = await index.getAll(1);
-
-      // Sort by 'order'
-      pinnedNotes.sort((a, b) => a.order - b.order);
-
-      // Implement pagination
-      const data = pinnedNotes.slice(cursor, cursor + slice);
-
-      // Validate each note
-      const validatedData = data.map((note) => noteSchema.parse(note));
-
-      const hasMore = cursor + slice < pinnedNotes.length;
-      const count = validatedData.length;
-
-      const meta = {
-        hasMore,
-        count,
-        cursor: cursor + count,
-        slice,
-      };
-
-      const paginatedResult = {
-        data: validatedData,
-        meta,
-      };
-
-      // Validate the paginated result
-      const validatedResult = paginatedNotesSchema.parse(paginatedResult);
-
-      return validatedResult;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(
-          `Validation error in getPaginatedPinned: ${error.message}`,
-        );
-      } else {
-        throw error;
-      }
-    }
+    return handleDBQuery(() => getPaginatedNotesByPinState(slice, cursor, 1));
   },
 
-  // Get paginated unpinned notes
+  // MARK: Get unpinned notes
   async getPaginated(
-    slice: number = DEFAULT_PAGINATION_SLICE,
-    cursor: number = 0,
+    slice = DEFAULT_PAGE_SLICE,
+    cursor = 0,
   ): Promise<PaginatedNotesSchemaType> {
-    try {
-      const db = await dbPromise;
-      const store = db.transaction("notes", "readonly").objectStore("notes");
-      const index = store.index("isPinned");
-
-      // Get unpinned notes
-      const unpinnedNotes = await index.getAll(0);
-
-      // Sort by 'order'
-      unpinnedNotes.sort((a, b) => a.order - b.order);
-
-      // Implement pagination
-      const data = unpinnedNotes.slice(cursor, cursor + slice);
-
-      // Validate each note
-      const validatedData = data.map((note) => noteSchema.parse(note));
-
-      const hasMore = cursor + slice < unpinnedNotes.length;
-      const count = validatedData.length;
-
-      const meta = {
-        hasMore,
-        count,
-        cursor: cursor + count,
-        slice,
-      };
-
-      const paginatedResult = {
-        data: validatedData,
-        meta,
-      };
-
-      // Validate the paginated result
-      const validatedResult = paginatedNotesSchema.parse(paginatedResult);
-
-      return validatedResult;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in getPaginated: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    return handleDBQuery(() => getPaginatedNotesByPinState(slice, cursor, 0));
   },
 
-  // Reorder pinned notes
+  // MARK: Reorder pinned notes
   async reorderPinned(ids: NoteSchemaType["id"][]): Promise<void> {
-    try {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
-        const note = await store.get(id);
-        if (note && note.isPinned === 1) {
-          note.order = i;
-          const validatedNote = noteSchema.parse(note);
-          await store.put(validatedNote);
-        } else {
-          throw new Error(`Note with id ${id} is not pinned or does not exist`);
-        }
-      }
-
-      await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in reorderPinned: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    return handleDBQuery(() => reorderNotesByPinState(ids, 1));
   },
 
-  // Reorder unpinned notes
+  // MARK: Reorder unpinned notes
   async reorder(ids: NoteSchemaType["id"][]): Promise<void> {
-    try {
-      const db = await dbPromise;
-      const tx = db.transaction("notes", "readwrite");
-      const store = tx.objectStore("notes");
-
-      for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
-        const note = await store.get(id);
-        if (note && note.isPinned === 0) {
-          note.order = i;
-          const validatedNote = noteSchema.parse(note);
-          await store.put(validatedNote);
-        } else {
-          throw new Error(`Note with id ${id} is pinned or does not exist`);
-        }
-      }
-
-      await tx.done;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in reorder: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    return handleDBQuery(() => reorderNotesByPinState(ids, 0));
   },
 
-  // Search notes by title or tags
+  // MARK: Search notes by title or tags
   async search(query: string): Promise<NoteSchemaType[]> {
-    try {
+    return handleDBQuery(async () => {
       const db = await dbPromise;
       const store = db.transaction("notes", "readonly").objectStore("notes");
 
@@ -545,11 +235,14 @@ export const LocalNotesAPI = {
       // Filter notes
       const lowerQuery = query.toLowerCase();
       const filteredNotes = notes.filter((note) => {
-        const titleMatch = note.title.toLowerCase().includes(lowerQuery);
-        const tagsMatch = note.tags.some((tag) =>
-          tag.toLowerCase().includes(lowerQuery),
-        );
-        return titleMatch || tagsMatch;
+        const isTagSearch = lowerQuery.startsWith("tag:");
+
+        if (isTagSearch) {
+          const tagQuery = lowerQuery.slice(4).trim();
+          return note.tags.some((tag) => tag.toLowerCase().includes(tagQuery));
+        }
+
+        return note.title.toLowerCase().includes(lowerQuery);
       });
 
       // Sort by 'order'
@@ -561,12 +254,266 @@ export const LocalNotesAPI = {
       );
 
       return validatedNotes;
-    } catch (error) {
-      if (error instanceof ZodError) {
-        throw new Error(`Validation error in search: ${error.message}`);
-      } else {
-        throw error;
-      }
-    }
+    });
+  },
+
+  // MARK: Tags
+  tags: {
+    // Get all unique tags from the tags store
+    async getAll(): Promise<string[]> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction("tags", "readonly");
+        const store = tx.objectStore("tags");
+        const keys = await store.getAllKeys();
+        return keys;
+      });
+    },
+
+    // Add a new tag if it doesn't already exist
+    async add(tag: string): Promise<void> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction("tags", "readwrite");
+        const store = tx.objectStore("tags");
+
+        const existing = await store.get(tag);
+        if (existing) {
+          throw new Error("Tag already exists");
+        }
+
+        await store.add({ name: tag });
+        await tx.done;
+      });
+    },
+
+    // Assign an existing tag to a note
+    async assign(noteId: string, tag: string): Promise<void> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction(["tags", "notes"], "readwrite");
+        const tagStore = tx.objectStore("tags");
+        const noteStore = tx.objectStore("notes");
+
+        // Ensure the tag exists
+        const existingTag = await tagStore.get(tag);
+        if (!existingTag) {
+          throw new Error(
+            "Tag does not exist. Please add it before assignment.",
+          );
+        }
+
+        // Retrieve and update the note
+        const note = await noteStore.get(noteId);
+        if (!note) {
+          throw new Error("Note not found");
+        }
+
+        if (!note.tags.includes(tag)) {
+          note.tags.push(tag);
+          note.updatedAt = new Date();
+          const validatedNote = noteSchema.parse(note);
+          await noteStore.put(validatedNote);
+        }
+        await tx.done;
+      });
+    },
+
+    // Unassign a tag from a note
+    async unassign(noteId: string, tag: string): Promise<void> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction("notes", "readwrite");
+        const noteStore = tx.objectStore("notes");
+
+        const note = await noteStore.get(noteId);
+        if (!note) {
+          throw new Error("Note not found");
+        }
+
+        if (note.tags.includes(tag)) {
+          note.tags = note.tags.filter((t) => t !== tag);
+          note.updatedAt = new Date();
+          const validatedNote = noteSchema.parse(note);
+          await noteStore.put(validatedNote);
+        }
+        await tx.done;
+      });
+    },
+
+    // Delete a tag from the tags store and remove it from any notes that have it
+    async delete(tag: string): Promise<void> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction(["tags", "notes"], "readwrite");
+        const tagStore = tx.objectStore("tags");
+        const noteStore = tx.objectStore("notes");
+
+        // Delete the tag from the store
+        await tagStore.delete(tag);
+
+        // Remove the tag from all notes that have it
+        const allNotes = await noteStore.getAll();
+        for (const note of allNotes) {
+          if (note.tags.includes(tag)) {
+            note.tags = note.tags.filter((t) => t !== tag);
+            note.updatedAt = new Date();
+            const validatedNote = noteSchema.parse(note);
+            await noteStore.put(validatedNote);
+          }
+        }
+        await tx.done;
+      });
+    },
   },
 };
+
+// MARK: Helper functions
+
+async function reorderNotesByPinState(
+  ids: NoteSchemaType["id"][],
+  pinState: 1 | 0,
+): Promise<void> {
+  const db = await dbPromise;
+  const tx = db.transaction("notes", "readwrite");
+  const store = tx.objectStore("notes");
+
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i];
+    const note = await store.get(id);
+
+    if (!note) {
+      throw new Error(`Note with id ${id} does not exist`);
+    }
+
+    if (note.isPinned !== pinState) continue;
+
+    note.order = i;
+    const validatedNote = noteSchema.parse(note);
+    await store.put(validatedNote);
+  }
+
+  await tx.done;
+}
+
+async function updatePinState(
+  id: NoteSchemaType["id"],
+  pinState: 1 | 0,
+): Promise<void> {
+  const db = await dbPromise;
+  const tx = db.transaction("notes", "readwrite");
+  const store = tx.objectStore("notes");
+
+  const note = await store.get(id);
+  if (!note) {
+    throw new Error("Note not found");
+  }
+
+  if (note.isPinned === pinState) {
+    // Note is already in the target state
+    return;
+  }
+
+  // Update orders of the opposite pin state notes
+  const oppositePinStateIndex = store.index("isPinned");
+  const oppositePinStateNotes = await oppositePinStateIndex.getAll(
+    pinState ? 0 : 1,
+  );
+
+  for (const oppositePinStateNote of oppositePinStateNotes) {
+    if (oppositePinStateNote.order > note.order) {
+      oppositePinStateNote.order -= 1;
+      const validatedOppositePinStateNote =
+        noteSchema.parse(oppositePinStateNote);
+      await store.put(validatedOppositePinStateNote);
+    }
+  }
+
+  // Get current notes in target pin state
+  const targetPinStateIndex = store.index("isPinned");
+  const targetPinStateNotes = await targetPinStateIndex.getAll(pinState);
+
+  // Update note and assign new order based on target state
+  note.isPinned = pinState;
+
+  if (pinState === 1) {
+    note.order = targetPinStateNotes.length;
+  }
+
+  if (pinState === 0) {
+    for (const targetPinStateNote of targetPinStateNotes) {
+      targetPinStateNote.order += 1;
+      const validatedTargetPinStateNote = noteSchema.parse(targetPinStateNote);
+      await store.put(validatedTargetPinStateNote);
+    }
+    note.order = 0;
+  }
+
+  const validatedNote = noteSchema.parse(note);
+  await store.put(validatedNote);
+  await tx.done;
+}
+
+async function getPaginatedNotesByPinState(
+  slice: number,
+  cursor: number,
+  pinState: 1 | 0,
+): Promise<PaginatedNotesSchemaType> {
+  const db = await dbPromise;
+  const store = db.transaction("notes", "readonly").objectStore("notes");
+  const index = store.index("isPinned");
+
+  // Get notes filtered by pin state
+  const filteredNotes = await index.getAll(pinState);
+
+  // Sort notes by their order
+  filteredNotes.sort((a, b) => a.order - b.order);
+
+  // Implement pagination
+  const data = filteredNotes.slice(cursor, cursor + slice);
+
+  // Validate each note
+  const validatedData = data.map((note) => noteSchema.parse(note));
+
+  const hasMore = cursor + slice < filteredNotes.length;
+  const count = validatedData.length;
+
+  const meta = {
+    hasMore,
+    count,
+    cursor: cursor + count,
+    slice,
+  };
+
+  const paginatedResult = {
+    data: validatedData,
+    meta,
+  };
+
+  // Validate the paginated result
+  const validatedResult = paginatedNotesSchema.parse(paginatedResult);
+
+  return validatedResult;
+}
+
+async function handleDBQuery<TData>(
+  query: () => Promise<TData>,
+): Promise<TData> {
+  try {
+    return await query();
+  } catch (error) {
+    if (error instanceof ZodError) {
+      throw new Error(`Validation error: ${error.message}`);
+    } else {
+      throw error;
+    }
+  }
+}
+
+function deriveTitle(markdownContent: string) {
+  const lines = markdownContent.split("\n");
+  const firstLineWithWords = lines.find((line) => /\w+/.test(line)) || "";
+  const withoutHtmlTags = firstLineWithWords.replace(/<\/?[^>]+(>|$)/g, "");
+  const cleanTitle = withoutHtmlTags.replace(/[^\w\s]/g, "");
+  return cleanTitle.trim();
+}

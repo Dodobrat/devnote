@@ -29,7 +29,7 @@ export function NoteEditTitleForm({
 
   return (
     <form
-      className={cn("flex flex-col gap-4", "px-4 md:px-0")}
+      className={cn("flex flex-col gap-4", "px-4 pt-1 md:px-0")}
       onSubmit={(e) => {
         e.preventDefault();
 

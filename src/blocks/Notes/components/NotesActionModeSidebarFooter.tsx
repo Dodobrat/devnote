@@ -72,6 +72,7 @@ function NoteBulkDeleteMode() {
             <Tooltip.Trigger asChild>
               <Button
                 size="icon"
+                variant="destructive"
                 disabled={!queueSize}
                 onClick={() => setBulkDeleteConfirmDialog(true)}
               >

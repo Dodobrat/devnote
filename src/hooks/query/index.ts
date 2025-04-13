@@ -35,6 +35,8 @@ export const notesQueryKeys = {
   byQuery: (query: string) => [...notesQueryKeys.list(), "search", query],
   byIdRoot: () => [...notesQueryKeys.all(), "byId"],
   byId: (id: NoteSchemaType["id"]) => [...notesQueryKeys.byIdRoot(), id],
+  tags: () => [...notesQueryKeys.all(), "tags"],
+  tagsList: () => [...notesQueryKeys.tags(), "list"],
 };
 
 // MARK: List Notes
@@ -86,6 +88,9 @@ export function useUnPinnedNotes() {
 }
 
 export function searchNotesQueryOptions({ query }: { query: string }) {
+  const isNoteQuery =
+    Boolean(query) && !query.startsWith(">") && !query.startsWith("/");
+
   return queryOptions({
     queryKey: notesQueryKeys.byQuery(query),
     queryFn: () => {
@@ -94,7 +99,7 @@ export function searchNotesQueryOptions({ query }: { query: string }) {
       // logic when to switch to actual api
       return LocalNotesAPI.search(query);
     },
-    enabled: Boolean(query),
+    enabled: isNoteQuery,
     placeholderData: keepPreviousData,
   });
 }
@@ -198,7 +203,7 @@ export function useDeleteNote() {
       console.log("DELETE: delete note", { id });
 
       // logic when to switch to actual api
-      return LocalNotesAPI.delete(id);
+      return LocalNotesAPI.bulkDelete([id]);
     },
     onSuccess: (_, payload) => {
       toast.success("Note deleted");
@@ -410,4 +415,105 @@ export function toSnakeCase(title: string): string {
     .toLowerCase()
     .replace(/\s+/g, "_") // Replace one or more spaces with an underscore
     .replace(/[^a-z0-9_]/g, ""); // Remove any characters that are not letters, numbers, or underscores
+}
+
+// MARK: Tags
+
+export function useGetTags() {
+  return useQuery({
+    queryKey: notesQueryKeys.tagsList(),
+    queryFn: () => {
+      console.log("GET: all tags");
+
+      // logic when to switch to actual api
+      return LocalNotesAPI.tags.getAll();
+    },
+  });
+}
+
+export function useAddTag() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (tag: string) => {
+      console.log("POST: add tag", { tag });
+
+      // logic when to switch to actual api
+      return LocalNotesAPI.tags.add(tag);
+    },
+    onSuccess: (_, payload) => {
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.tagsList(),
+      });
+      toast.success(`${payload} tag created`);
+    },
+    onError: () => toast.error("Failed to create tag"),
+  });
+}
+
+export function useAssignTag() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { noteId: NoteSchemaType["id"]; tag: string }) => {
+      console.log("POST: assign tag", { data });
+      // logic when to switch to actual api
+      return LocalNotesAPI.tags.assign(data.noteId, data.tag);
+    },
+    onSuccess: (_, payload) => {
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.list(),
+      });
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.byId(payload.noteId),
+      });
+      toast.success("Tag assigned");
+    },
+    onError: () => toast.error("Failed to assign tag"),
+  });
+}
+
+export function useUnassignTag() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { noteId: NoteSchemaType["id"]; tag: string }) => {
+      console.log("POST: unassign tag", { data });
+      // logic when to switch to actual api
+      return LocalNotesAPI.tags.unassign(data.noteId, data.tag);
+    },
+    onSuccess: (_, payload) => {
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.list(),
+      });
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.byId(payload.noteId),
+      });
+      toast.success("Tag unassigned");
+    },
+    onError: () => toast.error("Failed to unassign tag"),
+  });
+}
+
+export function useDeleteTag() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (tag: string) => {
+      console.log("DELETE: delete tag", { tag });
+
+      // logic when to switch to actual api
+      return LocalNotesAPI.tags.delete(tag);
+    },
+    onSuccess: () => {
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.tagsList(),
+      });
+      queryClient.refetchQueries({
+        queryKey: notesQueryKeys.list(),
+      });
+      toast.success("Tag deleted");
+    },
+    onError: () => toast.error("Failed to delete tag"),
+  });
 }
