@@ -203,7 +203,7 @@ ${importedNote.note}`;
         desc: "Import .md files or a .zip archive",
       }}
     >
-      <div className={cn("flex flex-col gap-4", "px-4 md:px-0")}>
+      <div className={cn("flex flex-col gap-4", "px-4 pt-1 md:px-0")}>
         <Tabs defaultValue="files" className="grow">
           <Tabs.List className="w-full">
             <Tabs.Trigger value="files">Files</Tabs.Trigger>

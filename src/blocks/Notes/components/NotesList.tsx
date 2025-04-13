@@ -21,12 +21,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  CheckIcon,
-  GripVerticalIcon,
-  HandIcon,
-  SquareIcon,
-} from "lucide-react";
+import { HandIcon } from "lucide-react";
 
 import {
   Button,
@@ -205,80 +200,16 @@ function NoteItem({
 
   const isInNotesActionMode = bulkDeleteMode || exportMode;
 
-  if (sidebarVariant === "minimal") {
-    return (
-      <Sidebar.MenuItem
-        className={cn(
-          "bg-sidebar border-border grid grid-cols-[auto_1fr_auto] gap-1 rounded-lg border p-1",
-          isNotePage && "bg-card",
-          isOverlay && "cursor-grabbing *:pointer-events-none",
-          isDragged && "bg-secondary *:opacity-0",
-        )}
-        {...rest}
-      >
-        {bulkDeleteMode && <MarkNoteForDeletion note={note} isSizeIcon />}
-        {exportMode && <MarkNoteForExport note={note} isSizeIcon />}
-
-        {!isInNotesActionMode && (
-          <Tooltip>
-            <Tooltip.Trigger asChild>
-              <Button
-                size="icon"
-                variant={isDisabledReorder ? "secondary" : "ghost"}
-                className="h-auto cursor-grab"
-                {...listeners}
-                disabled={isDisabledReorder}
-              >
-                <GripVerticalIcon />
-                <span className="sr-only">Reorder</span>
-              </Button>
-            </Tooltip.Trigger>
-            <Tooltip.Content>
-              <p>Reorder</p>
-            </Tooltip.Content>
-          </Tooltip>
-        )}
-
-        <Button
-          asChild
-          variant="ghost"
-          className={cn(
-            "inline-grid h-auto justify-start gap-0 overflow-hidden px-2 whitespace-normal",
-            isInNotesActionMode && "col-span-2",
-            isNotePage && "font-bold",
-          )}
-        >
-          <Link
-            to="/note/$noteId"
-            params={{ noteId: note.id }}
-            title={note.title}
-          >
-            <p className="truncate leading-tight">{note.title}</p>
-            <p className="text-muted-foreground truncate text-sm break-words">
-              {note.note}
-            </p>
-          </Link>
-        </Button>
-
-        {!isInNotesActionMode && (
-          <NoteActions
-            note={note}
-            side={isMobile ? "bottom" : "right"}
-            align={isMobile ? "end" : "start"}
-            className="h-auto"
-          />
-        )}
-      </Sidebar.MenuItem>
-    );
-  }
+  const isMinimal = sidebarVariant === "minimal";
 
   return (
     <Sidebar.MenuItem
       className={cn(
-        "border-border bg-card grid grid-cols-[auto_1fr_auto] grid-rows-[auto_auto_auto] gap-1 gap-y-2 rounded-md border p-2",
+        "border-border bg-card grid grid-cols-[auto_1fr_auto] gap-1 gap-y-2 rounded-lg border p-2",
         isNotePage && "ring-primary ring",
         isOverlay && "cursor-grabbing *:pointer-events-none",
         isDragged && "bg-secondary ring-0 ring-offset-0 *:opacity-0",
+        isMinimal && "gap-y-1 p-1",
       )}
       {...rest}
     >
@@ -328,32 +259,29 @@ function NoteItem({
           params={{ noteId: note.id }}
           title={note.title}
         >
-          <p className="truncate text-lg font-semibold">{note.title}</p>
-          <p className="text-muted-foreground line-clamp-2 break-words">
-            {note.note}
+          <p className={cn("truncate font-semibold", !isMinimal && "text-lg")}>
+            {note.title}
           </p>
+          {!isMinimal && (
+            <p className="text-muted-foreground line-clamp-2 break-words">
+              {note.note}
+            </p>
+          )}
         </Link>
       </Button>
     </Sidebar.MenuItem>
   );
 }
 
-function MarkNoteForDeletion({
-  note,
-  isSizeIcon,
-}: {
-  note: NoteSchemaType;
-  isSizeIcon?: boolean;
-}) {
+function MarkNoteForDeletion({ note }: { note: NoteSchemaType }) {
   const [notesToDelete, setNotesToDelete] = useBulkDeleteNotesAtom();
 
   const isSelected = notesToDelete.has(note.id);
 
   return (
     <Button
-      className={cn(isSizeIcon ? "h-auto" : "col-span-full")}
-      size={isSizeIcon ? "icon" : undefined}
-      variant={isSizeIcon ? "ghost" : isSelected ? "outline" : "default"}
+      className="col-span-full"
+      variant={isSelected ? "outline" : "default"}
       onClick={() =>
         setNotesToDelete((prev) => {
           const updated = new Set<string>();
@@ -370,30 +298,21 @@ function MarkNoteForDeletion({
         })
       }
     >
-      {isSizeIcon && !isSelected && <SquareIcon />}
-      {isSizeIcon && isSelected && <CheckIcon />}
-      {!isSizeIcon && !isSelected && "Add to queue"}
-      {!isSizeIcon && isSelected && "Remove from queue"}
+      {!isSelected && "Add to queue"}
+      {isSelected && "Remove from queue"}
     </Button>
   );
 }
 
-function MarkNoteForExport({
-  note,
-  isSizeIcon,
-}: {
-  note: NoteSchemaType;
-  isSizeIcon?: boolean;
-}) {
+function MarkNoteForExport({ note }: { note: NoteSchemaType }) {
   const [notesToExport, setNotesToExport] = useToExportNotesAtom();
 
   const isSelected = notesToExport[note.id];
 
   return (
     <Button
-      className={cn(isSizeIcon ? "h-auto" : "col-span-full")}
-      size={isSizeIcon ? "icon" : undefined}
-      variant={isSizeIcon ? "ghost" : isSelected ? "outline" : "default"}
+      className="col-span-full"
+      variant={isSelected ? "outline" : "default"}
       onClick={() =>
         setNotesToExport((prev) => {
           if (prev[note.id]) {
@@ -406,10 +325,8 @@ function MarkNoteForExport({
         })
       }
     >
-      {isSizeIcon && !isSelected && <SquareIcon />}
-      {isSizeIcon && isSelected && <CheckIcon />}
-      {!isSizeIcon && !isSelected && "Add to queue"}
-      {!isSizeIcon && isSelected && "Remove from queue"}
+      {!isSelected && "Add to queue"}
+      {isSelected && "Remove from queue"}
     </Button>
   );
 }

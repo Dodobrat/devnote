@@ -9,9 +9,6 @@ import {
   updateNoteSchema,
   type UpdateNoteSchemaType,
 } from "~/types/notes";
-
-const DEFAULT_PAGE_SLICE = 50;
-
 interface NotesDB extends DBSchema {
   notes: {
     key: string;
@@ -23,7 +20,13 @@ interface NotesDB extends DBSchema {
       tags: string;
     };
   };
+  tags: {
+    key: string;
+    value: { name: string };
+  };
 }
+
+const DEFAULT_PAGE_SLICE = 50;
 
 const NOTES_DB_NAME = "devnotes-db";
 const NOTES_DB_VERSION = 1;
@@ -31,11 +34,15 @@ const NOTES_DB_VERSION = 1;
 // MARK: Initialize IndexedDB
 const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
   upgrade(db) {
-    const store = db.createObjectStore("notes", { keyPath: "id" });
-    store.createIndex("order", "order");
-    store.createIndex("isPinned", "isPinned");
-    store.createIndex("title", "title");
-    store.createIndex("tags", "tags", { multiEntry: true });
+    // Create the "notes" store as before
+    const notesStore = db.createObjectStore("notes", { keyPath: "id" });
+    notesStore.createIndex("order", "order");
+    notesStore.createIndex("isPinned", "isPinned");
+    notesStore.createIndex("title", "title");
+    notesStore.createIndex("tags", "tags", { multiEntry: true });
+
+    // Create a new "tags" store using the tag name as key
+    db.createObjectStore("tags", { keyPath: "name" });
   },
 });
 
@@ -243,6 +250,116 @@ export const LocalNotesAPI = {
       return validatedNotes;
     });
   },
+
+  // MARK: Tag management methods
+  tags: {
+    // Get all unique tags from the tags store
+    async getAll(): Promise<string[]> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction("tags", "readonly");
+        const store = tx.objectStore("tags");
+        const keys = await store.getAllKeys();
+        return keys;
+      });
+    },
+
+    // Add a new tag if it doesn't already exist
+    async add(tag: string): Promise<void> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction("tags", "readwrite");
+        const store = tx.objectStore("tags");
+
+        const existing = await store.get(tag);
+        if (existing) {
+          throw new Error("Tag already exists");
+        }
+
+        await store.add({ name: tag });
+        await tx.done;
+      });
+    },
+
+    // Assign an existing tag to a note
+    async assign(noteId: string, tag: string): Promise<void> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction(["tags", "notes"], "readwrite");
+        const tagStore = tx.objectStore("tags");
+        const noteStore = tx.objectStore("notes");
+
+        // Ensure the tag exists
+        const existingTag = await tagStore.get(tag);
+        if (!existingTag) {
+          throw new Error(
+            "Tag does not exist. Please add it before assignment.",
+          );
+        }
+
+        // Retrieve and update the note
+        const note = await noteStore.get(noteId);
+        if (!note) {
+          throw new Error("Note not found");
+        }
+
+        if (!note.tags.includes(tag)) {
+          note.tags.push(tag);
+          note.updatedAt = new Date();
+          const validatedNote = noteSchema.parse(note);
+          await noteStore.put(validatedNote);
+        }
+        await tx.done;
+      });
+    },
+
+    // Unassign a tag from a note
+    async unassign(noteId: string, tag: string): Promise<void> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction("notes", "readwrite");
+        const noteStore = tx.objectStore("notes");
+
+        const note = await noteStore.get(noteId);
+        if (!note) {
+          throw new Error("Note not found");
+        }
+
+        if (note.tags.includes(tag)) {
+          note.tags = note.tags.filter((t) => t !== tag);
+          note.updatedAt = new Date();
+          const validatedNote = noteSchema.parse(note);
+          await noteStore.put(validatedNote);
+        }
+        await tx.done;
+      });
+    },
+
+    // Delete a tag from the tags store and remove it from any notes that have it
+    async delete(tag: string): Promise<void> {
+      return handleDBQuery(async () => {
+        const db = await dbPromise;
+        const tx = db.transaction(["tags", "notes"], "readwrite");
+        const tagStore = tx.objectStore("tags");
+        const noteStore = tx.objectStore("notes");
+
+        // Delete the tag from the store
+        await tagStore.delete(tag);
+
+        // Remove the tag from all notes that have it
+        const allNotes = await noteStore.getAll();
+        for (const note of allNotes) {
+          if (note.tags.includes(tag)) {
+            note.tags = note.tags.filter((t) => t !== tag);
+            note.updatedAt = new Date();
+            const validatedNote = noteSchema.parse(note);
+            await noteStore.put(validatedNote);
+          }
+        }
+        await tx.done;
+      });
+    },
+  },
 };
 
 // MARK: Helper functions
@@ -287,11 +404,11 @@ async function updatePinState(
   }
 
   if (note.isPinned === pinState) {
-    // Note is already same state
+    // Note is already in the target state
     return;
   }
 
-  // Update orders of unpinned notes
+  // Update orders of the opposite pin state notes
   const oppositePinStateIndex = store.index("isPinned");
   const oppositePinStateNotes = await oppositePinStateIndex.getAll(
     pinState ? 0 : 1,
@@ -306,14 +423,13 @@ async function updatePinState(
     }
   }
 
-  // Get max order in pinned notes
+  // Get current notes in target pin state
   const targetPinStateIndex = store.index("isPinned");
   const targetPinStateNotes = await targetPinStateIndex.getAll(pinState);
 
-  // Update note
+  // Update note and assign new order based on target state
   note.isPinned = pinState;
 
-  // TODO diff order strategy depending on pin state target
   if (pinState === 1) {
     note.order = targetPinStateNotes.length;
   }
@@ -324,7 +440,6 @@ async function updatePinState(
       const validatedTargetPinStateNote = noteSchema.parse(targetPinStateNote);
       await store.put(validatedTargetPinStateNote);
     }
-
     note.order = 0;
   }
 
@@ -342,19 +457,19 @@ async function getPaginatedNotesByPinState(
   const store = db.transaction("notes", "readonly").objectStore("notes");
   const index = store.index("isPinned");
 
-  // Get pinned notes
-  const pinnedNotes = await index.getAll(pinState);
+  // Get notes filtered by pin state
+  const filteredNotes = await index.getAll(pinState);
 
-  // Sort by 'order'
-  pinnedNotes.sort((a, b) => a.order - b.order);
+  // Sort notes by their order
+  filteredNotes.sort((a, b) => a.order - b.order);
 
   // Implement pagination
-  const data = pinnedNotes.slice(cursor, cursor + slice);
+  const data = filteredNotes.slice(cursor, cursor + slice);
 
   // Validate each note
   const validatedData = data.map((note) => noteSchema.parse(note));
 
-  const hasMore = cursor + slice < pinnedNotes.length;
+  const hasMore = cursor + slice < filteredNotes.length;
   const count = validatedData.length;
 
   const meta = {
