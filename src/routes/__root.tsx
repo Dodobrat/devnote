@@ -183,8 +183,7 @@ function LogoAction() {
           <span className="sr-only">Open command palette</span>
         </Sidebar.MenuButton>
         <Button asChild variant="ghost" className="size-12">
-          {/* "https://github.com/Dodobrat/devnote" */}
-          <a href="https://github.com/Dodobrat" target="_blank">
+          <a href="https://github.com/Dodobrat/devnote" target="_blank">
             <svg
               role="img"
               viewBox="0 0 24 24"
