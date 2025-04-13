@@ -153,6 +153,10 @@ function NoteTagsFilter({ query, setQuery }: NoteTagsFilterProps) {
       </Tooltip>
 
       <DropdownMenu.Content side="bottom" align="start" className="min-w-56">
+        <DropdownMenu.Label>Filter by tags</DropdownMenu.Label>
+        {tagsQuery.data?.length === 0 && (
+          <DropdownMenu.Item disabled>No tags found</DropdownMenu.Item>
+        )}
         {tagsQuery.data?.map((tag) => {
           const tagQuery = `tag:${tag}`;
           const isActive = query === tagQuery;
