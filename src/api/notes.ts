@@ -235,11 +235,14 @@ export const LocalNotesAPI = {
       // Filter notes
       const lowerQuery = query.toLowerCase();
       const filteredNotes = notes.filter((note) => {
-        const titleMatch = note.title.toLowerCase().includes(lowerQuery);
-        const tagsMatch = note.tags.some((tag) =>
-          tag.toLowerCase().includes(lowerQuery),
-        );
-        return titleMatch || tagsMatch;
+        const isTagSearch = lowerQuery.startsWith("tag:");
+
+        if (isTagSearch) {
+          const tagQuery = lowerQuery.slice(4).trim();
+          return note.tags.some((tag) => tag.toLowerCase().includes(tagQuery));
+        }
+
+        return note.title.toLowerCase().includes(lowerQuery);
       });
 
       // Sort by 'order'

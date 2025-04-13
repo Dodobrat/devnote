@@ -211,7 +211,6 @@ function NoteItem({
         isNotePage && "ring-primary ring",
         isOverlay && "cursor-grabbing *:pointer-events-none",
         isDragged && "bg-secondary ring-0 ring-offset-0 *:opacity-0",
-        isMinimal && "gap-y-1 p-1",
       )}
       {...rest}
     >

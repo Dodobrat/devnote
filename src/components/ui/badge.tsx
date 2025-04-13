@@ -54,6 +54,7 @@ const badgeVariants = cva(
           "dark:bg-destructive/60",
         ),
         outline: cn(
+          "border-foreground/25",
           "text-foreground",
           "[a&]:hover:bg-accent",
           "[a&]:hover:text-accent-foreground",

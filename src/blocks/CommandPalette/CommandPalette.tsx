@@ -4,10 +4,11 @@ import {
   CheckIcon,
   MilestoneIcon,
   StickyNoteIcon,
+  TagIcon,
   TerminalIcon,
 } from "lucide-react";
 
-import { Command } from "~/components/ui";
+import { Badge, Command } from "~/components/ui";
 import {
   createNewNoteShortcut,
   getIsOpenCommandPaletteBrowserKeyCombo,
@@ -182,8 +183,22 @@ function NotesCommandGroup({ show, prompt, close }: CommandGroupProps) {
             close();
           }}
         >
-          <StickyNoteIcon />
-          <span>{note.title}</span>
+          <div className="-my-1 grid gap-2">
+            <p className="flex items-center gap-2 text-lg leading-tight font-semibold">
+              <StickyNoteIcon />
+              <span>{note.title}</span>
+            </p>
+            <ul className="flex flex-wrap items-start gap-1">
+              {note.tags.map((tag) => (
+                <li key={tag}>
+                  <Badge variant="outline">
+                    <TagIcon />
+                    {tag}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Command.Item>
       ))}
     </Command.Group>

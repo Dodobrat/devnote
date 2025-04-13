@@ -1,15 +1,23 @@
 import { useState } from "react";
 import { InView } from "react-intersection-observer";
 import { useQuery, useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { SearchIcon } from "lucide-react";
+import { FunnelIcon, SearchIcon, TagIcon } from "lucide-react";
 
-import { Command, Sidebar } from "~/components/ui";
+import {
+  Button,
+  Command,
+  DropdownMenu,
+  Sidebar,
+  Tooltip,
+} from "~/components/ui";
 import { openCommandPaletteBrowserShortcut } from "~/constants/shortcuts";
 import {
   pinnedNotesQueryOptions,
   searchNotesQueryOptions,
   unPinnedNotesQueryOptions,
+  useGetTags,
 } from "~/hooks/query";
+import { cn } from "~/lib/utils";
 
 import { NotesBulkActions } from "./components/NotesBulkActions";
 import { NotesList } from "./components/NotesList";
@@ -50,6 +58,7 @@ export function Notes() {
               </Command.ShortcutSnippet>
             </div>
 
+            <NoteTagsFilter query={query} setQuery={setQuery} />
             <NotesBulkActions />
           </div>
         </Sidebar.GroupContent>
@@ -112,5 +121,54 @@ export function Notes() {
         </Sidebar.Group>
       )}
     </>
+  );
+}
+
+type NoteTagsFilterProps = {
+  query: string;
+  setQuery: (query: string) => void;
+};
+
+function NoteTagsFilter({ query, setQuery }: NoteTagsFilterProps) {
+  const tagsQuery = useGetTags();
+  const hasTagFilterApplied = query.startsWith("tag:");
+
+  return (
+    <DropdownMenu>
+      <Tooltip>
+        <Tooltip.Trigger asChild>
+          <DropdownMenu.Trigger asChild>
+            <Button size="icon" variant="outline" className="relative">
+              <FunnelIcon />
+              {hasTagFilterApplied && (
+                <span className="bg-foreground absolute -top-1 -right-1 size-4 rounded-full" />
+              )}
+              <span className="sr-only">Filter</span>
+            </Button>
+          </DropdownMenu.Trigger>
+        </Tooltip.Trigger>
+        <Tooltip.Content>
+          <p>Filter</p>
+        </Tooltip.Content>
+      </Tooltip>
+
+      <DropdownMenu.Content side="bottom" align="start" className="min-w-56">
+        {tagsQuery.data?.map((tag) => {
+          const tagQuery = `tag:${tag}`;
+          const isActive = query === tagQuery;
+
+          return (
+            <DropdownMenu.Item
+              key={tag}
+              onClick={() => setQuery(isActive ? "" : tagQuery)}
+              className={cn(isActive && "font-semibold")}
+            >
+              <TagIcon />
+              <span>{tag}</span>
+            </DropdownMenu.Item>
+          );
+        })}
+      </DropdownMenu.Content>
+    </DropdownMenu>
   );
 }

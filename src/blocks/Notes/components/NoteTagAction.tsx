@@ -159,7 +159,7 @@ function TagActionButton({ tag, note }: { tag: string; note: NoteSchemaType }) {
         }}
         labels={{
           title: "Are you absolutely sure?",
-          desc: "This action cannot be undone. This will permanently delete your tag.",
+          desc: "This action cannot be undone. This will permanently delete your tag and will unassign it from every note that uses it.",
           cancel: "Cancel",
           continue: "Continue",
         }}

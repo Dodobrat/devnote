@@ -23,6 +23,19 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
+## v0.3.0 ( 13 Apr 2025 )
+
+### Added
+
+- Tags functionality.
+- Notes can now be grouped by tag, filtered with the prefix \`tag:\` or select a tag from the filter menu.
+
+### Refactor
+
+- Restyled the minimal sidebar variant to be more similar to the default one to prevent design inconsistencies.
+
+---
+
 ## v0.2.3 ( 12 Apr 2025 )
 
 ### Added

@@ -88,6 +88,9 @@ export function useUnPinnedNotes() {
 }
 
 export function searchNotesQueryOptions({ query }: { query: string }) {
+  const isNoteQuery =
+    Boolean(query) && !query.startsWith(">") && !query.startsWith("/");
+
   return queryOptions({
     queryKey: notesQueryKeys.byQuery(query),
     queryFn: () => {
@@ -96,7 +99,7 @@ export function searchNotesQueryOptions({ query }: { query: string }) {
       // logic when to switch to actual api
       return LocalNotesAPI.search(query);
     },
-    enabled: Boolean(query),
+    enabled: isNoteQuery,
     placeholderData: keepPreviousData,
   });
 }
