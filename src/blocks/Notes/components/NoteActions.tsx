@@ -8,6 +8,8 @@ import {
   FileDigitIcon,
   LinkIcon,
   PencilIcon,
+  TagIcon,
+  TagsIcon,
   Trash2Icon,
 } from "lucide-react";
 
@@ -15,7 +17,7 @@ import {
   ResponsiveConfirmation,
   ResponsiveDialog,
 } from "~/components/ResponsiveDialog";
-import { Button, DropdownMenu, Tooltip } from "~/components/ui";
+import { Badge, Button, DropdownMenu, Tooltip } from "~/components/ui";
 import { useDeleteNote } from "~/hooks/query";
 import { type NoteSchemaType } from "~/types/notes";
 
@@ -27,6 +29,7 @@ import {
 } from "../utils";
 import { NoteEditTitleForm } from "./NoteEditTitleForm";
 import { NotPinActionDropdownItem } from "./NotePinAction";
+import { ManageNoteTags } from "./NoteTagAction";
 
 type NoteActionsProps = {
   note: NoteSchemaType;
@@ -45,6 +48,7 @@ export function NoteActions({
 }: NoteActionsProps) {
   const deleteNoteMutation = useDeleteNote();
 
+  const [manageTagsDialog, setManageTagsDialog] = useState(false);
   const [editTitleDialog, setEditTitleDialog] = useState(false);
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState(false);
 
@@ -64,7 +68,11 @@ export function NoteActions({
             <p>Note actions</p>
           </Tooltip.Content>
         </Tooltip>
-        <DropdownMenu.Content side={side} align={align} className="min-w-56">
+        <DropdownMenu.Content
+          side={side}
+          align={align}
+          className="max-w-sm min-w-56"
+        >
           <div className="flex flex-col text-sm">
             <div className="space-y-0.5 p-2">
               <p className="text-muted-foreground flex items-center gap-2 leading-tight">
@@ -89,8 +97,28 @@ export function NoteActions({
               </p>
               <p className="leading-tight">{note.note.length}</p>
             </div>
+            <div className="space-y-0.5 p-2">
+              <p className="text-muted-foreground flex items-center gap-2 leading-tight">
+                <TagsIcon className="size-4" />
+                <span>Tags</span>
+              </p>
+              <ul className="flex flex-wrap items-center gap-1">
+                {note.tags.map((tag) => (
+                  <li key={tag}>
+                    <Badge variant="outline">
+                      <TagIcon />
+                      {tag}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
           <DropdownMenu.Separator />
+          <DropdownMenu.Item onSelect={() => setManageTagsDialog(true)}>
+            <TagsIcon className="text-muted-foreground" />
+            <span>Manage Tags</span>
+          </DropdownMenu.Item>
           <DropdownMenu.Item onClick={() => setEditTitleDialog(true)}>
             <PencilIcon className="text-muted-foreground" />
             <span>Edit Title</span>
@@ -116,6 +144,18 @@ export function NoteActions({
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu>
+
+      <ResponsiveDialog
+        labels={{
+          cancel: "Cancel",
+          title: "Manage Tags",
+          desc: "Select the tags you want to assign to this note.",
+        }}
+        open={manageTagsDialog}
+        onOpenChange={() => setManageTagsDialog(false)}
+      >
+        <ManageNoteTags note={note} />
+      </ResponsiveDialog>
 
       <ResponsiveDialog
         labels={{

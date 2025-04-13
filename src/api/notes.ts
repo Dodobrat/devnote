@@ -29,20 +29,23 @@ interface NotesDB extends DBSchema {
 const DEFAULT_PAGE_SLICE = 50;
 
 const NOTES_DB_NAME = "devnotes-db";
-const NOTES_DB_VERSION = 1;
+const NOTES_DB_VERSION = 2;
 
 // MARK: Initialize IndexedDB
 const dbPromise = openDB<NotesDB>(NOTES_DB_NAME, NOTES_DB_VERSION, {
   upgrade(db) {
-    // Create the "notes" store as before
-    const notesStore = db.createObjectStore("notes", { keyPath: "id" });
-    notesStore.createIndex("order", "order");
-    notesStore.createIndex("isPinned", "isPinned");
-    notesStore.createIndex("title", "title");
-    notesStore.createIndex("tags", "tags", { multiEntry: true });
-
-    // Create a new "tags" store using the tag name as key
-    db.createObjectStore("tags", { keyPath: "name" });
+    // If the "notes" store doesn't exist, create it (this is just a safety check)
+    if (!db.objectStoreNames.contains("notes")) {
+      const notesStore = db.createObjectStore("notes", { keyPath: "id" });
+      notesStore.createIndex("order", "order");
+      notesStore.createIndex("isPinned", "isPinned");
+      notesStore.createIndex("title", "title");
+      notesStore.createIndex("tags", "tags", { multiEntry: true });
+    }
+    // Only create the "tags" store if it does not exist already.
+    if (!db.objectStoreNames.contains("tags")) {
+      db.createObjectStore("tags", { keyPath: "name" });
+    }
   },
 });
 
@@ -251,7 +254,7 @@ export const LocalNotesAPI = {
     });
   },
 
-  // MARK: Tag management methods
+  // MARK: Tags
   tags: {
     // Get all unique tags from the tags store
     async getAll(): Promise<string[]> {

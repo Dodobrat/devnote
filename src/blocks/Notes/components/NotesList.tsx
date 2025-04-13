@@ -21,9 +21,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { HandIcon } from "lucide-react";
+import { HandIcon, TagIcon } from "lucide-react";
 
 import {
+  Badge,
   Button,
   Separator,
   Sidebar,
@@ -42,6 +43,7 @@ import { cn } from "~/lib/utils";
 import { type NoteSchemaType } from "~/types/notes";
 
 import { NoteActions, NotePinAction } from "../index";
+import { NoteTagAction } from "./NoteTagAction";
 
 export function NotesList({
   type,
@@ -205,7 +207,7 @@ function NoteItem({
   return (
     <Sidebar.MenuItem
       className={cn(
-        "border-border bg-card grid grid-cols-[auto_1fr_auto] gap-1 gap-y-2 rounded-lg border p-2",
+        "border-border bg-card grid gap-1 gap-y-2 rounded-lg border p-2",
         isNotePage && "ring-primary ring",
         isOverlay && "cursor-grabbing *:pointer-events-none",
         isDragged && "bg-secondary ring-0 ring-offset-0 *:opacity-0",
@@ -217,7 +219,7 @@ function NoteItem({
       {exportMode && <MarkNoteForExport note={note} />}
 
       {!isInNotesActionMode && (
-        <>
+        <div className="grid grid-cols-[auto_auto_1fr_auto] gap-1">
           <Tooltip>
             <Tooltip.Trigger asChild>
               <Button
@@ -238,13 +240,15 @@ function NoteItem({
 
           <NotePinAction note={note} />
 
+          <NoteTagAction note={note} />
+
           <NoteActions
             note={note}
             side={isMobile ? "bottom" : "right"}
             align={isMobile ? "end" : "start"}
             includePinAction={false}
           />
-        </>
+        </div>
       )}
 
       <Separator className="col-span-full" />
@@ -269,6 +273,19 @@ function NoteItem({
           )}
         </Link>
       </Button>
+
+      {Boolean(note.tags.length) && (
+        <ul className="flex flex-wrap items-start gap-2">
+          {note.tags.map((tag) => (
+            <li key={tag}>
+              <Badge variant="outline">
+                <TagIcon />
+                {tag}
+              </Badge>
+            </li>
+          ))}
+        </ul>
+      )}
     </Sidebar.MenuItem>
   );
 }
