@@ -185,6 +185,8 @@ function AddTagForm({ value, onValueChange, disabledAdd }: AddTagFormProps) {
     return setError(null);
   }, []);
 
+  const createTagDisabled = Boolean(error) || disabledAdd;
+
   return (
     <form
       className={cn("flex flex-col gap-4", "px-4 pt-1 md:px-0")}
@@ -206,11 +208,11 @@ function AddTagForm({ value, onValueChange, disabledAdd }: AddTagFormProps) {
             onValueChange(v);
             validate(v);
           }}
-          placeholder="Search for a tag"
+          placeholder="Search for a tag or create a new one"
         />
         <Tooltip>
           <Tooltip.Trigger asChild>
-            <Button size="icon" disabled={Boolean(error) || disabledAdd}>
+            <Button size="icon" disabled={createTagDisabled}>
               <CirclePlusIcon />
               <span className="sr-only">Create new tag</span>
             </Button>
@@ -220,6 +222,11 @@ function AddTagForm({ value, onValueChange, disabledAdd }: AddTagFormProps) {
           </Tooltip.Content>
         </Tooltip>
       </div>
+      {!createTagDisabled && (
+        <small className="text-muted-foreground -mt-2 block text-xs font-bold break-all">
+          Create tag "{value}"
+        </small>
+      )}
       {Boolean(error) && (
         <small className="text-destructive -mt-2 block text-xs font-bold">
           {error!.issues[0].message}

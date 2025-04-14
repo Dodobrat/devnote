@@ -174,7 +174,7 @@ function LogoAction() {
           className="cursor-pointer"
           onClick={() => setCommandPaletteOpen(true)}
         >
-          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-md">
+          <div className="bg-foreground text-background flex aspect-square size-8 items-center justify-center rounded-md">
             <TerminalIcon className="size-4 stroke-3" />
           </div>
           <div className="grid flex-1 text-left text-2xl leading-tight">

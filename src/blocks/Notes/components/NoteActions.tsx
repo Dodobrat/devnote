@@ -8,7 +8,6 @@ import {
   FileDigitIcon,
   LinkIcon,
   PencilIcon,
-  TagIcon,
   TagsIcon,
   Trash2Icon,
 } from "lucide-react";
@@ -17,7 +16,8 @@ import {
   ResponsiveConfirmation,
   ResponsiveDialog,
 } from "~/components/ResponsiveDialog";
-import { Badge, Button, DropdownMenu, Tooltip } from "~/components/ui";
+import { TagList } from "~/components/TagList";
+import { Button, DropdownMenu, Tooltip } from "~/components/ui";
 import { useDeleteNote } from "~/hooks/query";
 import { type NoteSchemaType } from "~/types/notes";
 
@@ -102,16 +102,10 @@ export function NoteActions({
                 <TagsIcon className="size-4" />
                 <span>Tags</span>
               </p>
-              <ul className="flex flex-wrap items-center gap-1">
-                {note.tags.map((tag) => (
-                  <li key={tag}>
-                    <Badge variant="outline">
-                      <TagIcon />
-                      {tag}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
+              {!note.tags.length && (
+                <p className="text-muted-foreground">This note has no tags.</p>
+              )}
+              {Boolean(note.tags.length) && <TagList tags={note.tags} />}
             </div>
           </div>
           <DropdownMenu.Separator />

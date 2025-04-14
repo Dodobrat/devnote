@@ -21,10 +21,10 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { HandIcon, TagIcon } from "lucide-react";
+import { HandIcon } from "lucide-react";
 
+import { TagList } from "~/components/TagList";
 import {
-  Badge,
   Button,
   Separator,
   Sidebar,
@@ -270,21 +270,12 @@ function NoteItem({
               {note.note}
             </p>
           )}
+
+          {Boolean(note.tags.length) && (
+            <TagList tags={note.tags} className="pointer-events-none pt-2" />
+          )}
         </Link>
       </Button>
-
-      {Boolean(note.tags.length) && (
-        <ul className="flex flex-wrap items-start gap-2">
-          {note.tags.map((tag) => (
-            <li key={tag}>
-              <Badge variant="outline">
-                <TagIcon />
-                {tag}
-              </Badge>
-            </li>
-          ))}
-        </ul>
-      )}
     </Sidebar.MenuItem>
   );
 }

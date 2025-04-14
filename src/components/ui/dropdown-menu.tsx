@@ -61,7 +61,12 @@ function DropdownMenuContent({
           "shadow-md",
           className,
         )}
-        collisionPadding={16}
+        collisionPadding={{
+          top: 48,
+          bottom: 48,
+          right: 16,
+          left: 16,
+        }}
         {...props}
       />
     </DropdownMenuPrimitive.Portal>
