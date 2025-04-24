@@ -23,7 +23,7 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
-## v0.3.0 ( 13 Apr 2025 )
+## 13 Apr 2025
 
 ### Added
 
@@ -36,7 +36,7 @@ const CHANGELOG = `
 
 ---
 
-## v0.2.3 ( 12 Apr 2025 )
+## 12 Apr 2025
 
 ### Added
 
@@ -48,7 +48,7 @@ const CHANGELOG = `
 
 ---
 
-## v0.2.2 ( 9 Apr 2025 )
+## 9 Apr 2025
 
 ### Fixes
 
@@ -60,7 +60,7 @@ const CHANGELOG = `
 
 ---
 
-## v0.2.1 ( 7 Apr 2025 )
+## 7 Apr 2025
 
 ### Fixes
 
@@ -75,7 +75,7 @@ const CHANGELOG = `
 
 ---
 
-## v0.2.0 ( 6 Apr 2025 )
+## 6 Apr 2025
 
 ### Refactor
 
@@ -96,7 +96,7 @@ _Overall complete re-write of the app with backwards compatible api for the data
 
 ---
 
-## v0.1.1 ( 5 Dec 2024 )
+## 5 Dec 2024
 
 ### Added
 
@@ -113,7 +113,7 @@ _Overall complete re-write of the app with backwards compatible api for the data
 
 ---
 
-## v0.1.0 ( 2 Dec 2024 )
+## 2 Dec 2024
 
 ### Refactor
 
@@ -127,7 +127,7 @@ _Overall complete re-write of the app with backwards compatible api for the data
 
 ---
 
-## v0.0.6 ( 12 Oct 2024 )
+## 12 Oct 2024
 
 ### Added
 
@@ -139,7 +139,7 @@ _Overall complete re-write of the app with backwards compatible api for the data
 
 ---
 
-## v0.0.5 ( 29 Sep 2024 )
+## 29 Sep 2024
 
 ### Fixed
 
@@ -152,7 +152,7 @@ _Overall complete re-write of the app with backwards compatible api for the data
 
 ---
 
-## v0.0.4 ( 29 Sep 2024 )
+## 29 Sep 2024
 
 ### Fixed
 
@@ -161,7 +161,7 @@ _Overall complete re-write of the app with backwards compatible api for the data
 
 ---
 
-## v0.0.3 ( 28 Sep 2024 )
+## 28 Sep 2024
 
 ### Fixed
 
@@ -177,7 +177,7 @@ _Overall complete re-write of the app with backwards compatible api for the data
 
 ---
 
-## v0.0.2 ( 24 Sep 2024 )
+## 24 Sep 2024
 
 ### Fixed
 
@@ -191,7 +191,7 @@ _Overall complete re-write of the app with backwards compatible api for the data
 
 ---
 
-## v0.0.1 ( 23 Sep 2024 )
+## 23 Sep 2024
 
 ### Added
 
