@@ -25,11 +25,15 @@ function CommandDialog({
   description = "Search for a command to run...",
   shouldFilter,
   children,
+  className,
+  showCloseButton = true,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
   title?: string;
   description?: string;
   shouldFilter?: React.ComponentProps<typeof Command>["shouldFilter"];
+  className?: string;
+  showCloseButton?: boolean;
 }) {
   return (
     <Dialog {...props}>
@@ -37,13 +41,19 @@ function CommandDialog({
         <Dialog.Title>{title}</Dialog.Title>
         <Dialog.Description>{description}</Dialog.Description>
       </Dialog.Header>
-      <Dialog.Content className="md:top-safe-offset-[20vh] top-safe-offset-4 translate-y-0 overflow-hidden p-0">
-        <Command
+      <Dialog.Content
+        className={cn(
+          "md:top-safe-offset-[20vh] top-safe-offset-4 translate-y-0 overflow-hidden p-0",
+          className,
+        )}
+        showCloseButton={showCloseButton}
+      >
+        <CommandPrimitive
           shouldFilter={shouldFilter}
           className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5"
         >
           {children}
-        </Command>
+        </CommandPrimitive>
       </Dialog.Content>
     </Dialog>
   );
