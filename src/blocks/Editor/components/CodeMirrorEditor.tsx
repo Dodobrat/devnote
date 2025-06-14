@@ -5,6 +5,7 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { type TagStyle } from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
 import {
+  closeSearchPanel,
   findNext,
   findPrevious,
   replaceAll,
@@ -242,12 +243,7 @@ export function CodeMirrorEditor({
             const div = document.createElement("div");
             const root = ReactDOM.createRoot(div);
 
-            const onClose = () => {
-              // Close search panel
-              view.dispatch({ effects: [] });
-            };
-
-            root.render(<CustomSearchPanel view={view} onClose={onClose} />);
+            root.render(<CustomSearchPanel view={view} />);
             return { dom: div, top: true };
           },
         }),
@@ -306,48 +302,37 @@ export function setCurrentCursorPosition(
 
 type CustomSearchPanelProps = {
   view: EditorView;
-  onClose: () => void;
 };
 
-function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
-  const [searchText, setSearchText] = useState("");
-  const [replaceText, setReplaceText] = useState("");
+function CustomSearchPanel({ view }: CustomSearchPanelProps) {
   const [showReplace, setShowReplace] = useState(false);
-  const [caseSensitive, setCaseSensitive] = useState(false);
-  const [useRegex, setUseRegex] = useState(false);
+  const [state, setState] = useState({
+    searchText: "",
+    replaceText: "",
+    caseSensitive: false,
+    regexp: false,
+  });
 
-  const handleSearch = useCallback(
-    (text: string) => {
-      setSearchText(text);
-      if (text) {
-        const query = new SearchQuery({
-          search: text,
-          caseSensitive,
-          regexp: useRegex,
-        });
-        view.dispatch({
-          effects: setSearchQuery.of(query),
-        });
-      }
+  const updateSearchQuery = useCallback(
+    ({
+      searchText = "",
+      replaceText = "",
+      caseSensitive = false,
+      regexp = false,
+    }) => {
+      setState({ searchText, replaceText, caseSensitive, regexp });
+
+      const query = new SearchQuery({
+        search: searchText,
+        replace: replaceText,
+        caseSensitive,
+        regexp,
+      });
+
+      view.dispatch({ effects: setSearchQuery.of(query) });
     },
-    [view, caseSensitive, useRegex],
+    [view],
   );
-
-  const handleFindNext = useCallback(() => {
-    findNext(view);
-  }, [view]);
-
-  const handleFindPrevious = useCallback(() => {
-    findPrevious(view);
-  }, [view]);
-
-  const handleReplace = useCallback(() => {
-    replaceNext(view);
-  }, [view]);
-
-  const handleReplaceAll = useCallback(() => {
-    replaceAll(view);
-  }, [view]);
 
   return (
     <div
@@ -372,14 +357,21 @@ function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
               title="Search text"
               className="w-full max-w-60 pr-20"
               autoFocus
-              value={searchText}
-              onChange={(e) => handleSearch(e.target.value)}
+              value={state.searchText}
+              onChange={(e) => {
+                updateSearchQuery({ ...state, searchText: e.target.value });
+              }}
             />
             <div className="absolute right-1.25 flex items-center gap-1">
               <Button
                 size="icon"
-                variant={caseSensitive ? "default" : "ghost"}
-                onClick={() => setCaseSensitive(!caseSensitive)}
+                variant={state.caseSensitive ? "default" : "ghost"}
+                onClick={() => {
+                  updateSearchQuery({
+                    ...state,
+                    caseSensitive: !state.caseSensitive,
+                  });
+                }}
                 title="Toggle Case Sensitive"
                 className="size-8"
               >
@@ -387,8 +379,10 @@ function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
               </Button>
               <Button
                 size="icon"
-                variant={useRegex ? "default" : "ghost"}
-                onClick={() => setUseRegex(!useRegex)}
+                variant={state.regexp ? "default" : "ghost"}
+                onClick={() => {
+                  updateSearchQuery({ ...state, regexp: !state.regexp });
+                }}
                 title="Toggle Regex"
                 className="size-8"
               >
@@ -401,8 +395,8 @@ function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
             <Button
               size="icon"
               variant="ghost"
-              onClick={handleFindPrevious}
-              disabled={!searchText}
+              onClick={() => findPrevious(view)}
+              disabled={!search}
               title="Find Previous"
             >
               <ArrowUpIcon />
@@ -410,8 +404,8 @@ function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
             <Button
               size="icon"
               variant="ghost"
-              onClick={handleFindNext}
-              disabled={!searchText}
+              onClick={() => findNext(view)}
+              disabled={!search}
               title="Find Next"
             >
               <ArrowDownIcon />
@@ -420,7 +414,7 @@ function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
           <Button
             size="icon"
             variant="ghost"
-            onClick={onClose}
+            onClick={() => closeSearchPanel(view)}
             title="Close Search"
           >
             <X />
@@ -432,8 +426,10 @@ function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
             <div className="relative flex items-center gap-1">
               <Input
                 placeholder="Replace..."
-                value={replaceText}
-                onChange={(e) => setReplaceText(e.target.value)}
+                value={state.replaceText}
+                onChange={(e) => {
+                  updateSearchQuery({ ...state, replaceText: e.target.value });
+                }}
                 className="w-full max-w-60 pr-20"
                 title="Replace text"
               />
@@ -441,8 +437,8 @@ function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={handleReplace}
-                  disabled={!searchText || !replaceText}
+                  onClick={() => replaceNext(view)}
+                  disabled={!search || !state.replaceText}
                   title="Replace"
                   className="size-8"
                 >
@@ -451,8 +447,8 @@ function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={handleReplaceAll}
-                  disabled={!searchText || !replaceText}
+                  onClick={() => replaceAll(view)}
+                  disabled={!search || !state.replaceText}
                   title="Replace All"
                   className="size-8"
                 >
