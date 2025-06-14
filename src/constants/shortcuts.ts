@@ -36,6 +36,11 @@ export function getIsResetEditorPreviewSizeKeyCombo(e: KeyboardEvent) {
   return (isMac ? e.metaKey : e.ctrlKey) && e.shiftKey && e.code === "Comma";
 }
 
+export function getIsTogglingSearchKeyCombo(e: KeyboardEvent) {
+  const isMac = getIsAppleDevice();
+  return (isMac ? e.metaKey : e.ctrlKey) && e.code === "KeyF";
+}
+
 export const selectSelectionMatchesShortcut = `${getMetaKey()} + Shift + L`;
 export const addCursorAboveShortcut = `${getMetaKey()} + ${getAltKey()} + ArrowUp`;
 export const addCursorBelowShortcut = `${getMetaKey()} + ${getAltKey()} + ArrowDown`;

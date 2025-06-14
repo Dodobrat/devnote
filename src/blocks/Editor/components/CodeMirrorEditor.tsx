@@ -38,7 +38,10 @@ import {
 } from "lucide-react";
 
 import { Button, Input } from "~/components/ui";
-import { getIsSaveCurrentNoteKeyCombo } from "~/constants/shortcuts";
+import {
+  getIsSaveCurrentNoteKeyCombo,
+  getIsTogglingSearchKeyCombo,
+} from "~/constants/shortcuts";
 import { ThemeMode, useTheme } from "~/context";
 import { useKeyDownEvent } from "~/hooks";
 import {
@@ -243,7 +246,16 @@ export function CodeMirrorEditor({
             const div = document.createElement("div");
             const root = ReactDOM.createRoot(div);
 
-            root.render(<CustomSearchPanel view={view} />);
+            // Get selected text to pre-fill search field
+            const selection = view.state.selection.main;
+            const selectedText = selection.empty
+              ? ""
+              : view.state.doc.sliceString(selection.from, selection.to);
+
+            root.render(
+              <CustomSearchPanel view={view} initialSearch={selectedText} />,
+            );
+
             return { dom: div, top: true };
           },
         }),
@@ -267,6 +279,15 @@ export function CodeMirrorEditor({
           {
             key: "Mod-l",
             run: keepSelectingLines,
+            preventDefault: true,
+          },
+          {
+            key: "Escape",
+            run: (view) => {
+              // Close search panel if it's open
+              closeSearchPanel(view);
+              return true;
+            },
             preventDefault: true,
           },
         ]),
@@ -302,13 +323,18 @@ export function setCurrentCursorPosition(
 
 type CustomSearchPanelProps = {
   view: EditorView;
+  initialSearch?: string;
 };
 
-function CustomSearchPanel({ view }: CustomSearchPanelProps) {
+function CustomSearchPanel({
+  view,
+  initialSearch = "",
+}: CustomSearchPanelProps) {
   const [showReplace, setShowReplace] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const [state, setState] = useState({
-    search: "",
+    search: initialSearch,
     replace: "",
     caseSensitive: false,
     regexp: false,
@@ -323,10 +349,24 @@ function CustomSearchPanel({ view }: CustomSearchPanelProps) {
     view.dispatch({ effects: setSearchQuery.of(query) });
   }, [state, view]);
 
+  useKeyDownEvent((e) => {
+    if (e.code === "Escape") {
+      e.preventDefault();
+      closeSearchPanel(view);
+    }
+  });
+
+  useKeyDownEvent((e) => {
+    if (getIsTogglingSearchKeyCombo(e)) {
+      // do not prevent default so that the native browser search can still work
+      searchInputRef.current?.focus();
+    }
+  });
+
   return (
     <div
       data-search-panel
-      className="bg-background border-border flex w-full gap-2 border-y p-2"
+      className="bg-background border-border flex w-full justify-end gap-2 border-y p-2"
     >
       <Button
         size="icon"
@@ -348,6 +388,7 @@ function CustomSearchPanel({ view }: CustomSearchPanelProps) {
               autoFocus
               value={state.search}
               onChange={(e) => updateState({ search: e.target.value })}
+              ref={searchInputRef}
             />
             <div className="absolute right-1.25 flex items-center gap-1">
               <Button
