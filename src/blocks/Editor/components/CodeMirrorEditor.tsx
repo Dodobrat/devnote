@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
+import {
+  autocompletion,
+  type Completion,
+  type CompletionContext,
+  type CompletionResult,
+} from "@codemirror/autocomplete";
 import { selectLine, selectLineDown } from "@codemirror/commands";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { type TagStyle } from "@codemirror/language";
@@ -121,6 +127,230 @@ function createCustomHyperLinkExtension(): Extension {
   ];
 }
 
+function createMarkdownCompletions(context: CompletionContext) {
+  const line = context.state.doc.lineAt(context.pos);
+  const lineText = line.text;
+  const lineStart = context.pos - line.from;
+
+  // Find the word being typed
+  const wordMatch = lineText.slice(0, lineStart).match(/(\S*)$/);
+  const word = wordMatch ? wordMatch[1] : "";
+
+  // Always provide all completions - let CodeMirror filter them
+  const completions: Completion[] = [
+    // Headings
+    {
+      label: "# Heading 1",
+      apply: "# ",
+      detail: "Heading level 1",
+      section: "1. Headings",
+    },
+    {
+      label: "## Heading 2",
+      apply: "## ",
+      detail: "Heading level 2",
+      section: "1. Headings",
+    },
+    {
+      label: "### Heading 3",
+      apply: "### ",
+      detail: "Heading level 3",
+      section: "1. Headings",
+    },
+    {
+      label: "#### Heading 4",
+      apply: "#### ",
+      detail: "Heading level 4",
+      section: "1. Headings",
+    },
+    {
+      label: "##### Heading 5",
+      apply: "##### ",
+      detail: "Heading level 5",
+      section: "1. Headings",
+    },
+    {
+      label: "###### Heading 6",
+      apply: "###### ",
+      detail: "Heading level 6",
+      section: "1. Headings",
+    },
+
+    // Lists
+    {
+      label: "- Unordered list",
+      apply: "- ",
+      detail: "Bullet list item",
+      section: "2. Lists",
+    },
+    {
+      label: "* Unordered list",
+      apply: "* ",
+      detail: "Bullet list item",
+      section: "2. Lists",
+    },
+    {
+      label: "+ Unordered list",
+      apply: "+ ",
+      detail: "Bullet list item",
+      section: "2. Lists",
+    },
+    {
+      label: "1. Ordered list",
+      apply: "1. ",
+      detail: "Numbered list item",
+      section: "2. Lists",
+    },
+    {
+      label: "- [ ] Task list",
+      apply: "- [ ] ",
+      detail: "Task list item (unchecked)",
+      section: "2. Lists",
+    },
+    {
+      label: "- [x] Task list checked",
+      apply: "- [x] ",
+      detail: "Task list item (checked)",
+      section: "2. Lists",
+    },
+
+    // Text formatting
+    {
+      label: "**Bold text**",
+      apply: "**bold**",
+      detail: "Bold formatting",
+      section: "3. Text Formatting",
+    },
+    {
+      label: "*Italic text*",
+      apply: "*italic*",
+      detail: "Italic formatting",
+      section: "3. Text Formatting",
+    },
+    {
+      label: "~~Strikethrough~~",
+      apply: "~~strikethrough~~",
+      detail: "Strikethrough formatting",
+      section: "3. Text Formatting",
+    },
+    {
+      label: "`Inline code`",
+      apply: "`code`",
+      detail: "Inline code",
+      section: "3. Text Formatting",
+    },
+
+    // Code blocks
+    {
+      label: "``` Code block",
+      apply: "```\ncode\n```",
+      detail: "Code block",
+      section: "4. Code Blocks",
+    },
+    {
+      label: "```js JavaScript",
+      apply: "```js\ncode\n```",
+      detail: "JavaScript code block",
+      section: "4. Code Blocks",
+    },
+    {
+      label: "```ts TypeScript",
+      apply: "```ts\ncode\n```",
+      detail: "TypeScript code block",
+      section: "4. Code Blocks",
+    },
+    {
+      label: "```html HTML",
+      apply: "```html\ncode\n```",
+      detail: "HTML code block",
+      section: "4. Code Blocks",
+    },
+    {
+      label: "```css CSS",
+      apply: "```css\ncode\n```",
+      detail: "CSS code block",
+      section: "4. Code Blocks",
+    },
+    {
+      label: "```json JSON",
+      apply: "```json\ncode\n```",
+      detail: "JSON code block",
+      section: "4. Code Blocks",
+    },
+    {
+      label: "```yaml YAML",
+      apply: "```yaml\ncode\n```",
+      detail: "YAML code block",
+      section: "4. Code Blocks",
+    },
+    {
+      label: "```sql SQL",
+      apply: "```sql\ncode\n```",
+      detail: "SQL code block",
+      section: "4. Code Blocks",
+    },
+
+    // Links and media
+    {
+      label: "[Link](url)",
+      apply: "[link text](url)",
+      detail: "Link",
+      section: "5. Links and Media",
+    },
+    {
+      label: "![Image](url)",
+      apply: "![alt text](url)",
+      detail: "Image",
+      section: "5. Links and Media",
+    },
+
+    // Other elements
+    {
+      label: "> Blockquote",
+      apply: "> ",
+      detail: "Blockquote",
+      section: "6. Other Elements",
+    },
+    {
+      label: "--- Horizontal rule",
+      apply: "---",
+      detail: "Horizontal rule",
+      section: "6. Other Elements",
+    },
+    {
+      label: "*** Horizontal rule",
+      apply: "***",
+      detail: "Horizontal rule (alternative)",
+      section: "6. Other Elements",
+    },
+    {
+      label: "| Table",
+      apply:
+        "| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |",
+      detail: "Table",
+      section: "6. Other Elements",
+    },
+  ].map((completion) => ({ ...completion, type: "text" }));
+
+  const from = context.pos - word.length;
+  const to = context.pos;
+
+  return {
+    from,
+    to,
+    options: completions,
+  } satisfies CompletionResult;
+}
+
+function createMarkdownAutocompletion(): Extension {
+  return autocompletion({
+    override: [createMarkdownCompletions],
+    activateOnTyping: true,
+    filterStrict: true,
+    selectOnOpen: true,
+  });
+}
+
 export function CodeMirrorEditor({
   saveNote,
 }: {
@@ -181,8 +411,6 @@ export function CodeMirrorEditor({
         lineNumbers: false,
         foldKeymap: false,
         foldGutter: false,
-        autocompletion: false,
-        completionKeymap: false,
         lintKeymap: false,
       }}
       className={cn(
@@ -238,6 +466,7 @@ export function CodeMirrorEditor({
       extensions={[
         EditorView.lineWrapping,
         createCustomHyperLinkExtension(),
+        createMarkdownAutocompletion(),
         markdown({ base: markdownLanguage, codeLanguages: languages }),
         search({
           createPanel(view) {
