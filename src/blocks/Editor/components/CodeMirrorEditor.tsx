@@ -1,9 +1,19 @@
-import { useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import ReactDOM from "react-dom/client";
 import { selectLine, selectLineDown } from "@codemirror/commands";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { type TagStyle } from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
-import { selectSelectionMatches } from "@codemirror/search";
+import {
+  findNext,
+  findPrevious,
+  replaceAll,
+  replaceNext,
+  search,
+  SearchQuery,
+  selectSelectionMatches,
+  setSearchQuery,
+} from "@codemirror/search";
 import { type Command, keymap } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
 import { useRouterState } from "@tanstack/react-router";
@@ -14,7 +24,19 @@ import {
 import { vscodeDarkInit, vscodeLightInit } from "@uiw/codemirror-theme-vscode";
 import CodeMirror, { type Extension, Prec } from "@uiw/react-codemirror";
 import { EditorView } from "codemirror";
+import {
+  ArrowDownIcon,
+  ArrowUpIcon,
+  CaseSensitiveIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  RegexIcon,
+  ReplaceAllIcon,
+  ReplaceIcon,
+  X,
+} from "lucide-react";
 
+import { Button, Input } from "~/components/ui";
 import { getIsSaveCurrentNoteKeyCombo } from "~/constants/shortcuts";
 import { ThemeMode, useTheme } from "~/context";
 import { useKeyDownEvent } from "~/hooks";
@@ -185,6 +207,10 @@ export function CodeMirrorEditor({
         "**:[.cm-selectionMatch:has(*)]:**:bg-foreground/30!",
         "**:[.cm-selectionMatch:not(:has(*))]:bg-foreground/30!",
         //
+        "**:[.cm-searchMatch:has(*)]:bg-transparent!",
+        "**:[.cm-searchMatch:has(*)]:**:bg-foreground/30!",
+        "**:[.cm-searchMatch:not(:has(*))]:bg-foreground/30!",
+        //
         isContainedWidth && "**:[.cm-scroller]:*:mx-auto!",
         isContainedWidth && "**:[.cm-scroller]:*:max-w-[calc(65ch_+_1.85rem)]",
       )}
@@ -211,6 +237,20 @@ export function CodeMirrorEditor({
         EditorView.lineWrapping,
         createCustomHyperLinkExtension(),
         markdown({ base: markdownLanguage, codeLanguages: languages }),
+        search({
+          createPanel(view) {
+            const div = document.createElement("div");
+            const root = ReactDOM.createRoot(div);
+
+            const onClose = () => {
+              // Close search panel
+              view.dispatch({ effects: [] });
+            };
+
+            root.render(<CustomSearchPanel view={view} onClose={onClose} />);
+            return { dom: div, top: true };
+          },
+        }),
         keymap.of([
           {
             key: "Shift-Mod-l",
@@ -262,4 +302,167 @@ export function setCurrentCursorPosition(
     selection: { anchor: position, head: position },
     scrollIntoView: true,
   });
+}
+
+type CustomSearchPanelProps = {
+  view: EditorView;
+  onClose: () => void;
+};
+
+function CustomSearchPanel({ view, onClose }: CustomSearchPanelProps) {
+  const [searchText, setSearchText] = useState("");
+  const [replaceText, setReplaceText] = useState("");
+  const [showReplace, setShowReplace] = useState(false);
+  const [caseSensitive, setCaseSensitive] = useState(false);
+  const [useRegex, setUseRegex] = useState(false);
+
+  const handleSearch = useCallback(
+    (text: string) => {
+      setSearchText(text);
+      if (text) {
+        const query = new SearchQuery({
+          search: text,
+          caseSensitive,
+          regexp: useRegex,
+        });
+        view.dispatch({
+          effects: setSearchQuery.of(query),
+        });
+      }
+    },
+    [view, caseSensitive, useRegex],
+  );
+
+  const handleFindNext = useCallback(() => {
+    findNext(view);
+  }, [view]);
+
+  const handleFindPrevious = useCallback(() => {
+    findPrevious(view);
+  }, [view]);
+
+  const handleReplace = useCallback(() => {
+    replaceNext(view);
+  }, [view]);
+
+  const handleReplaceAll = useCallback(() => {
+    replaceAll(view);
+  }, [view]);
+
+  return (
+    <div
+      data-search-panel
+      className="bg-background border-border flex w-full gap-2 border-y p-2"
+    >
+      <Button
+        size="icon"
+        variant="ghost"
+        onClick={() => setShowReplace(!showReplace)}
+        title="Toggle Replace"
+        className="h-auto w-8"
+      >
+        {showReplace ? <ChevronDownIcon /> : <ChevronRightIcon />}
+      </Button>
+
+      <div className="grid gap-2">
+        <div className="flex items-center gap-1">
+          <div className="relative flex items-center gap-1">
+            <Input
+              placeholder="Search..."
+              title="Search text"
+              className="w-full max-w-60 pr-20"
+              autoFocus
+              value={searchText}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+            <div className="absolute right-1.25 flex items-center gap-1">
+              <Button
+                size="icon"
+                variant={caseSensitive ? "default" : "ghost"}
+                onClick={() => setCaseSensitive(!caseSensitive)}
+                title="Toggle Case Sensitive"
+                className="size-8"
+              >
+                <CaseSensitiveIcon />
+              </Button>
+              <Button
+                size="icon"
+                variant={useRegex ? "default" : "ghost"}
+                onClick={() => setUseRegex(!useRegex)}
+                title="Toggle Regex"
+                className="size-8"
+              >
+                <RegexIcon />
+              </Button>
+            </div>
+          </div>
+          {/* <p>TODO: Number of matches</p> */}
+          <div className="flex items-center">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleFindPrevious}
+              disabled={!searchText}
+              title="Find Previous"
+            >
+              <ArrowUpIcon />
+            </Button>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleFindNext}
+              disabled={!searchText}
+              title="Find Next"
+            >
+              <ArrowDownIcon />
+            </Button>
+          </div>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={onClose}
+            title="Close Search"
+          >
+            <X />
+          </Button>
+        </div>
+
+        {showReplace && (
+          <div className="flex items-center gap-1">
+            <div className="relative flex items-center gap-1">
+              <Input
+                placeholder="Replace..."
+                value={replaceText}
+                onChange={(e) => setReplaceText(e.target.value)}
+                className="w-full max-w-60 pr-20"
+                title="Replace text"
+              />
+              <div className="absolute right-1.25 flex items-center gap-1">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={handleReplace}
+                  disabled={!searchText || !replaceText}
+                  title="Replace"
+                  className="size-8"
+                >
+                  <ReplaceIcon />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={handleReplaceAll}
+                  disabled={!searchText || !replaceText}
+                  title="Replace All"
+                  className="size-8"
+                >
+                  <ReplaceAllIcon />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }

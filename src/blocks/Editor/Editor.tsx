@@ -153,36 +153,38 @@ export function Editor({ children, title, saveNote }: EditorProps) {
       )}
 
       {!isMobile && (
-        <Resizable
-          direction="horizontal"
-          autoSaveId={storeKeys.editorLayout}
-          onLayout={([left, right]) => {
-            const isEven = Math.abs(left - right) < 1;
-            setIsEvenPanels(isEven);
-          }}
-        >
-          <Resizable.Panel
-            id="editor"
-            order={0}
-            minSize={MIN_RESIZE_PANEL_SIZE}
-            ref={editorResizePanelRef}
+        <div className="max-h-[calc(100svh_-_var(--spacing)*16)] grow overflow-auto">
+          <Resizable
+            direction="horizontal"
+            autoSaveId={storeKeys.editorLayout}
+            onLayout={([left, right]) => {
+              const isEven = Math.abs(left - right) < 1;
+              setIsEvenPanels(isEven);
+            }}
           >
-            <CodeMirrorEditor saveNote={saveNote} />
-            <EditorFocusManager />
-          </Resizable.Panel>
-          {showEditorPreview && (
-            <>
-              <Resizable.Handle withHandle />
-              <Resizable.Panel
-                id="preview"
-                order={1}
-                minSize={MIN_RESIZE_PANEL_SIZE}
-              >
-                <EditorOutput />
-              </Resizable.Panel>
-            </>
-          )}
-        </Resizable>
+            <Resizable.Panel
+              id="editor"
+              order={0}
+              minSize={MIN_RESIZE_PANEL_SIZE}
+              ref={editorResizePanelRef}
+            >
+              <CodeMirrorEditor saveNote={saveNote} />
+              <EditorFocusManager />
+            </Resizable.Panel>
+            {showEditorPreview && (
+              <>
+                <Resizable.Handle withHandle />
+                <Resizable.Panel
+                  id="preview"
+                  order={1}
+                  minSize={MIN_RESIZE_PANEL_SIZE}
+                >
+                  <EditorOutput />
+                </Resizable.Panel>
+              </>
+            )}
+          </Resizable>
+        </div>
       )}
     </CodeMirrorInstanceProvider>
   );
