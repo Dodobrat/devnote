@@ -5,6 +5,7 @@ import {
   type Completion,
   type CompletionContext,
   type CompletionResult,
+  snippet,
 } from "@codemirror/autocomplete";
 import { selectLine, selectLineDown } from "@codemirror/commands";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
@@ -141,37 +142,37 @@ function createMarkdownCompletions(context: CompletionContext) {
     // Headings
     {
       label: "# Heading 1",
-      apply: "# ",
+      apply: snippet("# #{heading}"),
       detail: "Heading level 1",
       section: "1. Headings",
     },
     {
       label: "## Heading 2",
-      apply: "## ",
+      apply: snippet("## #{heading}"),
       detail: "Heading level 2",
       section: "1. Headings",
     },
     {
       label: "### Heading 3",
-      apply: "### ",
+      apply: snippet("### #{heading}"),
       detail: "Heading level 3",
       section: "1. Headings",
     },
     {
       label: "#### Heading 4",
-      apply: "#### ",
+      apply: snippet("#### #{heading}"),
       detail: "Heading level 4",
       section: "1. Headings",
     },
     {
       label: "##### Heading 5",
-      apply: "##### ",
+      apply: snippet("##### #{heading}"),
       detail: "Heading level 5",
       section: "1. Headings",
     },
     {
       label: "###### Heading 6",
-      apply: "###### ",
+      apply: snippet("###### #{heading}"),
       detail: "Heading level 6",
       section: "1. Headings",
     },
@@ -179,37 +180,37 @@ function createMarkdownCompletions(context: CompletionContext) {
     // Lists
     {
       label: "- Unordered list",
-      apply: "- ",
+      apply: snippet("- #{item}"),
       detail: "Bullet list item",
       section: "2. Lists",
     },
     {
       label: "* Unordered list",
-      apply: "* ",
+      apply: snippet("* #{item}"),
       detail: "Bullet list item",
       section: "2. Lists",
     },
     {
       label: "+ Unordered list",
-      apply: "+ ",
+      apply: snippet("+ #{item}"),
       detail: "Bullet list item",
       section: "2. Lists",
     },
     {
       label: "1. Ordered list",
-      apply: "1. ",
+      apply: snippet("1. #{item}"),
       detail: "Numbered list item",
       section: "2. Lists",
     },
     {
       label: "- [ ] Task list",
-      apply: "- [ ] ",
+      apply: snippet("- [ ] #{task}"),
       detail: "Task list item (unchecked)",
       section: "2. Lists",
     },
     {
       label: "- [x] Task list checked",
-      apply: "- [x] ",
+      apply: snippet("- [x] #{task}"),
       detail: "Task list item (checked)",
       section: "2. Lists",
     },
@@ -217,25 +218,25 @@ function createMarkdownCompletions(context: CompletionContext) {
     // Text formatting
     {
       label: "**Bold text**",
-      apply: "**bold**",
+      apply: snippet("**#{bold}**"),
       detail: "Bold formatting",
       section: "3. Text Formatting",
     },
     {
       label: "*Italic text*",
-      apply: "*italic*",
+      apply: snippet("*#{italic}*"),
       detail: "Italic formatting",
       section: "3. Text Formatting",
     },
     {
       label: "~~Strikethrough~~",
-      apply: "~~strikethrough~~",
+      apply: snippet("~~#{strikethrough}~~"),
       detail: "Strikethrough formatting",
       section: "3. Text Formatting",
     },
     {
       label: "`Inline code`",
-      apply: "`code`",
+      apply: snippet("`#{code}`"),
       detail: "Inline code",
       section: "3. Text Formatting",
     },
@@ -243,49 +244,49 @@ function createMarkdownCompletions(context: CompletionContext) {
     // Code blocks
     {
       label: "``` Code block",
-      apply: "```\ncode\n```",
+      apply: snippet("```\n#{code}\n```"),
       detail: "Code block",
       section: "4. Code Blocks",
     },
     {
       label: "```js JavaScript",
-      apply: "```js\ncode\n```",
+      apply: snippet("```js\n#{code}\n```"),
       detail: "JavaScript code block",
       section: "4. Code Blocks",
     },
     {
       label: "```ts TypeScript",
-      apply: "```ts\ncode\n```",
+      apply: snippet("```ts\n#{code}\n```"),
       detail: "TypeScript code block",
       section: "4. Code Blocks",
     },
     {
       label: "```html HTML",
-      apply: "```html\ncode\n```",
+      apply: snippet("```html\n#{code}\n```"),
       detail: "HTML code block",
       section: "4. Code Blocks",
     },
     {
       label: "```css CSS",
-      apply: "```css\ncode\n```",
+      apply: snippet("```css\n#{code}\n```"),
       detail: "CSS code block",
       section: "4. Code Blocks",
     },
     {
       label: "```json JSON",
-      apply: "```json\ncode\n```",
+      apply: snippet("```json\n#{code}\n```"),
       detail: "JSON code block",
       section: "4. Code Blocks",
     },
     {
       label: "```yaml YAML",
-      apply: "```yaml\ncode\n```",
+      apply: snippet("```yaml\n#{code}\n```"),
       detail: "YAML code block",
       section: "4. Code Blocks",
     },
     {
       label: "```sql SQL",
-      apply: "```sql\ncode\n```",
+      apply: snippet("```sql\n#{code}\n```"),
       detail: "SQL code block",
       section: "4. Code Blocks",
     },
@@ -293,13 +294,13 @@ function createMarkdownCompletions(context: CompletionContext) {
     // Links and media
     {
       label: "[Link](url)",
-      apply: "[link text](url)",
+      apply: snippet("[#{link text}](#{url})"),
       detail: "Link",
       section: "5. Links and Media",
     },
     {
       label: "![Image](url)",
-      apply: "![alt text](url)",
+      apply: snippet("![#{alt text}](#{url})"),
       detail: "Image",
       section: "5. Links and Media",
     },
@@ -307,7 +308,7 @@ function createMarkdownCompletions(context: CompletionContext) {
     // Other elements
     {
       label: "> Blockquote",
-      apply: "> ",
+      apply: snippet("> #{text}"),
       detail: "Blockquote",
       section: "6. Other Elements",
     },
@@ -325,12 +326,13 @@ function createMarkdownCompletions(context: CompletionContext) {
     },
     {
       label: "| Table",
-      apply:
-        "| Header 1 | Header 2 |\n|----------|----------|\n| Cell 1   | Cell 2   |",
+      apply: snippet(
+        "| #{Header 1} | #{Header 2} |\n|-|-|\n| #{Cell 1} | #{Cell 2} |",
+      ),
       detail: "Table",
       section: "6. Other Elements",
     },
-  ].map((completion) => ({ ...completion, type: "text" }));
+  ];
 
   const from = context.pos - word.length;
   const to = context.pos;
@@ -347,7 +349,7 @@ function createMarkdownAutocompletion(): Extension {
     override: [createMarkdownCompletions],
     activateOnTyping: true,
     filterStrict: true,
-    selectOnOpen: true,
+    icons: false,
   });
 }
 
