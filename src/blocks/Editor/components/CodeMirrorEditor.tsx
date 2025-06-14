@@ -8,6 +8,7 @@ import {
   closeSearchPanel,
   findNext,
   findPrevious,
+  getSearchQuery,
   replaceAll,
   replaceNext,
   search,
@@ -186,7 +187,6 @@ export function CodeMirrorEditor({
       }}
       className={cn(
         "isolate h-full text-base",
-        "selection:text-foreground",
         //
         "**:[.cm-editor]:h-full",
         "**:[.cm-editor]:outline-none!",
@@ -194,11 +194,12 @@ export function CodeMirrorEditor({
         //
         "**:[.cm-scroller]:font-mono!",
         "**:[.cm-scroller]:p-4!",
+        "**:[.cm-scroller]:selection:text-foreground!",
         //
         "**:[.cm-content]:py-0!",
         //
         "**:[.cm-line]:px-0!",
-        "**:[.cm-line]:**:inline-block!",
+        // "**:[.cm-line]:**:inline-block!",
         //
         "**:[.cm-activeLine]:bg-foreground/10!",
         //
@@ -314,10 +315,48 @@ export function setCurrentCursorPosition(
   });
 }
 
-function getSelectedText(view: EditorView): string {
+function getSelectedText(view: EditorView) {
   const selection = view.state.selection.main;
   if (selection.empty) return "";
   return view.state.doc.sliceString(selection.from, selection.to);
+}
+
+function getSearchStats(view: EditorView) {
+  const query = getSearchQuery(view.state);
+  if (!query || !query.search) {
+    return { current: 0, total: 0 };
+  }
+
+  const doc = view.state.doc;
+  const cursor = query.getCursor(doc);
+  const matches: { from: number; to: number }[] = [];
+
+  // Find all matches
+  let result = cursor.next();
+  while (!result.done) {
+    matches.push({ from: result.value.from, to: result.value.to });
+    result = cursor.next();
+  }
+
+  if (matches.length === 0) {
+    return { current: 0, total: 0 };
+  }
+
+  // Find current match based on cursor position
+  const cursorPos = view.state.selection.main.from;
+  let currentMatch = 1;
+
+  for (let i = 0; i < matches.length; i++) {
+    if (matches[i].from >= cursorPos) {
+      currentMatch = i + 1;
+      break;
+    }
+    if (i === matches.length - 1) {
+      currentMatch = matches.length;
+    }
+  }
+
+  return { current: currentMatch, total: matches.length };
 }
 
 type CustomSearchPanelProps = {
@@ -332,6 +371,7 @@ function CustomSearchPanel({
   const [showReplace, setShowReplace] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  const [searchStats, setSearchStats] = useState({ current: 0, total: 0 });
   const [state, setState] = useState({
     search: initialSearch,
     replace: "",
@@ -346,7 +386,20 @@ function CustomSearchPanel({
   useEffect(() => {
     const query = new SearchQuery(state);
     view.dispatch({ effects: setSearchQuery.of(query) });
+
+    // Update search statistics
+    setTimeout(() => setSearchStats(getSearchStats(view)));
   }, [state, view]);
+
+  const handleFindNext = () => {
+    findNext(view);
+    setTimeout(() => setSearchStats(getSearchStats(view)));
+  };
+
+  const handleFindPrevious = () => {
+    findPrevious(view);
+    setTimeout(() => setSearchStats(getSearchStats(view)));
+  };
 
   useKeyDownEvent((e) => {
     if (e.code === "Escape") {
@@ -395,7 +448,7 @@ function CustomSearchPanel({
               onKeyDown={(e) => {
                 if (e.code === "Enter") {
                   e.preventDefault();
-                  findNext(view);
+                  handleFindNext();
                 }
                 if (e.code === "ArrowDown") {
                   e.preventDefault();
@@ -430,13 +483,22 @@ function CustomSearchPanel({
               </Button>
             </div>
           </div>
-          {/* <p>TODO: Number of matches</p> */}
+          <div className="flex min-w-24 items-center px-1 text-sm">
+            {Boolean(state.search) && searchStats.total > 0 && (
+              <span className="text-muted-foreground">
+                {searchStats.current} of {searchStats.total}
+              </span>
+            )}
+            {Boolean(state.search) && !searchStats.total && (
+              <span className="text-destructive">No results</span>
+            )}
+          </div>
           <div className="flex items-center">
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => findPrevious(view)}
-              disabled={!search}
+              onClick={handleFindPrevious}
+              disabled={!state.search}
               title="Find Previous"
             >
               <ArrowUpIcon />
@@ -444,8 +506,8 @@ function CustomSearchPanel({
             <Button
               size="icon"
               variant="ghost"
-              onClick={() => findNext(view)}
-              disabled={!search}
+              onClick={handleFindNext}
+              disabled={!state.search}
               title="Find Next"
             >
               <ArrowDownIcon />
@@ -475,8 +537,13 @@ function CustomSearchPanel({
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={() => replaceNext(view)}
-                  disabled={!search || !state.replace}
+                  onClick={() => {
+                    replaceNext(view);
+                    setTimeout(() => setSearchStats(getSearchStats(view)));
+                  }}
+                  disabled={
+                    !searchStats.total || !state.search || !state.replace
+                  }
                   title="Replace"
                   className="size-8"
                 >
@@ -485,8 +552,13 @@ function CustomSearchPanel({
                 <Button
                   size="icon"
                   variant="ghost"
-                  onClick={() => replaceAll(view)}
-                  disabled={!search || !state.replace}
+                  onClick={() => {
+                    replaceAll(view);
+                    setTimeout(() => setSearchStats(getSearchStats(view)));
+                  }}
+                  disabled={
+                    !searchStats.total || !state.search || !state.replace
+                  }
                   title="Replace All"
                   className="size-8"
                 >
