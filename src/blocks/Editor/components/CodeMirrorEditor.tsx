@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useReducer, useRef, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { selectLine, selectLineDown } from "@codemirror/commands";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
@@ -305,31 +305,23 @@ type CustomSearchPanelProps = {
 };
 
 function CustomSearchPanel({ view }: CustomSearchPanelProps) {
+  const queryRef = useRef<SearchQuery>(null);
+
   const [showReplace, setShowReplace] = useState(false);
-  const [state, setState] = useState({
-    searchText: "",
-    replaceText: "",
-    caseSensitive: false,
-    regexp: false,
-  });
+  const [, dispatch] = useReducer(() => ({}), {});
 
   const updateSearchQuery = useCallback(
-    ({
-      searchText = "",
-      replaceText = "",
-      caseSensitive = false,
-      regexp = false,
-    }) => {
-      setState({ searchText, replaceText, caseSensitive, regexp });
-
-      const query = new SearchQuery({
-        search: searchText,
-        replace: replaceText,
-        caseSensitive,
-        regexp,
+    ({ search = "", replace = "", caseSensitive = false, regexp = false }) => {
+      queryRef.current = new SearchQuery({
+        search: search || queryRef.current?.search || "",
+        replace: replace || queryRef.current?.replace || "",
+        caseSensitive:
+          caseSensitive || queryRef.current?.caseSensitive || false,
+        regexp: regexp || queryRef.current?.regexp || false,
       });
 
-      view.dispatch({ effects: setSearchQuery.of(query) });
+      view.dispatch({ effects: setSearchQuery.of(queryRef.current) });
+      dispatch();
     },
     [view],
   );
@@ -357,19 +349,18 @@ function CustomSearchPanel({ view }: CustomSearchPanelProps) {
               title="Search text"
               className="w-full max-w-60 pr-20"
               autoFocus
-              value={state.searchText}
-              onChange={(e) => {
-                updateSearchQuery({ ...state, searchText: e.target.value });
+              defaultValue={queryRef.current?.search}
+              onInput={(e) => {
+                updateSearchQuery({ search: e.currentTarget.value });
               }}
             />
             <div className="absolute right-1.25 flex items-center gap-1">
               <Button
                 size="icon"
-                variant={state.caseSensitive ? "default" : "ghost"}
+                variant={queryRef.current?.caseSensitive ? "default" : "ghost"}
                 onClick={() => {
                   updateSearchQuery({
-                    ...state,
-                    caseSensitive: !state.caseSensitive,
+                    caseSensitive: !queryRef.current?.caseSensitive,
                   });
                 }}
                 title="Toggle Case Sensitive"
@@ -379,9 +370,9 @@ function CustomSearchPanel({ view }: CustomSearchPanelProps) {
               </Button>
               <Button
                 size="icon"
-                variant={state.regexp ? "default" : "ghost"}
+                variant={queryRef.current?.regexp ? "default" : "ghost"}
                 onClick={() => {
-                  updateSearchQuery({ ...state, regexp: !state.regexp });
+                  updateSearchQuery({ regexp: !queryRef.current?.regexp });
                 }}
                 title="Toggle Regex"
                 className="size-8"
@@ -426,9 +417,9 @@ function CustomSearchPanel({ view }: CustomSearchPanelProps) {
             <div className="relative flex items-center gap-1">
               <Input
                 placeholder="Replace..."
-                value={state.replaceText}
-                onChange={(e) => {
-                  updateSearchQuery({ ...state, replaceText: e.target.value });
+                defaultValue={queryRef.current?.replace}
+                onInput={(e) => {
+                  updateSearchQuery({ replace: e.currentTarget.value });
                 }}
                 className="w-full max-w-60 pr-20"
                 title="Replace text"
@@ -438,7 +429,7 @@ function CustomSearchPanel({ view }: CustomSearchPanelProps) {
                   size="icon"
                   variant="ghost"
                   onClick={() => replaceNext(view)}
-                  disabled={!search || !state.replaceText}
+                  disabled={!search || !queryRef.current?.replace}
                   title="Replace"
                   className="size-8"
                 >
@@ -448,7 +439,7 @@ function CustomSearchPanel({ view }: CustomSearchPanelProps) {
                   size="icon"
                   variant="ghost"
                   onClick={() => replaceAll(view)}
-                  disabled={!search || !state.replaceText}
+                  disabled={!search || !queryRef.current?.replace}
                   title="Replace All"
                   className="size-8"
                 >
