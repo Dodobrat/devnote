@@ -267,7 +267,7 @@ function NoteItem({
           </p>
           {!isMinimal && (
             <p className="text-muted-foreground line-clamp-2 break-words">
-              {note.note}
+              {note.note.slice(0, 100)}
             </p>
           )}
 

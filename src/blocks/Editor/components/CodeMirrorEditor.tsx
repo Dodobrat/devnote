@@ -22,7 +22,7 @@ import {
   hyperLinkExtension,
   hyperLinkStyle,
 } from "@uiw/codemirror-extensions-hyper-link";
-import { vscodeDarkInit, vscodeLightInit } from "@uiw/codemirror-theme-vscode";
+import { githubDarkInit, githubLightInit } from "@uiw/codemirror-theme-github";
 import CodeMirror, { type Extension, Prec } from "@uiw/react-codemirror";
 import { EditorView } from "codemirror";
 import {
@@ -149,12 +149,12 @@ export function CodeMirrorEditor({
 
   const theme = useMemo(() => {
     return resolvedTheme === ThemeMode.Dark
-      ? vscodeDarkInit({
+      ? githubDarkInit({
           theme: "dark",
           styles: elementStyles,
           settings: { foreground: "var(--foreground)" },
         })
-      : vscodeLightInit({
+      : githubLightInit({
           theme: "light",
           styles: elementStyles,
           settings: { foreground: "var(--foreground)" },
@@ -186,6 +186,7 @@ export function CodeMirrorEditor({
       }}
       className={cn(
         "isolate h-full text-base",
+        "selection:text-foreground",
         //
         "**:[.cm-editor]:h-full",
         "**:[.cm-editor]:outline-none!",
@@ -197,6 +198,7 @@ export function CodeMirrorEditor({
         "**:[.cm-content]:py-0!",
         //
         "**:[.cm-line]:px-0!",
+        "**:[.cm-line]:**:inline-block!",
         //
         "**:[.cm-activeLine]:bg-foreground/10!",
         //
@@ -205,15 +207,10 @@ export function CodeMirrorEditor({
         "**:[.cm-cursor]:border-foreground!",
         //
         "**:[.cm-selectionLayer]:**:[.cm-selectionBackground]:bg-muted!",
-        "**:[.cm-focused_.cm-selectionLayer]:**:[.cm-selectionBackground]:bg-foreground!",
-        //
-        "**:[.cm-selectionMatch:has(*)]:bg-transparent!",
-        "**:[.cm-selectionMatch:has(*)]:**:bg-foreground/30!",
-        "**:[.cm-selectionMatch:not(:has(*))]:bg-foreground/30!",
-        //
-        "**:[.cm-searchMatch:has(*)]:bg-transparent!",
-        "**:[.cm-searchMatch:has(*)]:**:bg-foreground/30!",
-        "**:[.cm-searchMatch:not(:has(*))]:bg-foreground/30!",
+        "**:[.cm-focused_.cm-selectionLayer]:**:[.cm-selectionBackground]:bg-chart-2/75!",
+        "**:[.cm-selectionMatch]:bg-chart-2/50!",
+        "**:[.cm-searchMatch]:bg-chart-4/50!",
+        "**:[.cm-searchMatch-selected]:bg-chart-4/75!",
         //
         isContainedWidth && "**:[.cm-scroller]:*:mx-auto!",
         isContainedWidth && "**:[.cm-scroller]:*:max-w-[calc(65ch_+_1.85rem)]",
@@ -246,11 +243,7 @@ export function CodeMirrorEditor({
             const div = document.createElement("div");
             const root = ReactDOM.createRoot(div);
 
-            // Get selected text to pre-fill search field
-            const selection = view.state.selection.main;
-            const selectedText = selection.empty
-              ? ""
-              : view.state.doc.sliceString(selection.from, selection.to);
+            const selectedText = getSelectedText(view);
 
             root.render(
               <CustomSearchPanel view={view} initialSearch={selectedText} />,
@@ -321,6 +314,12 @@ export function setCurrentCursorPosition(
   });
 }
 
+function getSelectedText(view: EditorView): string {
+  const selection = view.state.selection.main;
+  if (selection.empty) return "";
+  return view.state.doc.sliceString(selection.from, selection.to);
+}
+
 type CustomSearchPanelProps = {
   view: EditorView;
   initialSearch?: string;
@@ -359,6 +358,11 @@ function CustomSearchPanel({
   useKeyDownEvent((e) => {
     if (getIsTogglingSearchKeyCombo(e)) {
       // do not prevent default so that the native browser search can still work
+      const selectedText = getSelectedText(view);
+      if (selectedText && selectedText !== state.search) {
+        updateState({ search: selectedText });
+      }
+
       searchInputRef.current?.focus();
     }
   });
@@ -366,11 +370,11 @@ function CustomSearchPanel({
   return (
     <div
       data-search-panel
-      className="bg-background border-border flex w-full justify-end gap-2 border-y p-2"
+      className="bg-background flex w-full justify-end gap-2 p-2"
     >
       <Button
         size="icon"
-        variant="ghost"
+        variant="outline"
         onClick={() => setShowReplace(!showReplace)}
         title="Toggle Replace"
         className="h-auto w-8"
@@ -388,6 +392,17 @@ function CustomSearchPanel({
               autoFocus
               value={state.search}
               onChange={(e) => updateState({ search: e.target.value })}
+              onKeyDown={(e) => {
+                if (e.code === "Enter") {
+                  e.preventDefault();
+                  findNext(view);
+                }
+                if (e.code === "ArrowDown") {
+                  e.preventDefault();
+                  // Focus the editor at the current cursor position (current match)
+                  view.focus();
+                }
+              }}
               ref={searchInputRef}
             />
             <div className="absolute right-1.25 flex items-center gap-1">

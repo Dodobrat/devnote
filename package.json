@@ -27,7 +27,7 @@
     "@tanstack/router-plugin": "1.121.4",
     "@tanstack/zod-adapter": "1.121.2",
     "@uiw/codemirror-extensions-hyper-link": "4.23.13",
-    "@uiw/codemirror-theme-vscode": "4.23.13",
+    "@uiw/codemirror-theme-github": "^4.23.13",
     "@uiw/react-codemirror": "4.23.13",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",

@@ -168,7 +168,7 @@ function Code(props: React.ComponentProps<"code">) {
       {...props}
       className={cn(
         props.className,
-        isParentPre && "!block !overflow-x-auto !p-4",
+        isParentPre && "block! overflow-x-auto! p-4!",
       )}
       ref={ref}
     />
