@@ -1,55 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import ReactDOM from "react-dom/client";
-import {
-  autocompletion,
-  type Completion,
-  type CompletionContext,
-  type CompletionResult,
-  snippet,
-} from "@codemirror/autocomplete";
-import { selectLine, selectLineDown } from "@codemirror/commands";
+import { useMemo, useRef } from "react";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { type TagStyle } from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
-import {
-  closeSearchPanel,
-  findNext,
-  findPrevious,
-  getSearchQuery,
-  replaceAll,
-  replaceNext,
-  search,
-  SearchQuery,
-  selectSelectionMatches,
-  setSearchQuery,
-} from "@codemirror/search";
-import { type Command, keymap } from "@codemirror/view";
+import { keymap } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
 import { useRouterState } from "@tanstack/react-router";
-import {
-  hyperLinkExtension,
-  hyperLinkStyle,
-} from "@uiw/codemirror-extensions-hyper-link";
 import { githubDarkInit, githubLightInit } from "@uiw/codemirror-theme-github";
-import CodeMirror, { type Extension, Prec } from "@uiw/react-codemirror";
+import CodeMirror, { Prec } from "@uiw/react-codemirror";
 import { EditorView } from "codemirror";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  CaseSensitiveIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  RegexIcon,
-  ReplaceAllIcon,
-  ReplaceIcon,
-  X,
-} from "lucide-react";
 
-import { Button, Input } from "~/components/ui";
-import {
-  getIsSaveCurrentNoteKeyCombo,
-  getIsTogglingSearchKeyCombo,
-} from "~/constants/shortcuts";
+import { getIsSaveCurrentNoteKeyCombo } from "~/constants/shortcuts";
 import { ThemeMode, useTheme } from "~/context";
 import { useKeyDownEvent } from "~/hooks";
 import {
@@ -60,6 +20,18 @@ import {
 import { cn } from "~/lib/utils";
 
 import { useCodeMirrorInstance } from "../context";
+import { createCustomHyperLinkExtension } from "../utils/hyperlinkExtension";
+import {
+  addCursorDownKeyBinding,
+  addCursorUpKeyBinding,
+  keepSelectingLinesKeyBinding,
+} from "../utils/keyBindings";
+import { createMarkdownAutocompletionExtension } from "../utils/markdownCompletionsExtension";
+import {
+  createSearchPanel,
+  escSearchPanel,
+  selectAllMatches,
+} from "./SearchPanel";
 
 const AUTOSAVE_DELAY = 500;
 
@@ -78,262 +50,6 @@ const elementStyles: TagStyle[] = [
   { tag: tags.emphasis, fontStyle: "italic" },
   { tag: tags.strong, ...bold },
 ];
-
-function createAddCursor(direction: "up" | "down"): Command {
-  return (view) => {
-    const forward = direction === "down";
-    let selection = view.state.selection;
-    for (const r of selection.ranges) {
-      selection = selection.addRange(view.moveVertically(r, forward));
-    }
-    view.dispatch({ selection });
-    return true;
-  };
-}
-
-const addCursorUp = createAddCursor("up");
-const addCursorDown = createAddCursor("down");
-
-function keepSelectingLines(view: EditorView) {
-  const selection = view.state.selection;
-  const doc = view.state.doc;
-  // If no selection, select current line
-  if (selection.main.empty) {
-    return selectLine(view);
-  }
-  const range = selection.main;
-  const startLine = doc.lineAt(range.from);
-  const endLine = doc.lineAt(range.to);
-  // If selection is not full lines, expand to full lines
-  if (range.from !== startLine.from || range.to !== endLine.to) {
-    return selectLineDown(view);
-  }
-  // Extend selection by one more line
-  const nextLine = doc.line(Math.min(endLine.number + 1, doc.lines));
-  view.dispatch({ selection: { anchor: range.from, head: nextLine.to } });
-  return true;
-}
-
-function createCustomHyperLinkExtension(): Extension {
-  return [
-    hyperLinkExtension({
-      regexp:
-        /(?:https?:\/\/[^\s]+|\/(?:note\/(?:new|welcome|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})|app\/(?:help|changelog|settings)))/gi,
-      handle: (value) => {
-        const cleanedValue = value.trim().replace(/[.,;!?)'"\]]$/, "");
-        return cleanedValue;
-      },
-    }),
-    hyperLinkStyle,
-  ];
-}
-
-function createMarkdownCompletions(context: CompletionContext) {
-  const line = context.state.doc.lineAt(context.pos);
-  const lineText = line.text;
-  const lineStart = context.pos - line.from;
-
-  // Find the word being typed
-  const wordMatch = lineText.slice(0, lineStart).match(/(\S*)$/);
-  const word = wordMatch ? wordMatch[1] : "";
-
-  // Always provide all completions - let CodeMirror filter them
-  const completions: Completion[] = [
-    // Headings
-    {
-      label: "# Heading 1",
-      apply: snippet("# #{heading}"),
-      detail: "Heading level 1",
-      section: "1. Headings",
-    },
-    {
-      label: "## Heading 2",
-      apply: snippet("## #{heading}"),
-      detail: "Heading level 2",
-      section: "1. Headings",
-    },
-    {
-      label: "### Heading 3",
-      apply: snippet("### #{heading}"),
-      detail: "Heading level 3",
-      section: "1. Headings",
-    },
-    {
-      label: "#### Heading 4",
-      apply: snippet("#### #{heading}"),
-      detail: "Heading level 4",
-      section: "1. Headings",
-    },
-    {
-      label: "##### Heading 5",
-      apply: snippet("##### #{heading}"),
-      detail: "Heading level 5",
-      section: "1. Headings",
-    },
-    {
-      label: "###### Heading 6",
-      apply: snippet("###### #{heading}"),
-      detail: "Heading level 6",
-      section: "1. Headings",
-    },
-
-    // Lists
-    {
-      label: "- Unordered list",
-      apply: snippet("- #{item}"),
-      detail: "Bullet list item",
-      section: "2. Lists",
-    },
-    {
-      label: "* Unordered list",
-      apply: snippet("* #{item}"),
-      detail: "Bullet list item",
-      section: "2. Lists",
-    },
-    {
-      label: "+ Unordered list",
-      apply: snippet("+ #{item}"),
-      detail: "Bullet list item",
-      section: "2. Lists",
-    },
-    {
-      label: "1. Ordered list",
-      apply: snippet("1. #{item}"),
-      detail: "Numbered list item",
-      section: "2. Lists",
-    },
-    {
-      label: "- [ ] Task list",
-      apply: snippet("- [ ] #{task}"),
-      detail: "Task list item (unchecked)",
-      section: "2. Lists",
-    },
-    {
-      label: "- [x] Task list checked",
-      apply: snippet("- [x] #{task}"),
-      detail: "Task list item (checked)",
-      section: "2. Lists",
-    },
-
-    // Text formatting
-    {
-      label: "**Bold text**",
-      apply: snippet("**#{bold}**"),
-      detail: "Bold formatting",
-      section: "3. Text Formatting",
-    },
-    {
-      label: "*Italic text*",
-      apply: snippet("*#{italic}*"),
-      detail: "Italic formatting",
-      section: "3. Text Formatting",
-    },
-    {
-      label: "~~Strikethrough~~",
-      apply: snippet("~~#{strikethrough}~~"),
-      detail: "Strikethrough formatting",
-      section: "3. Text Formatting",
-    },
-    {
-      label: "`Inline code`",
-      apply: snippet("`#{code}`"),
-      detail: "Inline code",
-      section: "3. Text Formatting",
-    },
-
-    // Code blocks
-    {
-      label: "``` Code block",
-      apply: snippet("```\n#{code}\n```"),
-      detail: "Code block",
-      section: "4. Code Blocks",
-    },
-    {
-      label: "```js JavaScript",
-      apply: snippet("```js\n#{code}\n```"),
-      detail: "JavaScript code block",
-      section: "4. Code Blocks",
-    },
-    {
-      label: "```ts TypeScript",
-      apply: snippet("```ts\n#{code}\n```"),
-      detail: "TypeScript code block",
-      section: "4. Code Blocks",
-    },
-    {
-      label: "```json JSON",
-      apply: snippet("```json\n#{code}\n```"),
-      detail: "JSON code block",
-      section: "4. Code Blocks",
-    },
-    {
-      label: "```yaml YAML",
-      apply: snippet("```yaml\n#{code}\n```"),
-      detail: "YAML code block",
-      section: "4. Code Blocks",
-    },
-    {
-      label: "```sql SQL",
-      apply: snippet("```sql\n#{code}\n```"),
-      detail: "SQL code block",
-      section: "4. Code Blocks",
-    },
-
-    // Links and media
-    {
-      label: "[Link](url)",
-      apply: snippet("[#{link text}](#{url})"),
-      detail: "Link",
-      section: "5. Links and Media",
-    },
-    {
-      label: "![Image](url)",
-      apply: snippet("![#{alt text}](#{url})"),
-      detail: "Image",
-      section: "5. Links and Media",
-    },
-
-    // Other elements
-    {
-      label: "> Blockquote",
-      apply: snippet("> #{text}"),
-      detail: "Blockquote",
-      section: "6. Other Elements",
-    },
-    {
-      label: "--- Horizontal rule",
-      apply: "---",
-      detail: "Horizontal rule",
-      section: "6. Other Elements",
-    },
-    {
-      label: "| Table",
-      apply: snippet(
-        "| #{Header 1} | #{Header 2} |\n|-|-|\n| #{Cell 1} | #{Cell 2} |",
-      ),
-      detail: "Table",
-      section: "6. Other Elements",
-    },
-  ];
-
-  const from = context.pos - word.length;
-  const to = context.pos;
-
-  return {
-    from,
-    to,
-    options: completions,
-  } satisfies CompletionResult;
-}
-
-function createMarkdownAutocompletion(): Extension {
-  return autocompletion({
-    override: [createMarkdownCompletions],
-    activateOnTyping: true,
-    filterStrict: true,
-    icons: false,
-  });
-}
 
 export function CodeMirrorEditor({
   saveNote,
@@ -452,51 +168,19 @@ export function CodeMirrorEditor({
       extensions={[
         EditorView.lineWrapping,
         createCustomHyperLinkExtension(),
-        createMarkdownAutocompletion(),
+        createMarkdownAutocompletionExtension(),
         markdown({ base: markdownLanguage, codeLanguages: languages }),
-        search({
-          createPanel(view) {
-            const div = document.createElement("div");
-            const root = ReactDOM.createRoot(div);
-
-            const selectedText = getSelectedText(view);
-
-            root.render(
-              <CustomSearchPanel view={view} initialSearch={selectedText} />,
-            );
-
-            return { dom: div, top: true };
-          },
-        }),
+        createSearchPanel(),
         keymap.of([
+          selectAllMatches,
+          addCursorUpKeyBinding,
+          addCursorDownKeyBinding,
+          keepSelectingLinesKeyBinding,
+          escSearchPanel,
+          // Disable "go to line" panel
           {
-            key: "Shift-Mod-l",
-            run: selectSelectionMatches,
-          },
-          {
-            key: "Mod-Alt-ArrowUp",
-            linux: "Shift-Alt-ArrowUp",
-            run: addCursorUp,
-            preventDefault: true,
-          },
-          {
-            key: "Mod-Alt-ArrowDown",
-            linux: "Shift-Alt-ArrowDown",
-            run: addCursorDown,
-            preventDefault: true,
-          },
-          {
-            key: "Mod-l",
-            run: keepSelectingLines,
-            preventDefault: true,
-          },
-          {
-            key: "Escape",
-            run: (view) => {
-              // Close search panel if it's open
-              closeSearchPanel(view);
-              return true;
-            },
+            key: "Mod-Alt-g",
+            run: () => true,
             preventDefault: true,
           },
         ]),
@@ -519,271 +203,10 @@ export function getCurrentCursorPosition(instance: EditorView) {
   return Math.max(instance?.state?.selection?.ranges?.[0]?.from, 0);
 }
 
-export function setCurrentCursorPosition(
-  instance: EditorView,
-  position: number,
-) {
+function setCurrentCursorPosition(instance: EditorView, position: number) {
   if (!instance) return;
   instance.dispatch({
     selection: { anchor: position, head: position },
     scrollIntoView: true,
   });
-}
-
-function getSelectedText(view: EditorView) {
-  const selection = view.state.selection.main;
-  if (selection.empty) return "";
-  return view.state.doc.sliceString(selection.from, selection.to);
-}
-
-function getSearchStats(view: EditorView) {
-  const query = getSearchQuery(view.state);
-  if (!query || !query.search) {
-    return { current: 0, total: 0 };
-  }
-
-  const doc = view.state.doc;
-  const cursor = query.getCursor(doc);
-  const matches: { from: number; to: number }[] = [];
-
-  // Find all matches
-  let result = cursor.next();
-  while (!result.done) {
-    matches.push({ from: result.value.from, to: result.value.to });
-    result = cursor.next();
-  }
-
-  if (matches.length === 0) {
-    return { current: 0, total: 0 };
-  }
-
-  // Find current match based on cursor position
-  const cursorPos = view.state.selection.main.from;
-  let currentMatch = 1;
-
-  for (let i = 0; i < matches.length; i++) {
-    if (matches[i].from >= cursorPos) {
-      currentMatch = i + 1;
-      break;
-    }
-    if (i === matches.length - 1) {
-      currentMatch = matches.length;
-    }
-  }
-
-  return { current: currentMatch, total: matches.length };
-}
-
-type CustomSearchPanelProps = {
-  view: EditorView;
-  initialSearch?: string;
-};
-
-function CustomSearchPanel({
-  view,
-  initialSearch = "",
-}: CustomSearchPanelProps) {
-  const [showReplace, setShowReplace] = useState(false);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  const [searchStats, setSearchStats] = useState({ current: 0, total: 0 });
-  const [state, setState] = useState({
-    search: initialSearch,
-    replace: "",
-    caseSensitive: false,
-    regexp: false,
-  });
-
-  const updateState = (newState: Partial<typeof state>) => {
-    setState((prev) => ({ ...prev, ...newState }));
-  };
-
-  useEffect(() => {
-    const query = new SearchQuery(state);
-    view.dispatch({ effects: setSearchQuery.of(query) });
-
-    // Update search statistics
-    setTimeout(() => setSearchStats(getSearchStats(view)));
-  }, [state, view]);
-
-  const handleFindNext = () => {
-    findNext(view);
-    setTimeout(() => setSearchStats(getSearchStats(view)));
-  };
-
-  const handleFindPrevious = () => {
-    findPrevious(view);
-    setTimeout(() => setSearchStats(getSearchStats(view)));
-  };
-
-  useKeyDownEvent((e) => {
-    if (e.code === "Escape") {
-      e.preventDefault();
-      closeSearchPanel(view);
-    }
-  });
-
-  useKeyDownEvent((e) => {
-    if (getIsTogglingSearchKeyCombo(e)) {
-      // do not prevent default so that the native browser search can still work
-      const selectedText = getSelectedText(view);
-      if (selectedText && selectedText !== state.search) {
-        updateState({ search: selectedText });
-      }
-
-      searchInputRef.current?.focus();
-    }
-  });
-
-  return (
-    <div
-      data-search-panel
-      className="bg-background flex w-full justify-end gap-2 p-2"
-    >
-      <Button
-        size="icon"
-        variant="outline"
-        onClick={() => setShowReplace(!showReplace)}
-        title="Toggle Replace"
-        className="h-auto w-8"
-      >
-        {showReplace ? <ChevronDownIcon /> : <ChevronRightIcon />}
-      </Button>
-
-      <div className="grid gap-2">
-        <div className="flex items-center gap-1">
-          <div className="relative flex items-center gap-1">
-            <Input
-              placeholder="Search..."
-              title="Search text"
-              className="w-full max-w-60 pr-20"
-              autoFocus
-              value={state.search}
-              onChange={(e) => updateState({ search: e.target.value })}
-              onKeyDown={(e) => {
-                if (e.code === "Enter") {
-                  e.preventDefault();
-                  handleFindNext();
-                }
-                if (e.code === "ArrowDown") {
-                  e.preventDefault();
-                  // Focus the editor at the current cursor position (current match)
-                  view.focus();
-                }
-              }}
-              ref={searchInputRef}
-            />
-            <div className="absolute right-1.25 flex items-center gap-1">
-              <Button
-                size="icon"
-                variant={state.caseSensitive ? "default" : "ghost"}
-                onClick={() =>
-                  updateState({ caseSensitive: !state.caseSensitive })
-                }
-                title="Toggle Case Sensitive"
-                className="size-8"
-              >
-                <CaseSensitiveIcon />
-              </Button>
-              <Button
-                size="icon"
-                variant={state.regexp ? "default" : "ghost"}
-                onClick={() => {
-                  updateState({ regexp: !state.regexp });
-                }}
-                title="Toggle Regex"
-                className="size-8"
-              >
-                <RegexIcon />
-              </Button>
-            </div>
-          </div>
-          <div className="flex min-w-24 items-center px-1 text-sm">
-            {Boolean(state.search) && searchStats.total > 0 && (
-              <span className="text-muted-foreground">
-                {searchStats.current} of {searchStats.total}
-              </span>
-            )}
-            {Boolean(state.search) && !searchStats.total && (
-              <span className="text-destructive">No results</span>
-            )}
-          </div>
-          <div className="flex items-center">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleFindPrevious}
-              disabled={!state.search}
-              title="Find Previous"
-            >
-              <ArrowUpIcon />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleFindNext}
-              disabled={!state.search}
-              title="Find Next"
-            >
-              <ArrowDownIcon />
-            </Button>
-          </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => closeSearchPanel(view)}
-            title="Close Search"
-          >
-            <X />
-          </Button>
-        </div>
-
-        {showReplace && (
-          <div className="flex items-center gap-1">
-            <div className="relative flex items-center gap-1">
-              <Input
-                placeholder="Replace..."
-                value={state.replace}
-                onChange={(e) => updateState({ replace: e.target.value })}
-                className="w-full max-w-60 pr-20"
-                title="Replace text"
-              />
-              <div className="absolute right-1.25 flex items-center gap-1">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => {
-                    replaceNext(view);
-                    setTimeout(() => setSearchStats(getSearchStats(view)));
-                  }}
-                  disabled={
-                    !searchStats.total || !state.search || !state.replace
-                  }
-                  title="Replace"
-                  className="size-8"
-                >
-                  <ReplaceIcon />
-                </Button>
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => {
-                    replaceAll(view);
-                    setTimeout(() => setSearchStats(getSearchStats(view)));
-                  }}
-                  disabled={
-                    !searchStats.total || !state.search || !state.replace
-                  }
-                  title="Replace All"
-                  className="size-8"
-                >
-                  <ReplaceAllIcon />
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
 }
