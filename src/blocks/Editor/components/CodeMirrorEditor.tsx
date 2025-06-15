@@ -173,6 +173,7 @@ export function CodeMirrorEditor({ saveNote, onWheel }: CodeMirrorEditorProps) {
         "**:[.cm-searchMatch]:bg-chart-4/50!",
         "**:[.cm-searchMatch-selected]:bg-chart-4/75!",
         //
+        "**:[.cm-scroller]:contain-strict",
         "**:[.cm-scroller]:*:transition-[max-width]",
         "**:[.cm-scroller]:*:max-w-full",
         isContainedWidth && "**:[.cm-scroller]:*:mx-auto!",

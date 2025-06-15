@@ -70,36 +70,74 @@ export function useTheme() {
   return context;
 }
 
-// Generated with chat GPT, no idea how this works
+// Improved OKLCH to HEX conversion with better error handling
 function oklchToHex(oklch: string): string {
-  const m = oklch.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\)/);
-  if (!m) throw new Error("Invalid format");
-  const L = +m[1],
-    C = +m[2],
-    H = (+m[3] * Math.PI) / 180;
-  const a = Math.cos(H) * C,
-    b = Math.sin(H) * C;
-  const l = L + 0.3963377774 * a + 0.2158037573 * b;
-  const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-  const s = L - 0.0894841775 * a - 1.291485548 * b;
-  const [l3, m3, s3] = [l, m_, s].map((v) => v * v * v);
+  // Handle different OKLCH formats more tolerantly
+  const cleanedOklch = oklch.trim();
 
-  let R = 4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
-  let G = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
-  let B = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3;
+  // Try multiple regex patterns for different OKLCH formats
+  const patterns = [
+    // Standard: oklch(L C H)
+    /oklch\(\s*([\d.]+)%?\s+([\d.]+)%?\s+([\d.]+)(?:deg)?\s*\)/,
+    // With alpha: oklch(L C H / A)
+    /oklch\(\s*([\d.]+)%?\s+([\d.]+)%?\s+([\d.]+)(?:deg)?\s*\/\s*[\d.]+%?\s*\)/,
+    // Comma separated: oklch(L, C, H)
+    /oklch\(\s*([\d.]+)%?\s*,\s*([\d.]+)%?\s*,\s*([\d.]+)(?:deg)?\s*\)/,
+    // Comma separated with alpha: oklch(L, C, H, A)
+    /oklch\(\s*([\d.]+)%?\s*,\s*([\d.]+)%?\s*,\s*([\d.]+)(?:deg)?\s*,\s*[\d.]+%?\s*\)/,
+  ];
 
-  const gamma = (v: number) =>
-    v <= 0.0031308
-      ? 12.92 * v
-      : 1.055 * Math.pow(Math.min(Math.max(v, 0), 1), 1 / 2.4) - 0.055;
+  let match = null;
+  for (const pattern of patterns) {
+    match = cleanedOklch.match(pattern);
+    if (match) break;
+  }
 
-  R = gamma(R);
-  G = gamma(G);
-  B = gamma(B);
+  if (!match) {
+    console.warn(`Invalid OKLCH format: ${oklch}, returning fallback color`);
+    return "#000000"; // Return black as fallback instead of throwing
+  }
 
-  const toHex = (n: number) =>
-    Math.round(n * 255)
-      .toString(16)
-      .padStart(2, "0");
-  return `#${toHex(R)}${toHex(G)}${toHex(B)}`;
+  try {
+    let L = parseFloat(match[1]);
+    let C = parseFloat(match[2]);
+    const H = parseFloat(match[3]);
+
+    // Normalize values if they appear to be percentages
+    if (L > 1) L = L / 100; // Convert percentage to decimal if needed
+    if (C > 1) C = C / 100; // Convert percentage to decimal if needed
+
+    // Convert hue to radians
+    const HRad = (H * Math.PI) / 180;
+
+    const a = Math.cos(HRad) * C;
+    const b = Math.sin(HRad) * C;
+    const l = L + 0.3963377774 * a + 0.2158037573 * b;
+    const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+    const s = L - 0.0894841775 * a - 1.291485548 * b;
+    const [l3, m3, s3] = [l, m_, s].map((v) => v * v * v);
+
+    let R = 4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+    let G = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+    let B = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.707614701 * s3;
+
+    const gamma = (v: number) =>
+      v <= 0.0031308
+        ? 12.92 * v
+        : 1.055 * Math.pow(Math.min(Math.max(v, 0), 1), 1 / 2.4) - 0.055;
+
+    R = gamma(R);
+    G = gamma(G);
+    B = gamma(B);
+
+    const toHex = (n: number) =>
+      Math.round(Math.min(Math.max(n, 0), 1) * 255)
+        .toString(16)
+        .padStart(2, "0");
+
+    return `#${toHex(R)}${toHex(G)}${toHex(B)}`;
+  } catch (error) {
+    console.error(`Error converting OKLCH to hex: ${oklch}`, error);
+    return "#000000"; // Return black as fallback
+  }
 }
