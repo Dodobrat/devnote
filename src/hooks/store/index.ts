@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { atom, useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
@@ -76,14 +75,7 @@ export function useEditorWelcomeNoteAtom() {
 
 const noteAtom = atom("");
 export function useEditorNoteAtom() {
-  const [note, setNote] = useAtom(noteAtom);
-
-  const setNoteValue = useCallback(
-    (v: string | undefined) => setNote(v || ""),
-    [setNote],
-  );
-
-  return { note, setNote: setNoteValue };
+  return useAtom(noteAtom);
 }
 
 const notePrevStateAtom = atom("");

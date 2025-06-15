@@ -12,12 +12,12 @@ export const Route = createFileRoute("/note/new")({
 function RouteComponent() {
   const [welcomeNote] = useEditorWelcomeNoteAtom();
 
-  const { setNote } = useEditorNoteAtom();
+  const [, setNote] = useEditorNoteAtom();
   const saveNote = useSaveNote();
 
   useEffect(() => {
     if (!welcomeNote) return;
-    setNote(welcomeNote);
+    setNote(welcomeNote || "");
   }, [setNote, welcomeNote]);
 
   return (

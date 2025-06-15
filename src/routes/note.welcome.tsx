@@ -15,11 +15,11 @@ export const Route = createFileRoute("/note/welcome")({
 function RouteComponent() {
   const [welcomeNote, setWelcomeNote] = useEditorWelcomeNoteAtom();
 
-  const { setNote } = useEditorNoteAtom();
+  const [, setNote] = useEditorNoteAtom();
 
   useEffect(() => {
     if (!welcomeNote) return;
-    setNote(welcomeNote);
+    setNote(welcomeNote || "");
   }, [setNote, welcomeNote]);
 
   return (
@@ -37,7 +37,7 @@ function RouteComponent() {
 
 function WelcomeMessageEditActions() {
   const [welcomeNote, setWelcomeNote] = useEditorWelcomeNoteAtom();
-  const { note, setNote } = useEditorNoteAtom();
+  const [note, setNote] = useEditorNoteAtom();
 
   const [showConfirmReset, setShowConfirmReset] = useState(false);
 
@@ -92,7 +92,7 @@ function WelcomeMessageEditActions() {
         onOpenChange={setShowConfirmReset}
         onContinue={() => {
           setWelcomeNote(WELCOME_TEXT);
-          setNote(WELCOME_TEXT);
+          setNote(WELCOME_TEXT || "");
           setShowConfirmReset(false);
         }}
         labels={{

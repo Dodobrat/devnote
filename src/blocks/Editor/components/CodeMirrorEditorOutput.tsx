@@ -31,7 +31,7 @@ function fallbackRender({ error }: FallbackProps) {
 }
 
 export function EditorOutput({ ref }: { ref?: React.Ref<HTMLDivElement> }) {
-  const { note } = useEditorNoteAtom();
+  const [note] = useEditorNoteAtom();
 
   return (
     <div
@@ -48,7 +48,7 @@ export function EditorOutput({ ref }: { ref?: React.Ref<HTMLDivElement> }) {
 function MarkdownContent() {
   const { resolvedTheme } = useTheme();
 
-  const { note } = useEditorNoteAtom();
+  const [note] = useEditorNoteAtom();
 
   const [isContainedWidth] = useEditorContainedWidthAtom();
 

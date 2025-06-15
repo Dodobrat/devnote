@@ -74,7 +74,7 @@ export function CodeMirrorEditor({ saveNote, onWheel }: CodeMirrorEditorProps) {
   const isEditing = Boolean(editNoteRouteMatch?.params?.noteId);
 
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const { note, setNote } = useEditorNoteAtom();
+  const [note, setNote] = useEditorNoteAtom();
 
   // Track the previous note value to detect external changes
   const prevNoteRef = useRef(note);
