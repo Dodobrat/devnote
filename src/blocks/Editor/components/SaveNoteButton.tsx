@@ -28,7 +28,7 @@ export function SaveNoteButton({
 
   const { codeMirrorInstance } = useCodeMirrorInstance();
 
-  const { note } = useEditorNoteAtom();
+  const [note] = useEditorNoteAtom();
 
   const [prevNote, setPrevNote] = useEditorNotePrevStateAtom();
   const [welcomeNote] = useEditorWelcomeNoteAtom();
