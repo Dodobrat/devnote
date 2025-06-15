@@ -34,6 +34,10 @@ const CHANGELOG = `
 
 - Restyled the search panel ( Ctrl / Cmd + F ) for better usability.
 
+### Fixes
+
+- Fixed the issue where when typing fast, the editor would lose the current cursor position and start typing at the start of the note.
+
 ---
 
 ## 13 Apr 2025
