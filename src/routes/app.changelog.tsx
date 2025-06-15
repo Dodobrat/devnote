@@ -23,6 +23,23 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
+## 15 Jun 2025
+
+### Added
+
+- Autocomplete snippets for most markdown elements.
+- Setting section for syncing preview scroll position with editor.
+
+### Refactor
+
+- Restyled the search panel ( Ctrl / Cmd + F ) for better usability.
+
+### Fixes
+
+- Fixed the issue where when typing fast, the editor would lose the current cursor position and start typing at the start of the note.
+
+---
+
 ## 13 Apr 2025
 
 ### Added

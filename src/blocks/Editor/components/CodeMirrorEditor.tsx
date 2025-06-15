@@ -1,18 +1,12 @@
-import { useMemo, useRef } from "react";
-import { selectLine, selectLineDown } from "@codemirror/commands";
+import { useEffect, useMemo, useRef } from "react";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { type TagStyle } from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
-import { selectSelectionMatches } from "@codemirror/search";
-import { type Command, keymap } from "@codemirror/view";
+import { keymap } from "@codemirror/view";
 import { tags } from "@lezer/highlight";
 import { useRouterState } from "@tanstack/react-router";
-import {
-  hyperLinkExtension,
-  hyperLinkStyle,
-} from "@uiw/codemirror-extensions-hyper-link";
-import { vscodeDarkInit, vscodeLightInit } from "@uiw/codemirror-theme-vscode";
-import CodeMirror, { type Extension, Prec } from "@uiw/react-codemirror";
+import { githubDarkInit, githubLightInit } from "@uiw/codemirror-theme-github";
+import CodeMirror, { Prec } from "@uiw/react-codemirror";
 import { EditorView } from "codemirror";
 
 import { getIsSaveCurrentNoteKeyCombo } from "~/constants/shortcuts";
@@ -26,6 +20,18 @@ import {
 import { cn } from "~/lib/utils";
 
 import { useCodeMirrorInstance } from "../context";
+import { createCustomHyperLinkExtension } from "../utils/hyperlinkExtension";
+import {
+  addCursorDownKeyBinding,
+  addCursorUpKeyBinding,
+  keepSelectingLinesKeyBinding,
+} from "../utils/keyBindings";
+import { createMarkdownAutocompletionExtension } from "../utils/markdownCompletionsExtension";
+import {
+  createSearchPanel,
+  escSearchPanel,
+  selectAllMatches,
+} from "./SearchPanel";
 
 const AUTOSAVE_DELAY = 500;
 
@@ -45,60 +51,20 @@ const elementStyles: TagStyle[] = [
   { tag: tags.strong, ...bold },
 ];
 
-function createAddCursor(direction: "up" | "down"): Command {
-  return (view) => {
-    const forward = direction === "down";
-    let selection = view.state.selection;
-    for (const r of selection.ranges) {
-      selection = selection.addRange(view.moveVertically(r, forward));
-    }
-    view.dispatch({ selection });
-    return true;
-  };
-}
+type ScrollInfo = {
+  top: number;
+  left: number;
+  height: number;
+  scrollHeight: number;
+  scrolledPercentage: number;
+};
 
-const addCursorUp = createAddCursor("up");
-const addCursorDown = createAddCursor("down");
-
-function keepSelectingLines(view: EditorView) {
-  const selection = view.state.selection;
-  const doc = view.state.doc;
-  // If no selection, select current line
-  if (selection.main.empty) {
-    return selectLine(view);
-  }
-  const range = selection.main;
-  const startLine = doc.lineAt(range.from);
-  const endLine = doc.lineAt(range.to);
-  // If selection is not full lines, expand to full lines
-  if (range.from !== startLine.from || range.to !== endLine.to) {
-    return selectLineDown(view);
-  }
-  // Extend selection by one more line
-  const nextLine = doc.line(Math.min(endLine.number + 1, doc.lines));
-  view.dispatch({ selection: { anchor: range.from, head: nextLine.to } });
-  return true;
-}
-
-function createCustomHyperLinkExtension(): Extension {
-  return [
-    hyperLinkExtension({
-      regexp:
-        /(?:https?:\/\/[^\s]+|\/(?:note\/(?:new|welcome|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})|app\/(?:help|changelog|settings)))/gi,
-      handle: (value) => {
-        const cleanedValue = value.trim().replace(/[.,;!?)'"\]]$/, "");
-        return cleanedValue;
-      },
-    }),
-    hyperLinkStyle,
-  ];
-}
-
-export function CodeMirrorEditor({
-  saveNote,
-}: {
+type CodeMirrorEditorProps = {
   saveNote: (editor: EditorView | undefined) => void;
-}) {
+  onWheel?: (info: ScrollInfo) => void;
+};
+
+export function CodeMirrorEditor({ saveNote, onWheel }: CodeMirrorEditorProps) {
   const { codeMirrorInstance, setCodeMirrorInstance } = useCodeMirrorInstance();
   const { resolvedTheme } = useTheme();
 
@@ -109,6 +75,9 @@ export function CodeMirrorEditor({
 
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const { note, setNote } = useEditorNoteAtom();
+
+  // Track the previous note value to detect external changes
+  const prevNoteRef = useRef(note);
 
   const [isContainedWidth] = useEditorContainedWidthAtom();
 
@@ -123,23 +92,47 @@ export function CodeMirrorEditor({
 
   const theme = useMemo(() => {
     return resolvedTheme === ThemeMode.Dark
-      ? vscodeDarkInit({
+      ? githubDarkInit({
           theme: "dark",
           styles: elementStyles,
           settings: { foreground: "var(--foreground)" },
         })
-      : vscodeLightInit({
+      : githubLightInit({
           theme: "light",
           styles: elementStyles,
           settings: { foreground: "var(--foreground)" },
         });
   }, [resolvedTheme]);
 
+  // Update editor content when note changes externally (e.g., route changes)
+  useEffect(() => {
+    if (!codeMirrorInstance) return;
+
+    const currentContent = codeMirrorInstance.state.doc.toString();
+    if (currentContent !== note) {
+      // Preserve cursor position when possible
+      const cursorPos = getCurrentCursorPosition(codeMirrorInstance);
+      const maxPos = note.length;
+      const safePos = Math.min(cursorPos, maxPos);
+
+      codeMirrorInstance.dispatch({
+        changes: {
+          from: 0,
+          to: currentContent.length,
+          insert: note,
+        },
+        selection: { anchor: safePos, head: safePos },
+      });
+    }
+
+    prevNoteRef.current = note;
+  }, [note, codeMirrorInstance]);
+
   return (
     <CodeMirror
-      value={note}
       onChange={(value) => {
         setNote(value);
+        prevNoteRef.current = value;
 
         if (isEditing && shouldAutoSave) {
           clearTimeout(autoSaveRef.current);
@@ -154,8 +147,6 @@ export function CodeMirrorEditor({
         lineNumbers: false,
         foldKeymap: false,
         foldGutter: false,
-        autocompletion: false,
-        completionKeymap: false,
         lintKeymap: false,
       }}
       className={cn(
@@ -167,10 +158,35 @@ export function CodeMirrorEditor({
         //
         "**:[.cm-scroller]:font-mono!",
         "**:[.cm-scroller]:p-4!",
+        "**:[.cm-scroller]:selection:text-foreground!",
         //
         "**:[.cm-content]:py-0!",
         //
+        "**:[.cm-tooltip-autocomplete]:rounded-md!",
+        "**:[.cm-tooltip-autocomplete]:border!",
+        "**:[.cm-tooltip-autocomplete]:bg-popover!",
+        "**:[.cm-tooltip-autocomplete]:text-popover-foreground!",
+        "**:[.cm-tooltip-autocomplete]:overflow-hidden!",
+        "**:[.cm-tooltip-autocomplete]:**:[completion-section]:bg-muted",
+        "**:[.cm-tooltip-autocomplete]:**:[completion-section]:text-muted-foreground",
+        "**:[.cm-tooltip-autocomplete]:**:[completion-section]:text-base",
+        "**:[.cm-tooltip-autocomplete]:**:[completion-section]:mb-2",
+        "**:[.cm-tooltip-autocomplete]:**:[completion-section]:mt-4",
+        "**:[.cm-tooltip-autocomplete]:**:[completion-section]:first-of-type:mt-0",
+        "**:[.cm-tooltip-autocomplete]:**:[completion-section]:font-bold",
+        "**:[.cm-tooltip-autocomplete]:**:[completion-section]:p-2!",
+        "**:[.cm-tooltip-autocomplete]:**:[completion-section]:border-border!",
+        "**:[.cm-tooltip-autocomplete]:**:[ul]:pb-2!",
+        "**:[.cm-tooltip-autocomplete]:**:[li]:px-2!",
+        "**:[.cm-tooltip-autocomplete]:**:[li]:py-1!",
+        "**:[.cm-tooltip-autocomplete]:**:[li[aria-selected='true']]:bg-chart-2/25!",
+        "**:[.cm-tooltip-autocomplete]:**:[.cm-completionLabel]:font-semibold!",
+        // "**:[.cm-tooltip-autocomplete]:**:[.cm-completionMatchedText]:font-bold!",
+        "**:[.cm-tooltip-autocomplete]:**:[.cm-completionDetail]:text-muted-foreground!",
+        "**:[.cm-tooltip-autocomplete]:**:[.cm-completionDetail]:text-sm!",
+        //
         "**:[.cm-line]:px-0!",
+        // "**:[.cm-line]:**:inline-block!",
         //
         "**:[.cm-activeLine]:bg-foreground/10!",
         //
@@ -179,12 +195,14 @@ export function CodeMirrorEditor({
         "**:[.cm-cursor]:border-foreground!",
         //
         "**:[.cm-selectionLayer]:**:[.cm-selectionBackground]:bg-muted!",
-        "**:[.cm-focused_.cm-selectionLayer]:**:[.cm-selectionBackground]:bg-foreground!",
+        "**:[.cm-focused_.cm-selectionLayer]:**:[.cm-selectionBackground]:bg-chart-2/75!",
+        "**:[.cm-selectionMatch]:bg-chart-2/50!",
+        "**:[.cm-searchMatch]:bg-chart-4/50!",
+        "**:[.cm-searchMatch-selected]:bg-chart-4/75!",
         //
-        "**:[.cm-selectionMatch:has(*)]:bg-transparent!",
-        "**:[.cm-selectionMatch:has(*)]:**:bg-foreground/30!",
-        "**:[.cm-selectionMatch:not(:has(*))]:bg-foreground/30!",
-        //
+        "**:[.cm-scroller]:contain-strict",
+        "**:[.cm-scroller]:*:transition-[max-width]",
+        "**:[.cm-scroller]:*:max-w-full",
         isContainedWidth && "**:[.cm-scroller]:*:mx-auto!",
         isContainedWidth && "**:[.cm-scroller]:*:max-w-[calc(65ch_+_1.85rem)]",
       )}
@@ -210,27 +228,20 @@ export function CodeMirrorEditor({
       extensions={[
         EditorView.lineWrapping,
         createCustomHyperLinkExtension(),
+        createMarkdownAutocompletionExtension(),
+        createScrollTrackingExtension(onWheel),
         markdown({ base: markdownLanguage, codeLanguages: languages }),
+        createSearchPanel(),
         keymap.of([
+          selectAllMatches,
+          addCursorUpKeyBinding,
+          addCursorDownKeyBinding,
+          keepSelectingLinesKeyBinding,
+          escSearchPanel,
+          // Disable "go to line" panel
           {
-            key: "Shift-Mod-l",
-            run: selectSelectionMatches,
-          },
-          {
-            key: "Mod-Alt-ArrowUp",
-            linux: "Shift-Alt-ArrowUp",
-            run: addCursorUp,
-            preventDefault: true,
-          },
-          {
-            key: "Mod-Alt-ArrowDown",
-            linux: "Shift-Alt-ArrowDown",
-            run: addCursorDown,
-            preventDefault: true,
-          },
-          {
-            key: "Mod-l",
-            run: keepSelectingLines,
+            key: "Mod-Alt-g",
+            run: () => true,
             preventDefault: true,
           },
         ]),
@@ -253,13 +264,30 @@ export function getCurrentCursorPosition(instance: EditorView) {
   return Math.max(instance?.state?.selection?.ranges?.[0]?.from, 0);
 }
 
-export function setCurrentCursorPosition(
-  instance: EditorView,
-  position: number,
-) {
+function setCurrentCursorPosition(instance: EditorView, position: number) {
   if (!instance) return;
   instance.dispatch({
     selection: { anchor: position, head: position },
     scrollIntoView: true,
+  });
+}
+
+function createScrollTrackingExtension(onWheel?: (info: ScrollInfo) => void) {
+  if (!onWheel) return [];
+
+  return EditorView.domEventHandlers({
+    wheel(_event, view) {
+      const scroller = view.scrollDOM;
+      const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+
+      onWheel({
+        top: scroller.scrollTop,
+        left: scroller.scrollLeft,
+        height: scroller.clientHeight,
+        scrollHeight: scroller.scrollHeight,
+        scrolledPercentage:
+          maxScroll <= 0 ? 0 : (scroller.scrollTop / maxScroll) * 100,
+      });
+    },
   });
 }

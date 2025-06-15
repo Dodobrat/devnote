@@ -30,11 +30,14 @@ function fallbackRender({ error }: FallbackProps) {
   );
 }
 
-export function EditorOutput() {
+export function EditorOutput({ ref }: { ref?: React.Ref<HTMLDivElement> }) {
   const { note } = useEditorNoteAtom();
 
   return (
-    <div className="h-full w-full overflow-auto overscroll-contain scroll-smooth p-4">
+    <div
+      className="h-full w-full overflow-auto overscroll-contain scroll-smooth p-4"
+      ref={ref}
+    >
       <ErrorBoundary fallbackRender={fallbackRender} resetKeys={[note]}>
         <MarkdownContent />
       </ErrorBoundary>
@@ -54,7 +57,8 @@ function MarkdownContent() {
       className={cn(
         "devnote-markdown-output",
         "prose dark:prose-invert text-pretty break-words hyphens-auto",
-        isContainedWidth ? "mx-auto" : "max-w-none",
+        "transition-[max-width]",
+        isContainedWidth ? "mx-auto" : "max-w-full",
       )}
     >
       <style>
@@ -168,7 +172,7 @@ function Code(props: React.ComponentProps<"code">) {
       {...props}
       className={cn(
         props.className,
-        isParentPre && "!block !overflow-x-auto !p-4",
+        isParentPre && "block! overflow-x-auto! p-4!",
       )}
       ref={ref}
     />

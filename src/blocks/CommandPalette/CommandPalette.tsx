@@ -21,6 +21,7 @@ import {
   useCommandPaletteOpenAtom,
   useEditorAutosaveAtom,
   useEditorContainedWidthAtom,
+  useEditorSyncScrollAtom,
   useSidebarVariantAtom,
 } from "~/hooks/store";
 
@@ -205,6 +206,7 @@ function ActionsCommandGroup({ show, close }: CommandGroupProps) {
   const { theme, setTheme } = useTheme();
   const [sidebarVariant, setSidebarVariant] = useSidebarVariantAtom();
   const [editorAutosave, setEditorAutosave] = useEditorAutosaveAtom();
+  const [scrollSync, setScrollSync] = useEditorSyncScrollAtom();
   const [editorContained, setEditorContainedWidth] =
     useEditorContainedWidthAtom();
 
@@ -238,6 +240,11 @@ function ActionsCommandGroup({ show, close }: CommandGroupProps) {
       label: "Toggle note autosave",
       action: () => setEditorAutosave((v) => !v),
       checked: editorAutosave,
+    },
+    {
+      label: "Toggle editor synced scroll",
+      action: () => setScrollSync((v) => !v),
+      checked: scrollSync,
     },
     {
       label: "Toggle contained width",
