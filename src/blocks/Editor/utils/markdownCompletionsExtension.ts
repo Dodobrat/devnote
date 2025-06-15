@@ -70,12 +70,6 @@ export function createMarkdownCompletions(context: CompletionContext) {
       section: "2. Lists",
     },
     {
-      label: "+ Unordered list",
-      apply: snippet("+ #{item}"),
-      detail: "Bullet list item",
-      section: "2. Lists",
-    },
-    {
       label: "1. Ordered list",
       apply: snippet("1. #{item}"),
       detail: "Numbered list item",
@@ -155,6 +149,12 @@ export function createMarkdownCompletions(context: CompletionContext) {
       label: "```sql SQL",
       apply: snippet("```sql\n#{code}\n```"),
       detail: "SQL code block",
+      section: "4. Code Blocks",
+    },
+    {
+      label: "```bash Bash",
+      apply: snippet("```bash\n#{code}\n```"),
+      detail: "Bash code block",
       section: "4. Code Blocks",
     },
 
