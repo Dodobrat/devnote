@@ -51,11 +51,23 @@ const elementStyles: TagStyle[] = [
   { tag: tags.strong, ...bold },
 ];
 
+type ScrollInfo = {
+  top: number;
+  left: number;
+  height: number;
+  scrollHeight: number;
+  scrolledPercentage: number;
+};
+
+type CodeMirrorEditorProps = {
+  saveNote: (editor: EditorView | undefined) => void;
+  onScroll?: (info: ScrollInfo) => void;
+};
+
 export function CodeMirrorEditor({
   saveNote,
-}: {
-  saveNote: (editor: EditorView | undefined) => void;
-}) {
+  onScroll,
+}: CodeMirrorEditorProps) {
   const { codeMirrorInstance, setCodeMirrorInstance } = useCodeMirrorInstance();
   const { resolvedTheme } = useTheme();
 
@@ -170,6 +182,8 @@ export function CodeMirrorEditor({
         isContainedWidth && "**:[.cm-scroller]:*:max-w-[calc(65ch_+_1.85rem)]",
       )}
       onCreateEditor={(editor) => {
+        // TODO: set initial value from note
+
         setCodeMirrorInstance(editor);
 
         // After creation of a new note and redirect to edit page,
@@ -192,6 +206,7 @@ export function CodeMirrorEditor({
         EditorView.lineWrapping,
         createCustomHyperLinkExtension(),
         createMarkdownAutocompletionExtension(),
+        createScrollTrackingExtension(onScroll),
         markdown({ base: markdownLanguage, codeLanguages: languages }),
         createSearchPanel(),
         keymap.of([
@@ -231,5 +246,25 @@ function setCurrentCursorPosition(instance: EditorView, position: number) {
   instance.dispatch({
     selection: { anchor: position, head: position },
     scrollIntoView: true,
+  });
+}
+
+function createScrollTrackingExtension(onScroll?: (info: ScrollInfo) => void) {
+  if (!onScroll) return [];
+
+  return EditorView.domEventHandlers({
+    scroll(_event, view) {
+      const scroller = view.scrollDOM;
+      const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+
+      onScroll({
+        top: scroller.scrollTop,
+        left: scroller.scrollLeft,
+        height: scroller.clientHeight,
+        scrollHeight: scroller.scrollHeight,
+        scrolledPercentage:
+          maxScroll <= 0 ? 0 : (scroller.scrollTop / maxScroll) * 100,
+      });
+    },
   });
 }

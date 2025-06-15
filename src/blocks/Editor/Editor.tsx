@@ -168,7 +168,7 @@ export function Editor({ children, title, saveNote }: EditorProps) {
               minSize={MIN_RESIZE_PANEL_SIZE}
               ref={editorResizePanelRef}
             >
-              <CodeMirrorEditor saveNote={saveNote} />
+              <CodeMirrorEditor saveNote={saveNote} onScroll={console.log} />
               <EditorFocusManager />
             </Resizable.Panel>
             {showEditorPreview && (
