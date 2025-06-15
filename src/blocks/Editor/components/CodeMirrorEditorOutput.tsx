@@ -30,11 +30,14 @@ function fallbackRender({ error }: FallbackProps) {
   );
 }
 
-export function EditorOutput() {
+export function EditorOutput({ ref }: { ref?: React.Ref<HTMLDivElement> }) {
   const { note } = useEditorNoteAtom();
 
   return (
-    <div className="h-full w-full overflow-auto overscroll-contain scroll-smooth p-4">
+    <div
+      className="h-full w-full overflow-auto overscroll-contain scroll-smooth p-4"
+      ref={ref}
+    >
       <ErrorBoundary fallbackRender={fallbackRender} resetKeys={[note]}>
         <MarkdownContent />
       </ErrorBoundary>

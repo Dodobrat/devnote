@@ -15,6 +15,7 @@ export const storeKeys = {
   editorLayout: "devnote.editor.layout",
   editorShowPreview: "devnote.editor.showPreview",
   editorAutosave: "devnote.editor.autosave",
+  editorSyncScroll: "devnote.editor.syncScroll",
   editorLastOpenedNote: "devnote.editor.lastOpenedNote",
   editorWelcomeNote: "devnote.editor.note.welcome",
   editorContainedWidth: "devnote.editor.containedWidth",
@@ -41,6 +42,11 @@ export function useSidebarVariantAtom() {
 const autosaveAtom = atomWithStorage(storeKeys.editorAutosave, true);
 export function useEditorAutosaveAtom() {
   return useAtom(autosaveAtom);
+}
+
+const syncScrollAtom = atomWithStorage(storeKeys.editorSyncScroll, true);
+export function useEditorSyncScrollAtom() {
+  return useAtom(syncScrollAtom);
 }
 
 const lastOpenedNoteAtom = atomWithStorage(storeKeys.editorLastOpenedNote, "");

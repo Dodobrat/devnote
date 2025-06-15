@@ -61,13 +61,10 @@ type ScrollInfo = {
 
 type CodeMirrorEditorProps = {
   saveNote: (editor: EditorView | undefined) => void;
-  onScroll?: (info: ScrollInfo) => void;
+  onWheel?: (info: ScrollInfo) => void;
 };
 
-export function CodeMirrorEditor({
-  saveNote,
-  onScroll,
-}: CodeMirrorEditorProps) {
+export function CodeMirrorEditor({ saveNote, onWheel }: CodeMirrorEditorProps) {
   const { codeMirrorInstance, setCodeMirrorInstance } = useCodeMirrorInstance();
   const { resolvedTheme } = useTheme();
 
@@ -206,7 +203,7 @@ export function CodeMirrorEditor({
         EditorView.lineWrapping,
         createCustomHyperLinkExtension(),
         createMarkdownAutocompletionExtension(),
-        createScrollTrackingExtension(onScroll),
+        createScrollTrackingExtension(onWheel),
         markdown({ base: markdownLanguage, codeLanguages: languages }),
         createSearchPanel(),
         keymap.of([
@@ -249,15 +246,15 @@ function setCurrentCursorPosition(instance: EditorView, position: number) {
   });
 }
 
-function createScrollTrackingExtension(onScroll?: (info: ScrollInfo) => void) {
-  if (!onScroll) return [];
+function createScrollTrackingExtension(onWheel?: (info: ScrollInfo) => void) {
+  if (!onWheel) return [];
 
   return EditorView.domEventHandlers({
-    scroll(_event, view) {
+    wheel(_event, view) {
       const scroller = view.scrollDOM;
       const maxScroll = scroller.scrollHeight - scroller.clientHeight;
 
-      onScroll({
+      onWheel({
         top: scroller.scrollTop,
         left: scroller.scrollLeft,
         height: scroller.clientHeight,
