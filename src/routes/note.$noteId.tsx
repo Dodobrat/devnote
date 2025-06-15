@@ -31,7 +31,7 @@ function RouteComponent() {
   const data = noteQuery.data!;
 
   const [, setLastOpenedNote] = useLastOpenedNoteAtom();
-  const { setNote } = useEditorNoteAtom();
+  const [, setNote] = useEditorNoteAtom();
 
   const saveNote = useSaveNote(data);
 
@@ -56,7 +56,7 @@ function RouteComponent() {
 
   useEffect(() => {
     if (!data) return;
-    setNote(data.note);
+    setNote(data.note || "");
   }, [data, setNote]);
 
   return (

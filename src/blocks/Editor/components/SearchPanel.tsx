@@ -94,7 +94,7 @@ function CustomSearchPanel({
   return (
     <div
       data-search-panel
-      className="bg-background flex w-full justify-end gap-2 p-2"
+      className="bg-background @container flex w-full justify-end gap-2 p-2"
     >
       <Button
         size="icon"
@@ -107,7 +107,7 @@ function CustomSearchPanel({
       </Button>
 
       <div className="grid gap-2">
-        <div className="flex items-center gap-1">
+        <div className="flex flex-col gap-1 @sm:flex-row @sm:items-center">
           <div className="relative flex items-center gap-1">
             <Input
               placeholder="Search..."
@@ -154,7 +154,7 @@ function CustomSearchPanel({
               </Button>
             </div>
           </div>
-          <div className="flex min-w-24 items-center px-1 text-sm">
+          <div className="flex w-24 items-center px-1 text-sm">
             {Boolean(state.search) && searchStats.total > 0 && (
               <span className="text-muted-foreground">
                 {searchStats.current} of {searchStats.total}
@@ -184,14 +184,6 @@ function CustomSearchPanel({
               <ArrowDownIcon />
             </Button>
           </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => closeSearchPanel(view)}
-            title="Close Search"
-          >
-            <X />
-          </Button>
         </div>
 
         {showReplace && (
@@ -240,6 +232,14 @@ function CustomSearchPanel({
           </div>
         )}
       </div>
+      <Button
+        size="icon"
+        variant="ghost"
+        onClick={() => closeSearchPanel(view)}
+        title="Close Search"
+      >
+        <X />
+      </Button>
     </div>
   );
 }
