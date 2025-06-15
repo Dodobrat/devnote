@@ -23,6 +23,19 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
+## 15 Jun 2025
+
+### Added
+
+- Autocomplete snippets for most markdown elements.
+- Setting section for syncing preview scroll position with editor.
+
+### Refactor
+
+- Restyled the search panel ( Ctrl / Cmd + F ) for better usability.
+
+---
+
 ## 13 Apr 2025
 
 ### Added

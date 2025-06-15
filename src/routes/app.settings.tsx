@@ -7,6 +7,7 @@ import { ThemeMode, type ThemeModeKey, useTheme } from "~/context";
 import {
   useEditorAutosaveAtom,
   useEditorContainedWidthAtom,
+  useEditorSyncScrollAtom,
   useSidebarVariantAtom,
 } from "~/hooks/store";
 
@@ -39,6 +40,13 @@ function RouteComponent() {
             description="Automatically save your work as you type ( Unavailable while creating a note )"
           >
             <AutosaveToggle />
+          </Page.Section>
+
+          <Page.Section
+            title="Sync scroll"
+            description="Sync the scroll position between the editor and preview ( Scrolling the editor will scroll the preview, scrolling the preview will NOT scroll the editor )"
+          >
+            <SyncScrollToggle />
           </Page.Section>
 
           <Page.Section
@@ -111,6 +119,12 @@ function AutosaveToggle() {
   const [isAutosaving, setIsAutosaving] = useEditorAutosaveAtom();
 
   return <BooleanToggle value={isAutosaving} onValueChange={setIsAutosaving} />;
+}
+
+function SyncScrollToggle() {
+  const [isSynced, setIsSynced] = useEditorSyncScrollAtom();
+
+  return <BooleanToggle value={isSynced} onValueChange={setIsSynced} />;
 }
 
 function ContainedWidthToggle() {

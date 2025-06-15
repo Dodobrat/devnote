@@ -10,7 +10,11 @@ import {
   getIsShowEditorPreviewKeyCombo,
 } from "~/constants/shortcuts";
 import { useIsMobile, useKeyDownEvent } from "~/hooks";
-import { storeKeys, useShowEditorPreviewAtom } from "~/hooks/store";
+import {
+  storeKeys,
+  useEditorSyncScrollAtom,
+  useShowEditorPreviewAtom,
+} from "~/hooks/store";
 
 import { CodeMirrorEditor } from "./components/CodeMirrorEditor";
 import { EditorOutput } from "./components/CodeMirrorEditorOutput";
@@ -26,7 +30,10 @@ const MIN_RESIZE_PANEL_SIZE = 20;
 export function Editor({ children, title, saveNote }: EditorProps) {
   const isMobile = useIsMobile();
   const [showEditorPreview, setShowEditorPreview] = useShowEditorPreviewAtom();
+  const [isSynced] = useEditorSyncScrollAtom();
+
   const editorResizePanelRef = useRef<ImperativePanelHandle>(null);
+  const editorOutputRef = useRef<HTMLDivElement>(null);
   const [isEvenPanels, setIsEvenPanels] = useState(false);
 
   const resetPanelSize = () => {
@@ -153,36 +160,60 @@ export function Editor({ children, title, saveNote }: EditorProps) {
       )}
 
       {!isMobile && (
-        <Resizable
-          direction="horizontal"
-          autoSaveId={storeKeys.editorLayout}
-          onLayout={([left, right]) => {
-            const isEven = Math.abs(left - right) < 1;
-            setIsEvenPanels(isEven);
-          }}
-        >
-          <Resizable.Panel
-            id="editor"
-            order={0}
-            minSize={MIN_RESIZE_PANEL_SIZE}
-            ref={editorResizePanelRef}
+        <div className="max-h-[calc(100svh_-_var(--spacing)*16)] grow overflow-auto">
+          <Resizable
+            direction="horizontal"
+            autoSaveId={storeKeys.editorLayout}
+            onLayout={([left, right]) => {
+              const isEven = Math.abs(left - right) < 1;
+              setIsEvenPanels(isEven);
+            }}
           >
-            <CodeMirrorEditor saveNote={saveNote} />
-            <EditorFocusManager />
-          </Resizable.Panel>
-          {showEditorPreview && (
-            <>
-              <Resizable.Handle withHandle />
-              <Resizable.Panel
-                id="preview"
-                order={1}
-                minSize={MIN_RESIZE_PANEL_SIZE}
-              >
-                <EditorOutput />
-              </Resizable.Panel>
-            </>
-          )}
-        </Resizable>
+            <Resizable.Panel
+              id="editor"
+              order={0}
+              minSize={MIN_RESIZE_PANEL_SIZE}
+              ref={editorResizePanelRef}
+            >
+              <CodeMirrorEditor
+                saveNote={saveNote}
+                onWheel={
+                  isSynced
+                    ? (info) => {
+                        const el = editorOutputRef.current;
+                        if (!el) return;
+
+                        // Calculate target scroll position based on percentage
+                        // scrolledPercentage is a value from 0-100
+                        const maxScrollTop = el.scrollHeight - el.clientHeight;
+                        const targetScrollTop =
+                          (info.scrolledPercentage / 100) * maxScrollTop;
+
+                        el.scrollTo({
+                          top: targetScrollTop,
+                          left: 0,
+                          behavior: "instant",
+                        });
+                      }
+                    : undefined
+                }
+              />
+              <EditorFocusManager />
+            </Resizable.Panel>
+            {showEditorPreview && (
+              <>
+                <Resizable.Handle withHandle />
+                <Resizable.Panel
+                  id="preview"
+                  order={1}
+                  minSize={MIN_RESIZE_PANEL_SIZE}
+                >
+                  <EditorOutput ref={editorOutputRef} />
+                </Resizable.Panel>
+              </>
+            )}
+          </Resizable>
+        </div>
       )}
     </CodeMirrorInstanceProvider>
   );
