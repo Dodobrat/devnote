@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { type TagStyle } from "@codemirror/language";
 import { languages } from "@codemirror/language-data";
@@ -76,6 +76,9 @@ export function CodeMirrorEditor({ saveNote, onWheel }: CodeMirrorEditorProps) {
   const autoSaveRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const { note, setNote } = useEditorNoteAtom();
 
+  // Track the previous note value to detect external changes
+  const prevNoteRef = useRef(note);
+
   const [isContainedWidth] = useEditorContainedWidthAtom();
 
   useKeyDownEvent((e) => {
@@ -101,11 +104,35 @@ export function CodeMirrorEditor({ saveNote, onWheel }: CodeMirrorEditorProps) {
         });
   }, [resolvedTheme]);
 
+  // Update editor content when note changes externally (e.g., route changes)
+  useEffect(() => {
+    if (!codeMirrorInstance) return;
+
+    const currentContent = codeMirrorInstance.state.doc.toString();
+    if (currentContent !== note) {
+      // Preserve cursor position when possible
+      const cursorPos = getCurrentCursorPosition(codeMirrorInstance);
+      const maxPos = note.length;
+      const safePos = Math.min(cursorPos, maxPos);
+
+      codeMirrorInstance.dispatch({
+        changes: {
+          from: 0,
+          to: currentContent.length,
+          insert: note,
+        },
+        selection: { anchor: safePos, head: safePos },
+      });
+    }
+
+    prevNoteRef.current = note;
+  }, [note, codeMirrorInstance]);
+
   return (
     <CodeMirror
-      value={note}
       onChange={(value) => {
         setNote(value);
+        prevNoteRef.current = value;
 
         if (isEditing && shouldAutoSave) {
           clearTimeout(autoSaveRef.current);
@@ -180,8 +207,6 @@ export function CodeMirrorEditor({ saveNote, onWheel }: CodeMirrorEditorProps) {
         isContainedWidth && "**:[.cm-scroller]:*:max-w-[calc(65ch_+_1.85rem)]",
       )}
       onCreateEditor={(editor) => {
-        // TODO: set initial value from note
-
         setCodeMirrorInstance(editor);
 
         // After creation of a new note and redirect to edit page,
