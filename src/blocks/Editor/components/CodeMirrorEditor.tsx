@@ -261,18 +261,6 @@ function createMarkdownCompletions(context: CompletionContext) {
       section: "4. Code Blocks",
     },
     {
-      label: "```html HTML",
-      apply: snippet("```html\n#{code}\n```"),
-      detail: "HTML code block",
-      section: "4. Code Blocks",
-    },
-    {
-      label: "```css CSS",
-      apply: snippet("```css\n#{code}\n```"),
-      detail: "CSS code block",
-      section: "4. Code Blocks",
-    },
-    {
       label: "```json JSON",
       apply: snippet("```json\n#{code}\n```"),
       detail: "JSON code block",
@@ -316,12 +304,6 @@ function createMarkdownCompletions(context: CompletionContext) {
       label: "--- Horizontal rule",
       apply: "---",
       detail: "Horizontal rule",
-      section: "6. Other Elements",
-    },
-    {
-      label: "*** Horizontal rule",
-      apply: "***",
-      detail: "Horizontal rule (alternative)",
       section: "6. Other Elements",
     },
     {
@@ -443,6 +425,8 @@ export function CodeMirrorEditor({
         "**:[.cm-searchMatch]:bg-chart-4/50!",
         "**:[.cm-searchMatch-selected]:bg-chart-4/75!",
         //
+        "**:[.cm-scroller]:*:transition-[max-width]",
+        "**:[.cm-scroller]:*:max-w-full",
         isContainedWidth && "**:[.cm-scroller]:*:mx-auto!",
         isContainedWidth && "**:[.cm-scroller]:*:max-w-[calc(65ch_+_1.85rem)]",
       )}

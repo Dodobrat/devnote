@@ -54,7 +54,8 @@ function MarkdownContent() {
       className={cn(
         "devnote-markdown-output",
         "prose dark:prose-invert text-pretty break-words hyphens-auto",
-        isContainedWidth ? "mx-auto" : "max-w-none",
+        "transition-[max-width]",
+        isContainedWidth ? "mx-auto" : "max-w-full",
       )}
     >
       <style>
