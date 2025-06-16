@@ -29,6 +29,7 @@
     "@uiw/codemirror-extensions-hyper-link": "4.23.13",
     "@uiw/codemirror-theme-github": "^4.23.13",
     "@uiw/react-codemirror": "4.23.13",
+    "@vercel/speed-insights": "^1.2.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
