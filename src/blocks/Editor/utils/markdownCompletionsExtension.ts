@@ -90,15 +90,15 @@ export function createMarkdownCompletions(context: CompletionContext) {
 
     // Text formatting
     {
-      label: "**Bold text**",
-      apply: snippet("**#{bold}**"),
-      detail: "Bold formatting",
-      section: "3. Text Formatting",
-    },
-    {
       label: "*Italic text*",
       apply: snippet("*#{italic}*"),
       detail: "Italic formatting",
+      section: "3. Text Formatting",
+    },
+    {
+      label: "**Bold text**",
+      apply: snippet("**#{bold}**"),
+      detail: "Bold formatting",
       section: "3. Text Formatting",
     },
     {
@@ -113,46 +113,52 @@ export function createMarkdownCompletions(context: CompletionContext) {
       detail: "Inline code",
       section: "3. Text Formatting",
     },
+    {
+      label: "==Highlighted text==",
+      apply: snippet("==#{highlighted}=="),
+      detail: "Highlighted text",
+      section: "3. Text Formatting",
+    },
 
     // Code blocks
     {
-      label: "``` Code block",
+      label: "```",
       apply: snippet("```\n#{code}\n```"),
-      detail: "Code block",
+      detail: "Generic Code block",
       section: "4. Code Blocks",
     },
     {
-      label: "```js JavaScript",
+      label: "```js",
       apply: snippet("```js\n#{code}\n```"),
       detail: "JavaScript code block",
       section: "4. Code Blocks",
     },
     {
-      label: "```ts TypeScript",
+      label: "```ts",
       apply: snippet("```ts\n#{code}\n```"),
       detail: "TypeScript code block",
       section: "4. Code Blocks",
     },
     {
-      label: "```json JSON",
+      label: "```json",
       apply: snippet("```json\n#{code}\n```"),
       detail: "JSON code block",
       section: "4. Code Blocks",
     },
     {
-      label: "```yaml YAML",
+      label: "```yaml",
       apply: snippet("```yaml\n#{code}\n```"),
       detail: "YAML code block",
       section: "4. Code Blocks",
     },
     {
-      label: "```sql SQL",
+      label: "```sql",
       apply: snippet("```sql\n#{code}\n```"),
       detail: "SQL code block",
       section: "4. Code Blocks",
     },
     {
-      label: "```bash Bash",
+      label: "```bash",
       apply: snippet("```bash\n#{code}\n```"),
       detail: "Bash code block",
       section: "4. Code Blocks",
@@ -191,6 +197,30 @@ export function createMarkdownCompletions(context: CompletionContext) {
         "| #{Header 1} | #{Header 2} |\n|-|-|\n| #{Cell 1} | #{Cell 2} |",
       ),
       detail: "Table",
+      section: "6. Other Elements",
+    },
+    {
+      label: "|:- Left Aligned Table",
+      apply: snippet(
+        "| #{Header 1} | #{Header 2} |\n|:-|:-|\n| #{Cell 1} | #{Cell 2} |",
+      ),
+      detail: "Left Aligned Table",
+      section: "6. Other Elements",
+    },
+    {
+      label: "|-: Right Aligned Table",
+      apply: snippet(
+        "| #{Header 1} | #{Header 2} |\n|-:|-:|\n| #{Cell 1} | #{Cell 2} |",
+      ),
+      detail: "Right Aligned Table",
+      section: "6. Other Elements",
+    },
+    {
+      label: "|:-: Center Aligned Table",
+      apply: snippet(
+        "| #{Header 1} | #{Header 2} |\n|:-:|:-:|\n| #{Cell 1} | #{Cell 2} |",
+      ),
+      detail: "Center Aligned Table",
       section: "6. Other Elements",
     },
   ];

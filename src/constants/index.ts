@@ -50,6 +50,6 @@ Customize your experience on the [Settings](/app/settings) page.
 
 ## Futher reading
 
-For further reading on Markdown syntax, please refer to <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">basic syntax</a> and <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">extended syntax</a> [^(1)].
+For further reading on Markdown syntax, please refer to <a href="https://www.markdownguide.org/basic-syntax/" target="_blank">basic syntax</a> and <a href="https://www.markdownguide.org/extended-syntax/" target="_blank">extended syntax</a> [^(1)].
 
 [^1]: Not all featues are supported in markdown, so you can use html instead to achieve the same result.`;
