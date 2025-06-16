@@ -123,10 +123,27 @@ export function CodeMirrorEditor({ saveNote, onWheel }: CodeMirrorEditorProps) {
         },
         selection: { anchor: safePos, head: safePos },
       });
+
+      // After creation of a new note and redirect to edit page,
+      // return the cursor to the last known location
+      if (routerState.location.state?.cursorPosition) {
+        const cursorPosition = routerState.location.state.cursorPosition;
+
+        if (typeof cursorPosition === "number") {
+          setCurrentCursorPosition(codeMirrorInstance, cursorPosition);
+          codeMirrorInstance.focus();
+
+          // clear after navigate
+          window.history.replaceState(null, "");
+        }
+      } else {
+        setCurrentCursorPosition(codeMirrorInstance, 0);
+        codeMirrorInstance.focus();
+      }
     }
 
     prevNoteRef.current = note;
-  }, [note, codeMirrorInstance]);
+  }, [note, codeMirrorInstance, routerState.location.state]);
 
   return (
     <CodeMirror
@@ -208,22 +225,6 @@ export function CodeMirrorEditor({ saveNote, onWheel }: CodeMirrorEditorProps) {
       )}
       onCreateEditor={(editor) => {
         setCodeMirrorInstance(editor);
-
-        // After creation of a new note and redirect to edit page,
-        // return the cursor to the last known location
-        if (routerState.location.state?.cursorPosition) {
-          const cursorPosition = routerState.location.state.cursorPosition;
-          if (typeof cursorPosition === "number") {
-            setCurrentCursorPosition(editor, cursorPosition);
-            editor.focus();
-
-            // clear after navigate
-            window.history.replaceState(null, "");
-          }
-        } else {
-          setCurrentCursorPosition(editor, 0);
-          editor.focus();
-        }
       }}
       extensions={[
         EditorView.lineWrapping,
