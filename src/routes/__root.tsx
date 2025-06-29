@@ -220,7 +220,7 @@ function AppLinks() {
   const routerState = useRouterState();
   const [sidebarVariant] = useSidebarVariantAtom();
 
-  if (sidebarVariant === "minimal") {
+  if (sidebarVariant === "minimal" || sidebarVariant === "dense") {
     return <MinimalSidebarVariantGroup />;
   }
 

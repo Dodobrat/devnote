@@ -23,6 +23,14 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
+## 29 Jun 2025
+
+### Added
+
+- New sidebar variant ( [Dense](/app/settings) ) giving you more space to view more notes at once.
+
+---
+
 ## 15 Jun 2025
 
 ### Added

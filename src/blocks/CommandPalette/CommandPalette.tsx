@@ -237,6 +237,11 @@ function ActionsCommandGroup({ show, close }: CommandGroupProps) {
       checked: sidebarVariant === "minimal",
     },
     {
+      label: "Change to dense sidebar variant",
+      action: () => setSidebarVariant("dense"),
+      checked: sidebarVariant === "dense",
+    },
+    {
       label: "Toggle note autosave",
       action: () => setEditorAutosave((v) => !v),
       checked: editorAutosave,

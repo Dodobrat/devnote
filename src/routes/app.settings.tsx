@@ -110,6 +110,7 @@ function SidebarVariantSwitch() {
       <Tabs.List>
         <Tabs.Trigger value="default">Default</Tabs.Trigger>
         <Tabs.Trigger value="minimal">Minimal</Tabs.Trigger>
+        <Tabs.Trigger value="dense">Dense</Tabs.Trigger>
       </Tabs.List>
     </Tabs>
   );

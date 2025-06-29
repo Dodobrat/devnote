@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FileUpIcon, ListRestartIcon, Trash2Icon } from "lucide-react";
+import { FileUpIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
 
 import { ResponsiveConfirmation } from "~/components/ResponsiveDialog";
@@ -59,7 +59,7 @@ function NoteBulkDeleteMode() {
                 variant="ghost"
                 onClick={resetBulkDeleteQueue}
               >
-                <ListRestartIcon />
+                <RotateCcwIcon />
                 <span className="sr-only">Disable bulk delete mode</span>
               </Button>
             </Tooltip.Trigger>
@@ -134,7 +134,7 @@ function NoteExportMode() {
           <Tooltip>
             <Tooltip.Trigger asChild>
               <Button size="icon" variant="ghost" onClick={resetExportQueue}>
-                <ListRestartIcon />
+                <RotateCcwIcon />
                 <span className="sr-only">Disable export mode</span>
               </Button>
             </Tooltip.Trigger>

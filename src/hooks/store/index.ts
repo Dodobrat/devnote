@@ -33,7 +33,7 @@ export function useSidebarAtom() {
 }
 
 // prettier-ignore
-const sidebarVariantAtom = atomWithStorage<"default" | "minimal">(storeKeys.sidebarVariant, "default");
+const sidebarVariantAtom = atomWithStorage<"default" | "minimal" | "dense">(storeKeys.sidebarVariant, "default");
 export function useSidebarVariantAtom() {
   return useAtom(sidebarVariantAtom);
 }

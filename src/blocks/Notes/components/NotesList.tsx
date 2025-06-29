@@ -21,7 +21,12 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { HandIcon } from "lucide-react";
+import {
+  GripVerticalIcon,
+  HandIcon,
+  SquareCheckBigIcon,
+  SquareIcon,
+} from "lucide-react";
 
 import { TagList } from "~/components/TagList";
 import {
@@ -118,7 +123,7 @@ export function NotesList({
             strategy={verticalListSortingStrategy}
             disabled={isDisabledReorder}
           >
-            <Sidebar.Menu>
+            <Sidebar.Menu className="gap-2">
               {items.map((note) => (
                 <DraggableNoteItem
                   key={note.id}
@@ -203,6 +208,78 @@ function NoteItem({
   const isInNotesActionMode = bulkDeleteMode || exportMode;
 
   const isMinimal = sidebarVariant === "minimal";
+  const isDense = sidebarVariant === "dense";
+
+  if (isDense) {
+    return (
+      <Sidebar.MenuItem
+        className={cn(
+          "border-border bg-card grid rounded-lg border",
+          isNotePage && "ring-primary ring",
+          isOverlay && "cursor-grabbing *:pointer-events-none",
+          isDragged && "bg-secondary ring-0 ring-offset-0 *:opacity-0",
+        )}
+        {...rest}
+      >
+        <Button
+          asChild
+          variant="ghost"
+          className="flex h-auto flex-col items-start gap-0 overflow-hidden p-0 whitespace-normal"
+        >
+          <Link
+            to="/note/$noteId"
+            params={{ noteId: note.id }}
+            title={note.title}
+          >
+            <div className="flex w-full items-center gap-1">
+              {bulkDeleteMode && <MarkNoteForDeletion note={note} />}
+              {exportMode && <MarkNoteForExport note={note} />}
+
+              {!isInNotesActionMode && (
+                <Tooltip>
+                  <Tooltip.Trigger asChild>
+                    <Button
+                      size="icon"
+                      variant={isDisabledReorder ? "secondary" : "ghost"}
+                      className="cursor-grab"
+                      {...listeners}
+                      disabled={isDisabledReorder}
+                    >
+                      <GripVerticalIcon />
+                      <span className="sr-only">Reorder</span>
+                    </Button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <p>Reorder</p>
+                  </Tooltip.Content>
+                </Tooltip>
+              )}
+
+              <p className="grow truncate font-semibold">
+                {note.title}
+                {note.title}
+              </p>
+
+              <NoteActions
+                note={note}
+                side={isMobile ? "bottom" : "right"}
+                align={isMobile ? "end" : "start"}
+              />
+            </div>
+
+            {Boolean(note.tags.length) && (
+              <div className="w-full overflow-hidden opacity-50 group-hover/menu-item:opacity-100 pointer-coarse:opacity-100">
+                <TagList
+                  tags={note.tags}
+                  className="flex-nowrap overflow-auto overscroll-contain p-2"
+                />
+              </div>
+            )}
+          </Link>
+        </Button>
+      </Sidebar.MenuItem>
+    );
+  }
 
   return (
     <Sidebar.MenuItem
@@ -272,7 +349,10 @@ function NoteItem({
           )}
 
           {Boolean(note.tags.length) && (
-            <TagList tags={note.tags} className="pointer-events-none pt-2" />
+            <TagList
+              tags={note.tags}
+              className="pt-2 opacity-50 group-hover/menu-item:opacity-100 pointer-coarse:opacity-100"
+            />
           )}
         </Link>
       </Button>
@@ -286,9 +366,8 @@ function MarkNoteForDeletion({ note }: { note: NoteSchemaType }) {
   const isSelected = notesToDelete.has(note.id);
 
   return (
-    <Button
-      className="col-span-full"
-      variant={isSelected ? "outline" : "default"}
+    <NoteQueueActionBtn
+      isSelected={isSelected}
       onClick={() =>
         setNotesToDelete((prev) => {
           const updated = new Set<string>();
@@ -304,22 +383,18 @@ function MarkNoteForDeletion({ note }: { note: NoteSchemaType }) {
           return updated;
         })
       }
-    >
-      {!isSelected && "Add to queue"}
-      {isSelected && "Remove from queue"}
-    </Button>
+    />
   );
 }
 
 function MarkNoteForExport({ note }: { note: NoteSchemaType }) {
   const [notesToExport, setNotesToExport] = useToExportNotesAtom();
 
-  const isSelected = notesToExport[note.id];
+  const isSelected = Boolean(notesToExport[note.id]);
 
   return (
-    <Button
-      className="col-span-full"
-      variant={isSelected ? "outline" : "default"}
+    <NoteQueueActionBtn
+      isSelected={isSelected}
       onClick={() =>
         setNotesToExport((prev) => {
           if (prev[note.id]) {
@@ -331,9 +406,44 @@ function MarkNoteForExport({ note }: { note: NoteSchemaType }) {
           return { ...prev };
         })
       }
+    />
+  );
+}
+
+function NoteQueueActionBtn({
+  isSelected,
+  ...props
+}: React.ComponentProps<typeof Button> & { isSelected: boolean }) {
+  const [sidebarVariant] = useSidebarVariantAtom();
+  const isDense = sidebarVariant === "dense";
+
+  const nonDenseBtnVariant = isSelected ? "outline" : "default";
+
+  return (
+    <Button
+      className={cn(!isDense && "col-span-full")}
+      variant={isDense ? "ghost" : nonDenseBtnVariant}
+      size={isDense ? "icon" : "default"}
+      {...props}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        props.onClick?.(e);
+      }}
     >
-      {!isSelected && "Add to queue"}
-      {isSelected && "Remove from queue"}
+      {!isDense && (
+        <>
+          {!isSelected && "Add to queue"}
+          {isSelected && "Remove from queue"}
+        </>
+      )}
+      {isDense && (
+        <>
+          {!isSelected && <SquareIcon />}
+          {isSelected && <SquareCheckBigIcon />}
+        </>
+      )}
     </Button>
   );
 }
