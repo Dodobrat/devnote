@@ -255,10 +255,7 @@ function NoteItem({
                 </Tooltip>
               )}
 
-              <p className="grow truncate font-semibold">
-                {note.title}
-                {note.title}
-              </p>
+              <p className="grow truncate font-semibold">{note.title}</p>
 
               <NoteActions
                 note={note}
