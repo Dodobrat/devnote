@@ -224,14 +224,14 @@ function NoteItem({
         <Button
           asChild
           variant="ghost"
-          className="flex h-auto flex-col items-start gap-0 overflow-hidden p-0 whitespace-normal"
+          className="flex h-auto flex-col items-start gap-0 overflow-hidden rounded-lg p-1 whitespace-normal"
         >
           <Link
             to="/note/$noteId"
             params={{ noteId: note.id }}
             title={note.title}
           >
-            <div className="flex w-full items-center gap-1">
+            <div className="flex w-full items-center gap-1 pr-10">
               {bulkDeleteMode && <MarkNoteForDeletion note={note} />}
               {exportMode && <MarkNoteForExport note={note} />}
 
@@ -256,12 +256,6 @@ function NoteItem({
               )}
 
               <p className="grow truncate font-semibold">{note.title}</p>
-
-              <NoteActions
-                note={note}
-                side={isMobile ? "bottom" : "right"}
-                align={isMobile ? "end" : "start"}
-              />
             </div>
 
             {Boolean(note.tags.length) && (
@@ -274,6 +268,13 @@ function NoteItem({
             )}
           </Link>
         </Button>
+
+        <NoteActions
+          note={note}
+          side={isMobile ? "bottom" : "right"}
+          align={isMobile ? "end" : "start"}
+          className="absolute top-1 right-1"
+        />
       </Sidebar.MenuItem>
     );
   }
