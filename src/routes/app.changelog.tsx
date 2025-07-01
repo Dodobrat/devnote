@@ -23,11 +23,29 @@ function RouteComponent() {
 }
 
 const CHANGELOG = `
+## 1 Jul 2025
+
+### Refactor
+
+- Split sidebar variants into 2 sections ( links and notes )
+  - Links variants ( \`Default\`, \`Minimal\`, \`Dense\` )
+  - Notes variants ( \`Default\`, \`Minimal\`, \`Dense\` )
+
+[Go to settings](/app/settings)
+
+### Fixes
+
+- Sidebar \`Dense\` variant could not submit edit note title form
+
+---
+
 ## 29 Jun 2025
 
 ### Added
 
-- New sidebar variant ( [Dense](/app/settings) ) giving you more space to view more notes at once.
+- New sidebar variant \`Dense\` giving you more space to view more notes at once.
+
+[Go to settings](/app/settings)
 
 ---
 

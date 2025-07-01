@@ -41,7 +41,7 @@ import {
   useBulkDeleteNotesAtom,
   useBulkDeleteNotesModeEnabledAtom,
   useExportNotesModeEnabledAtom,
-  useSidebarVariantAtom,
+  useSidebarNotesVariantAtom,
   useToExportNotesAtom,
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
@@ -201,14 +201,14 @@ function NoteItem({
     `/note/${note.id}`,
   );
 
-  const [sidebarVariant] = useSidebarVariantAtom();
+  const [sidebarNotesVariant] = useSidebarNotesVariantAtom();
   const [exportMode] = useExportNotesModeEnabledAtom();
   const [bulkDeleteMode] = useBulkDeleteNotesModeEnabledAtom();
 
   const isInNotesActionMode = bulkDeleteMode || exportMode;
 
-  const isMinimal = sidebarVariant === "minimal";
-  const isDense = sidebarVariant === "dense";
+  const isMinimal = sidebarNotesVariant === "minimal";
+  const isDense = sidebarNotesVariant === "dense";
 
   if (isDense) {
     return (
@@ -412,8 +412,8 @@ function NoteQueueActionBtn({
   isSelected,
   ...props
 }: React.ComponentProps<typeof Button> & { isSelected: boolean }) {
-  const [sidebarVariant] = useSidebarVariantAtom();
-  const isDense = sidebarVariant === "dense";
+  const [sidebarNotesVariant] = useSidebarNotesVariantAtom();
+  const isDense = sidebarNotesVariant === "dense";
 
   const nonDenseBtnVariant = isSelected ? "outline" : "default";
 

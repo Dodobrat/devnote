@@ -22,7 +22,8 @@ import {
   useEditorAutosaveAtom,
   useEditorContainedWidthAtom,
   useEditorSyncScrollAtom,
-  useSidebarVariantAtom,
+  useSidebarLinksVariantAtom,
+  useSidebarNotesVariantAtom,
 } from "~/hooks/store";
 
 export function CommandPalette() {
@@ -204,7 +205,10 @@ type ActionCommandEntry = CommandEntry & {
 
 function ActionsCommandGroup({ show, close }: CommandGroupProps) {
   const { theme, setTheme } = useTheme();
-  const [sidebarVariant, setSidebarVariant] = useSidebarVariantAtom();
+  const [sidebarNotesVariant, setSidebarNotesVariant] =
+    useSidebarNotesVariantAtom();
+  const [sidebarLinksVariant, setSidebarLinksVariant] =
+    useSidebarLinksVariantAtom();
   const [editorAutosave, setEditorAutosave] = useEditorAutosaveAtom();
   const [scrollSync, setScrollSync] = useEditorSyncScrollAtom();
   const [editorContained, setEditorContainedWidth] =
@@ -227,19 +231,34 @@ function ActionsCommandGroup({ show, close }: CommandGroupProps) {
       checked: theme === "system",
     },
     {
-      label: "Change to default sidebar variant",
-      action: () => setSidebarVariant("default"),
-      checked: sidebarVariant === "default",
+      label: "Change to 'default' sidebar links variant",
+      action: () => setSidebarLinksVariant("default"),
+      checked: sidebarLinksVariant === "default",
     },
     {
-      label: "Change to minimal sidebar variant",
-      action: () => setSidebarVariant("minimal"),
-      checked: sidebarVariant === "minimal",
+      label: "Change to 'minimal' sidebar links variant",
+      action: () => setSidebarLinksVariant("minimal"),
+      checked: sidebarLinksVariant === "minimal",
     },
     {
-      label: "Change to dense sidebar variant",
-      action: () => setSidebarVariant("dense"),
-      checked: sidebarVariant === "dense",
+      label: "Change to 'dense' sidebar links variant",
+      action: () => setSidebarLinksVariant("dense"),
+      checked: sidebarLinksVariant === "dense",
+    },
+    {
+      label: "Change to 'default' sidebar notes variant",
+      action: () => setSidebarNotesVariant("default"),
+      checked: sidebarNotesVariant === "default",
+    },
+    {
+      label: "Change to 'minimal' sidebar notes variant",
+      action: () => setSidebarNotesVariant("minimal"),
+      checked: sidebarNotesVariant === "minimal",
+    },
+    {
+      label: "Change to 'dense' sidebar notes variant",
+      action: () => setSidebarNotesVariant("dense"),
+      checked: sidebarNotesVariant === "dense",
     },
     {
       label: "Toggle note autosave",

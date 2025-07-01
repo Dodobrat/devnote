@@ -40,7 +40,7 @@ import {
 import {
   useCommandPaletteOpenAtom,
   useSidebarAtom,
-  useSidebarVariantAtom,
+  useSidebarLinksVariantAtom,
 } from "~/hooks/store";
 import { cn } from "~/lib/utils";
 
@@ -218,9 +218,13 @@ const pages: SidebarPage[] = [
 
 function AppLinks() {
   const routerState = useRouterState();
-  const [sidebarVariant] = useSidebarVariantAtom();
+  const [sidebarLinksVariant] = useSidebarLinksVariantAtom();
 
-  if (sidebarVariant === "minimal" || sidebarVariant === "dense") {
+  if (sidebarLinksVariant === "dense") {
+    return <DenseSidebarVariantGroup />;
+  }
+
+  if (sidebarLinksVariant === "minimal") {
     return <MinimalSidebarVariantGroup />;
   }
 
@@ -247,7 +251,7 @@ function AppLinks() {
   );
 }
 
-function MinimalSidebarVariantGroup() {
+function DenseSidebarVariantGroup() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const routerState = useRouterState();
@@ -317,6 +321,59 @@ function MinimalSidebarVariantGroup() {
                 ))}
               </DropdownMenu.Content>
             </DropdownMenu>
+          </Sidebar.MenuItem>
+        </Sidebar.Menu>
+      </Sidebar.GroupContent>
+    </Sidebar.Group>
+  );
+}
+
+function MinimalSidebarVariantGroup() {
+  const routerState = useRouterState();
+
+  const createNewOption = pages[0];
+  const otherOptions = pages.slice(1);
+
+  const isCreateNewActive = routerState.location.pathname.includes(
+    createNewOption.to,
+  );
+
+  return (
+    <Sidebar.Group>
+      <Sidebar.GroupContent>
+        <Sidebar.Menu>
+          <Sidebar.MenuItem className="flex gap-2">
+            <Sidebar.MenuButton asChild isActive={isCreateNewActive}>
+              <Link to={createNewOption.to}>
+                <createNewOption.icon />
+                <span>{createNewOption.label}</span>
+              </Link>
+            </Sidebar.MenuButton>
+            <div className="flex items-center gap-2">
+              {otherOptions.map(({ icon: Icon, label, to }) => (
+                <Tooltip>
+                  <Tooltip.Trigger asChild>
+                    <Button
+                      size="icon"
+                      variant={
+                        routerState.location.pathname.includes(to)
+                          ? "secondary"
+                          : "ghost"
+                      }
+                      asChild
+                    >
+                      <Link to={to}>
+                        <Icon />
+                        <span className="sr-only">{label}</span>
+                      </Link>
+                    </Button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <p>{label}</p>
+                  </Tooltip.Content>
+                </Tooltip>
+              ))}
+            </div>
           </Sidebar.MenuItem>
         </Sidebar.Menu>
       </Sidebar.GroupContent>

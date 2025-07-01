@@ -10,7 +10,8 @@ import { type NoteSchemaType } from "~/types/notes";
 export const storeKeys = {
   theme: "devnote.theme",
   sidebar: "devnote.sidebar",
-  sidebarVariant: "devnote.sidebar.variant",
+  sidebarLinksVariant: "devnote.sidebar.links.variant",
+  sidebarNotesVariant: "devnote.sidebar.notes.variant",
   editorLayout: "devnote.editor.layout",
   editorShowPreview: "devnote.editor.showPreview",
   editorAutosave: "devnote.editor.autosave",
@@ -32,10 +33,16 @@ export function useSidebarAtom() {
   return useAtom(sidebarAtom);
 }
 
+type SidebarVariant = "default" | "minimal" | "dense";
 // prettier-ignore
-const sidebarVariantAtom = atomWithStorage<"default" | "minimal" | "dense">(storeKeys.sidebarVariant, "default");
-export function useSidebarVariantAtom() {
-  return useAtom(sidebarVariantAtom);
+const sidebarNotesVariantAtom = atomWithStorage<SidebarVariant>(storeKeys.sidebarNotesVariant, "default");
+export function useSidebarNotesVariantAtom() {
+  return useAtom(sidebarNotesVariantAtom);
+}
+// prettier-ignore
+const sidebarLinksVariantAtom = atomWithStorage<SidebarVariant>(storeKeys.sidebarLinksVariant, "default");
+export function useSidebarLinksVariantAtom() {
+  return useAtom(sidebarLinksVariantAtom);
 }
 
 const autosaveAtom = atomWithStorage(storeKeys.editorAutosave, true);

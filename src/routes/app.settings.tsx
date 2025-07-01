@@ -8,7 +8,8 @@ import {
   useEditorAutosaveAtom,
   useEditorContainedWidthAtom,
   useEditorSyncScrollAtom,
-  useSidebarVariantAtom,
+  useSidebarLinksVariantAtom,
+  useSidebarNotesVariantAtom,
 } from "~/hooks/store";
 
 export const Route = createFileRoute("/app/settings")({
@@ -29,10 +30,17 @@ function RouteComponent() {
           </Page.Section>
 
           <Page.Section
-            title="Sidebar variant"
-            description="Choose a sidebar variant that suits your preference"
+            title="Sidebar links variant"
+            description="Choose a sidebar links variant that suits your preference"
           >
-            <SidebarVariantSwitch />
+            <SidebarLinksVariantSwitch />
+          </Page.Section>
+
+          <Page.Section
+            title="Sidebar notes variant"
+            description="Choose a sidebar notes variant that suits your preference"
+          >
+            <SidebarNotesVariantSwitch />
           </Page.Section>
 
           <Page.Section
@@ -99,13 +107,36 @@ function ThemeSwitch() {
   );
 }
 
-function SidebarVariantSwitch() {
-  const [sidebarVariant, setSidebarVariant] = useSidebarVariantAtom();
+function SidebarLinksVariantSwitch() {
+  const [sidebarLinksVariant, setSidebarLinksVariant] =
+    useSidebarLinksVariantAtom();
 
   return (
     <Tabs
-      value={sidebarVariant}
-      onValueChange={(v) => setSidebarVariant(v as typeof sidebarVariant)}
+      value={sidebarLinksVariant}
+      onValueChange={(v) =>
+        setSidebarLinksVariant(v as typeof sidebarLinksVariant)
+      }
+    >
+      <Tabs.List>
+        <Tabs.Trigger value="default">Default</Tabs.Trigger>
+        <Tabs.Trigger value="minimal">Minimal</Tabs.Trigger>
+        <Tabs.Trigger value="dense">Dense</Tabs.Trigger>
+      </Tabs.List>
+    </Tabs>
+  );
+}
+
+function SidebarNotesVariantSwitch() {
+  const [sidebarNotesVariant, setSidebarNotesVariant] =
+    useSidebarNotesVariantAtom();
+
+  return (
+    <Tabs
+      value={sidebarNotesVariant}
+      onValueChange={(v) =>
+        setSidebarNotesVariant(v as typeof sidebarNotesVariant)
+      }
     >
       <Tabs.List>
         <Tabs.Trigger value="default">Default</Tabs.Trigger>
