@@ -128,7 +128,7 @@ function Pre(props: React.ComponentProps<"pre">) {
           Copy
         </Button>
       </div>
-      <pre {...props} className={cn(props.className, "border p-0")} />
+      <pre {...props} className={cn(props.className, "grid border p-0")} />
     </>
   );
 }
